@@ -7,13 +7,15 @@
   <h1 class="text-2xl font-semibold text-gray-800">Dashboard</h1>
   <div class="flex gap-3 text-sm">
     {% if proxima_reuniao %}
-      <span class="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full">
-        Última reunião: {{ proxima_reuniao["data"] }} — {{ proxima_reuniao["tema"] or "sem tema" }}
+      <span class="flex items-center gap-1.5 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full">
+        <i class="ri-video-chat-line"></i>
+        Última reunião: {{ proxima_reuniao["data"] | databr }} — {{ proxima_reuniao["tema"] or "sem tema" }}
       </span>
     {% endif %}
     {% if proximo_tema %}
-      <span class="bg-amber-50 text-amber-700 px-3 py-1 rounded-full">
-        Próximo prazo: {{ proximo_tema["titulo"] }} até {{ proximo_tema["data_limite"] }}
+      <span class="flex items-center gap-1.5 bg-amber-50 text-amber-700 px-3 py-1.5 rounded-full">
+        <i class="ri-time-line"></i>
+        Próximo prazo: {{ proximo_tema["titulo"] }} até {{ proximo_tema["data_limite"] | databr }}
       </span>
     {% endif %}
   </div>
@@ -21,26 +23,49 @@
 
 <!-- Cards de resumo -->
 <div class="grid grid-cols-4 gap-4 mb-8">
-  {% set aptos         = dados | selectattr("status", "eq", "apto")           | list %}
-  {% set alertas       = dados | selectattr("status", "eq", "alerta")         | list %}
-  {% set inapto_am     = dados | selectattr("status", "eq", "inapto_amarelo") | list %}
-  {% set inapto_verm   = dados | selectattr("status", "eq", "inapto_vermelho")| list %}
+  {% set aptos       = dados | selectattr("status", "eq", "apto")            | list %}
+  {% set alertas     = dados | selectattr("status", "eq", "alerta")          | list %}
+  {% set inapto_am   = dados | selectattr("status", "eq", "inapto_amarelo")  | list %}
+  {% set inapto_verm = dados | selectattr("status", "eq", "inapto_vermelho") | list %}
 
-  <div class="bg-white rounded-lg border border-gray-200 p-4">
-    <p class="text-sm text-gray-500">Aptos</p>
-    <p class="text-3xl font-semibold text-green-600">{{ aptos | length }}</p>
+  <div class="bg-white rounded-lg border border-gray-200 p-4 flex items-center gap-4">
+    <div class="bg-green-100 text-green-600 w-10 h-10 rounded-full flex items-center justify-center text-xl">
+      <i class="ri-checkbox-circle-line"></i>
+    </div>
+    <div>
+      <p class="text-xs text-gray-500">Aptos</p>
+      <p class="text-2xl font-semibold text-green-600">{{ aptos | length }}</p>
+    </div>
   </div>
-  <div class="bg-white rounded-lg border border-gray-200 p-4">
-    <p class="text-sm text-gray-500">Em alerta</p>
-    <p class="text-3xl font-semibold text-amber-500">{{ alertas | length }}</p>
+
+  <div class="bg-white rounded-lg border border-gray-200 p-4 flex items-center gap-4">
+    <div class="bg-amber-100 text-amber-500 w-10 h-10 rounded-full flex items-center justify-center text-xl">
+      <i class="ri-error-warning-line"></i>
+    </div>
+    <div>
+      <p class="text-xs text-gray-500">Em alerta</p>
+      <p class="text-2xl font-semibold text-amber-500">{{ alertas | length }}</p>
+    </div>
   </div>
-  <div class="bg-white rounded-lg border border-gray-200 p-4">
-    <p class="text-sm text-gray-500">Inaptos — amarelo</p>
-    <p class="text-3xl font-semibold text-orange-600">{{ inapto_am | length }}</p>
+
+  <div class="bg-white rounded-lg border border-gray-200 p-4 flex items-center gap-4">
+    <div class="bg-orange-100 text-orange-600 w-10 h-10 rounded-full flex items-center justify-center text-xl">
+      <i class="ri-alert-line"></i>
+    </div>
+    <div>
+      <p class="text-xs text-gray-500">Inaptos — amarelo</p>
+      <p class="text-2xl font-semibold text-orange-600">{{ inapto_am | length }}</p>
+    </div>
   </div>
-  <div class="bg-white rounded-lg border border-gray-200 p-4">
-    <p class="text-sm text-gray-500">Inaptos — vermelho</p>
-    <p class="text-3xl font-semibold text-red-600">{{ inapto_verm | length }}</p>
+
+  <div class="bg-white rounded-lg border border-gray-200 p-4 flex items-center gap-4">
+    <div class="bg-red-100 text-red-600 w-10 h-10 rounded-full flex items-center justify-center text-xl">
+      <i class="ri-close-circle-line"></i>
+    </div>
+    <div>
+      <p class="text-xs text-gray-500">Inaptos — vermelho</p>
+      <p class="text-2xl font-semibold text-red-600">{{ inapto_verm | length }}</p>
+    </div>
   </div>
 </div>
 
@@ -64,8 +89,8 @@
         <td class="px-4 py-3 text-gray-500">{{ d.padrinho["matricula"] }}</td>
         <td class="px-4 py-3 text-center">
           {% if d.amarelos > 0 %}
-            <span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-medium">
-              {{ d.amarelos }}
+            <span class="inline-flex items-center gap-1 bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-medium">
+              <i class="ri-error-warning-line"></i> {{ d.amarelos }}
             </span>
           {% else %}
             <span class="text-gray-300">—</span>
@@ -73,8 +98,8 @@
         </td>
         <td class="px-4 py-3 text-center">
           {% if d.vermelhos > 0 %}
-            <span class="bg-red-100 text-red-800 px-2 py-0.5 rounded-full font-medium">
-              {{ d.vermelhos }}
+            <span class="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2 py-0.5 rounded-full font-medium">
+              <i class="ri-close-circle-line"></i> {{ d.vermelhos }}
             </span>
           {% else %}
             <span class="text-gray-300">—</span>
@@ -82,18 +107,28 @@
         </td>
         <td class="px-4 py-3 text-center">
           {% if d.status == "apto" %}
-            <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">Apto</span>
+            <span class="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+              <i class="ri-checkbox-circle-line"></i> Apto
+            </span>
           {% elif d.status == "alerta" %}
-            <span class="bg-amber-100 text-amber-800 px-2 py-1 rounded-full text-xs font-medium">Alerta</span>
+            <span class="inline-flex items-center gap-1 bg-amber-100 text-amber-800 px-2 py-1 rounded-full text-xs font-medium">
+              <i class="ri-error-warning-line"></i> Alerta
+            </span>
           {% elif d.status == "inapto_amarelo" %}
-            <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs font-medium">Inapto</span>
+            <span class="inline-flex items-center gap-1 bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs font-medium">
+              <i class="ri-alert-line"></i> Inapto
+            </span>
           {% elif d.status == "inapto_vermelho" %}
-            <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">Inapto</span>
+            <span class="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">
+              <i class="ri-close-circle-line"></i> Inapto
+            </span>
           {% endif %}
         </td>
         <td class="px-4 py-3 text-right">
           <a href="/padrinhos/{{ d.padrinho['id'] }}"
-             class="text-indigo-600 hover:underline text-xs">ver detalhes</a>
+             class="inline-flex items-center gap-1 text-indigo-600 hover:underline text-xs">
+            <i class="ri-eye-line"></i> ver detalhes
+          </a>
         </td>
       </tr>
       {% endfor %}
