@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Temas — Padrinho Track{% endblock %}
+
+{% block content %}
+
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-semibold text-gray-800">Temas</h1>
+  <button onclick="document.getElementById('modal-novo').classList.remove('hidden')"
+          class="bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+    + Novo tema
+  </button>
+</div>
+
+<!-- Tabela -->
+<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+      <tr>
+        <th class="px-4 py-3 text-left">Título</th>
+        <th class="px-4 py-3 text-left">Padrinho</th>
+        <th class="px-4 py-3 text-left">Prazo</th>
+        <th class="px-4 py-3 text-center">Status</th>
+        <th class="px-4 py-3"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      {% for t in temas %}
+      <tr class="hover:bg-gray-50 transition">
+        <td class="px-4 py-3 font-medium">{{ t["titulo"] }}</td>
+        <td class="px-4 py-3 text-gray-500">{{ t["padrinho_nome"] }}</td>
+        <td class="px-4 py-3 text-gray-500">{{ t["data_limite"] }}</td>
+        <td class="px-4 py-3 text-center">
+          {% if t["entregue"] %}
+            <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+              Entregue
+            </span>
+          {% else %}
+            <span class="bg-amber-100 text-amber-800 px-2 py-1 rounded-full text-xs font-medium">
+              Pendente
+            </span>
+          {% endif %}
+        </td>
+        <td class="px-4 py-3 text-right flex justify-end gap-2">
+          {% if not t["entregue"] %}
+            <form action="/temas/{{ t['id'] }}/entregue" method="POST">
+              <button type="submit"
+                      class="text-xs bg-green-50 text-green-700 px-3 py-1 rounded-lg hover:bg-green-100 transition">
+                Marcar entregue
+              </button>
+            </form>
+            <form action="/temas/{{ t['id'] }}/nao_entregue" method="POST">
+              <button type="submit"
+                      class="text-xs bg-red-50 text-red-700 px-3 py-1 rounded-lg hover:bg-red-100 transition">
+                Não entregue
+              </button>
+            </form>
+          {% else %}
+            <span class="text-xs text-gray-400">{{ t["data_entrega"] }}</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="5" class="px-4 py-6 text-center text-gray-400">
+          Nenhum tema cadastrado ainda.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Modal novo tema -->
+<div id="modal-novo" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+  <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold text-gray-800">Novo tema</h2>
+      <button onclick="document.getElementById('modal-novo').classList.add('hidden')"
+              class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+    </div>
+    <form action="/temas/novo" method="POST" class="flex flex-col gap-4">
+      <div>
+        <label class="block text-sm text-gray-600 mb-1">Título do tema</label>
+        <input type="text" name="titulo" required
+               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+      </div>
+      <div>
+        <label class="block text-sm text-gray-600 mb-1">Prazo de entrega</label>
+        <input type="date" name="data_limite" required
+               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+      </div>
+      <div>
+        <label class="block text-sm text-gray-600 mb-1">Padrinho responsável</label>
+        <select name="padrinho_id" required
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+          <option value="">Selecione...</option>
+          {% for p in padrinhos %}
+            <option value="{{ p['id'] }}">{{ p["nome"] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="flex justify-end gap-3 mt-2">
+        <button type="button"
+                onclick="document.getElementById('modal-novo').classList.add('hidden')"
+                class="text-sm text-gray-500 hover:text-gray-700">Cancelar</button>
+        <button type="submit"
+                class="bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+          Registrar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
