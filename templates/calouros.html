@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Calouros — Padrinho Track{% endblock %}
+
+{% block content %}
+
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-semibold text-gray-800">Calouros</h1>
+  <span class="text-sm text-gray-500">
+    <i class="ri-group-line"></i>
+    {{ dados | length }} padrinhos · {{ dados | sum(attribute='calouros'|length) }} calouros
+  </span>
+</div>
+
+<div class="flex flex-col gap-4">
+  {% for item in dados %}
+    {% if item.calouros %}
+    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div class="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
+        <div class="flex items-center gap-3">
+          <a href="/padrinhos/{{ item.padrinho['id'] }}"
+             class="font-medium text-indigo-600 hover:underline text-sm">
+            {{ item.padrinho["nome"] }}
+          </a>
+          {% if item.padrinho["turno"] == "Manhã" %}
+            <span class="inline-flex items-center gap-1 bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full text-xs">
+              <i class="ri-sun-line"></i> Manhã
+            </span>
+          {% elif item.padrinho["turno"] == "Noite" %}
+            <span class="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full text-xs">
+              <i class="ri-moon-line"></i> Noite
+            </span>
+          {% endif %}
+        </div>
+        <span class="text-xs text-gray-400">
+          <i class="ri-user-line"></i> {{ item.calouros | length }} calouro(s)
+        </span>
+      </div>
+      <table class="w-full text-sm">
+        <tbody class="divide-y divide-gray-100">
+          {% for c in item.calouros %}
+          <tr class="hover:bg-gray-50 transition">
+            <td class="px-4 py-2.5 text-gray-700">
+              <span class="inline-flex items-center gap-2">
+                <i class="ri-user-smile-line text-gray-400"></i>
+                {{ c["nome"] }}
+              </span>
+            </td>
+            <td class="px-4 py-2.5 text-gray-500">
+              {% if c["telefone"] %}
+                <span class="inline-flex items-center gap-1">
+                  <i class="ri-phone-line text-gray-400"></i>
+                  {{ c["telefone"] }}
+                </span>
+              {% else %}
+                <span class="text-gray-300">—</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+  {% else %}
+  <div class="bg-white rounded-lg border border-gray-200 px-4 py-8 text-center text-gray-400">
+    <i class="ri-group-line text-3xl block mb-2"></i>
+    Nenhum match cadastrado ainda.
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}
