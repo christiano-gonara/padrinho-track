@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Advertências — Padrinho Track{% endblock %}
+
+{% block content %}
+
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-semibold text-gray-800">Advertências</h1>
+  <button onclick="document.getElementById('modal-manual').classList.remove('hidden')"
+          class="bg-red-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-red-700 transition">
+    + Advertência manual
+  </button>
+</div>
+
+<!-- Tabela -->
+<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+      <tr>
+        <th class="px-4 py-3 text-left">Padrinho</th>
+        <th class="px-4 py-3 text-center">Tipo</th>
+        <th class="px-4 py-3 text-left">Origem</th>
+        <th class="px-4 py-3 text-left">Motivo</th>
+        <th class="px-4 py-3 text-left">Data</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      {% for a in advertencias %}
+      <tr class="hover:bg-gray-50 transition">
+        <td class="px-4 py-3 font-medium">{{ a["padrinho_nome"] }}</td>
+        <td class="px-4 py-3 text-center">
+          {% if a["tipo"] == "amarelo" %}
+            <span class="bg-amber-100 text-amber-800 px-2 py-1 rounded-full text-xs font-medium">
+              Amarelo
+            </span>
+          {% else %}
+            <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">
+              Vermelho
+            </span>
+          {% endif %}
+        </td>
+        <td class="px-4 py-3 text-gray-500">
+          {% if a["origem"] == "falta" %}
+            Falta em reunião
+          {% elif a["origem"] == "nao_entrega" %}
+            Não entrega de tema
+          {% else %}
+            Manual
+          {% endif %}
+        </td>
+        <td class="px-4 py-3 text-gray-500">{{ a["motivo"] or "—" }}</td>
+        <td class="px-4 py-3 text-gray-500">{{ a["data"] }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="5" class="px-4 py-6 text-center text-gray-400">
+          Nenhuma advertência registrada ainda.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Modal advertência manual -->
+<div id="modal-manual" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+  <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold text-gray-800">Advertência manual</h2>
+      <button onclick="document.getElementById('modal-manual').classList.add('hidden')"
+              class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+    </div>
+    <form action="/advertencias/manual" method="POST" class="flex flex-col gap-4">
+      <div>
+        <label class="block text-sm text-gray-600 mb-1">Padrinho</label>
+        <select name="padrinho_id" required
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-400">
+          <option value="">Selecione...</option>
+          {% for p in padrinhos %}
+            <option value="{{ p['id'] }}">{{ p["nome"] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm text-gray-600 mb-1">Motivo</label>
+        <textarea name="motivo" rows="3" required
+                  placeholder="Descreva o comportamento inadequado..."
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-400"></textarea>
+      </div>
+      <div class="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-xs text-red-700">
+        Esta advertência emite um cartão vermelho automaticamente — o padrinho ficará inapto para o ACG e será reportado ao professor coordenador.
+      </div>
+      <div class="flex justify-end gap-3 mt-2">
+        <button type="button"
+                onclick="document.getElementById('modal-manual').classList.add('hidden')"
+                class="text-sm text-gray-500 hover:text-gray-700">Cancelar</button>
+        <button type="submit"
+                class="bg-red-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-red-700 transition">
+          Emitir advertência
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
