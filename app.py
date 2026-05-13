@@ -335,6 +335,43 @@ def exportar_vermelhos():
     return send_file(os.path.abspath(caminho), mimetype="text/csv",
                      as_attachment=True, download_name="relatorio_vermelhos.csv")
 
+# ── Importação CSV ─────────────────────────────────────────────────────────
+
+@app.route("/presencas/<int:reuniao_id>/importar", methods=["GET", "POST"])
+def importar_presencas(reuniao_id):
+    from models import importar_presencas_csv
+    import os, tempfile
+
+    conn = get_conn()
+    reuniao = conn.execute("SELECT * FROM reunioes WHERE id=?", (reuniao_id,)).fetchone()
+    conn.close()
+
+    if request.method == "POST":
+        arquivo = request.files.get("csv_file")
+        if not arquivo or not arquivo.filename.endswith(".csv"):
+            flash("Envie um arquivo CSV válido.", "error")
+            return redirect(request.url)
+
+        tmp_path = os.path.join(tempfile.gettempdir(), f"presenca_{reuniao_id}.csv")
+        arquivo.save(tmp_path)
+        resultado = importar_presencas_csv(tmp_path, reuniao_id)
+
+        try:
+            os.unlink(tmp_path)
+        except Exception:
+            pass
+
+        if "erro" in resultado:
+            flash(resultado["erro"], "error")
+        else:
+            msg = f"{resultado['processados']} presenças importadas."
+            if resultado["nao_encontrados"]:
+                msg += f" Matrículas não encontradas: {', '.join(resultado['nao_encontrados'])}"
+            flash(msg, "success")
+        return redirect(url_for("reunioes"))
+
+    return render_template("importar_presencas.html", reuniao=reuniao)
+
 # ── Inicialização ──────────────────────────────────────────────────────────
 
 if __name__ == "__main__":

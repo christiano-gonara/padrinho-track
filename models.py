@@ -425,3 +425,77 @@ def exportar_vermelhos_csv(caminho="instance/relatorio_vermelhos.csv"):
             })
     pd.DataFrame(rows).to_csv(caminho, index=False, encoding="utf-8-sig")
     return caminho
+
+def importar_presencas_csv(caminho_csv, reuniao_id):
+    import pandas as pd
+
+    df = pd.read_csv(caminho_csv)
+    df.columns = df.columns.str.strip()
+
+    # Detecta as colunas automaticamente
+    col_matricula = None
+    col_situacao = None
+    for col in df.columns:
+        col_lower = col.lower()
+        if "matrícula" in col_lower or "matricula" in col_lower:
+            col_matricula = col
+        if "situação" in col_lower or "situacao" in col_lower or "situac" in col_lower:
+            col_situacao = col
+
+    if not col_matricula:
+        return {"erro": "Coluna de matrícula não encontrada no CSV."}
+
+    conn = get_conn()
+    processados = 0
+    nao_encontrados = []
+
+    for _, row in df.iterrows():
+        matricula = str(row[col_matricula]).strip().replace(".0", "")
+        padrinho = conn.execute(
+            "SELECT id FROM padrinhos WHERE matricula = ?", (matricula,)
+        ).fetchone()
+
+        if not padrinho:
+            nao_encontrados.append(matricula)
+            continue
+
+        presente = 1
+        justificada = 0
+
+        if col_situacao:
+            situacao = str(row[col_situacao]).strip().lower()
+            if "justificativa" in situacao or "ausente" in situacao:
+                presente = 0
+                justificada = 1
+
+        conn.execute("""
+            INSERT INTO presencas (reuniao_id, padrinho_id, presente, justificada)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(reuniao_id, padrinho_id)
+            DO UPDATE SET presente=excluded.presente, justificada=excluded.justificada
+        """, (reuniao_id, padrinho["id"], presente, justificada))
+        processados += 1
+
+    # Emite amarelos para quem não apareceu no CSV e não tem presença registrada
+    todos = conn.execute(
+        "SELECT id FROM padrinhos WHERE ativo=1"
+    ).fetchall()
+    for p in todos:
+        registro = conn.execute(
+            "SELECT id FROM presencas WHERE reuniao_id=? AND padrinho_id=?",
+            (reuniao_id, p["id"])
+        ).fetchone()
+        if not registro:
+            conn.execute("""
+                INSERT INTO presencas (reuniao_id, padrinho_id, presente, justificada)
+                VALUES (?, ?, 0, 0)
+            """, (reuniao_id, p["id"]))
+
+    conn.commit()
+    emitir_advertencias_falta(reuniao_id)
+    conn.close()
+
+    return {
+        "processados": processados,
+        "nao_encontrados": nao_encontrados,
+    }

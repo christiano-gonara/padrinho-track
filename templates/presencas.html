@@ -1,80 +1,118 @@
 {% extends "base.html" %}
-{% block title %}Presenças — Padrinho Track{% endblock %}
-{% block page_title %}Presenças{% endblock %}
+{% block title %}Reuniões — Padrinho Track{% endblock %}
+{% block page_title %}Reuniões{% endblock %}
 
 {% block content %}
 
 <div class="flex items-center justify-between mb-8">
   <div>
-    <a href="/reunioes" class="inline-flex items-center gap-1.5 text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium transition mb-2">
-      <i class="ri-arrow-left-line"></i> voltar para reuniões
-    </a>
-    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Lançar presenças</h1>
-    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Marque os padrinhos presentes e justificativas</p>
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Reuniões</h1>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Histórico e controle de presenças</p>
   </div>
+  <button onclick="document.getElementById('modal-nova').classList.remove('hidden')"
+          class="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-violet-600 text-white text-sm px-4 py-2.5 rounded-xl hover:from-indigo-600 hover:to-violet-700 transition shadow-sm font-medium">
+    <i class="ri-add-line"></i> Nova reunião
+  </button>
 </div>
 
-<form action="/presencas/{{ reuniao_id }}" method="POST">
-  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 overflow-hidden shadow-sm mb-6">
-    <div class="px-6 py-4 border-b border-slate-200 dark:border-gray-800 flex items-center justify-between">
-      <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Lista de padrinhos</h2>
-      <span class="text-xs text-gray-400">{{ presencas | length }} padrinhos</span>
-    </div>
-    <table class="w-full text-sm">
-      <thead class="bg-slate-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 uppercase text-xs">
-        <tr>
-          <th class="px-6 py-3 text-left font-semibold tracking-wide">Padrinho</th>
-          <th class="px-6 py-3 text-left font-semibold tracking-wide">Matrícula</th>
-          <th class="px-6 py-3 text-center font-semibold tracking-wide">
-            <span class="inline-flex items-center gap-1.5">
-              <i class="ri-checkbox-circle-line text-emerald-500"></i> Presente
-            </span>
-          </th>
-          <th class="px-6 py-3 text-center font-semibold tracking-wide">
-            <span class="inline-flex items-center gap-1.5">
-              <i class="ri-file-text-line text-amber-500"></i> Justificada
-            </span>
-          </th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-slate-100 dark:divide-gray-800">
-        {% for p in presencas %}
-        <tr class="hover:bg-slate-50 dark:hover:bg-gray-800 transition">
-          <td class="px-6 py-4 font-medium text-gray-800 dark:text-gray-200">{{ p["nome"] }}</td>
-          <td class="px-6 py-4 text-gray-500 dark:text-gray-400 font-mono text-xs">{{ p["matricula"] }}</td>
-          <td class="px-6 py-4 text-center">
-            <input type="checkbox" name="presentes" value="{{ p['id'] }}"
-                   {% if p["presente"] %}checked{% endif %}
-                   class="w-4 h-4 accent-indigo-600 cursor-pointer" />
-          </td>
-          <td class="px-6 py-4 text-center">
-            <input type="checkbox" name="justificadas" value="{{ p['id'] }}"
-                   {% if p["justificada"] %}checked{% endif %}
-                   class="w-4 h-4 accent-amber-500 cursor-pointer" />
-          </td>
-        </tr>
-        {% else %}
-        <tr>
-          <td colspan="4" class="px-6 py-10 text-center text-gray-400 dark:text-gray-600">
-            <i class="ri-user-line text-3xl block mb-2"></i>
-            Nenhum padrinho cadastrado ainda.
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+<div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 overflow-hidden shadow-sm">
+  <div class="px-6 py-4 border-b border-slate-200 dark:border-gray-800 flex items-center justify-between">
+    <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Lista de reuniões</h2>
+    <span class="text-xs text-gray-400">{{ reunioes | length }} no total</span>
   </div>
+  <table class="w-full text-sm">
+    <thead class="bg-slate-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 uppercase text-xs">
+      <tr>
+        <th class="px-6 py-3 text-left font-semibold tracking-wide">Data</th>
+        <th class="px-6 py-3 text-left font-semibold tracking-wide">Tema</th>
+        <th class="px-6 py-3 text-left font-semibold tracking-wide">Descrição</th>
+        <th class="px-6 py-3"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100 dark:divide-gray-800">
+      {% for r in reunioes %}
+      <tr class="hover:bg-slate-50 dark:hover:bg-gray-800 transition">
+        <td class="px-6 py-4 font-medium text-gray-800 dark:text-gray-200">
+          <span class="inline-flex items-center gap-2">
+            <span class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/50 flex items-center justify-center">
+              <i class="ri-calendar-line text-indigo-500 dark:text-indigo-400 text-sm"></i>
+            </span>
+            {{ r["data"] | databr }}
+          </span>
+        </td>
+        <td class="px-6 py-4 text-gray-700 dark:text-gray-300">{{ r["tema"] or "—" }}</td>
+        <td class="px-6 py-4 text-gray-500 dark:text-gray-400">{{ r["descricao"] or "—" }}</td>
+        <td class="px-6 py-4 text-right">
+          <div class="flex items-center justify-end gap-3">
+            <a href="/presencas/{{ r['id'] }}"
+               class="inline-flex items-center gap-1.5 bg-indigo-50 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900 px-3 py-1.5 rounded-lg text-xs font-medium transition">
+              <i class="ri-user-follow-line"></i> lançar presença
+            </a>
+            <a href="/presencas/{{ r['id'] }}/importar"
+               class="inline-flex items-center gap-1.5 bg-violet-50 dark:bg-violet-900/50 text-violet-600 dark:text-violet-400 hover:bg-violet-100 dark:hover:bg-violet-900 px-3 py-1.5 rounded-lg text-xs font-medium transition">
+              <i class="ri-upload-line"></i> importar CSV
+            </a>
+            <form action="/reunioes/{{ r['id'] }}/excluir" method="POST"
+                  onsubmit="return confirm('Excluir esta reunião e todas as presenças registradas?')">
+              <button type="submit"
+                      class="inline-flex items-center gap-1.5 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 px-3 py-1.5 rounded-lg text-xs font-medium transition">
+                <i class="ri-delete-bin-line"></i> Excluir
+              </button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="4" class="px-6 py-10 text-center text-gray-400 dark:text-gray-600">
+          <i class="ri-video-chat-line text-3xl block mb-2"></i>
+          Nenhuma reunião cadastrada ainda.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 
-  <div class="flex items-center justify-between">
-    <div class="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500 bg-amber-50 dark:bg-amber-950 border border-amber-100 dark:border-amber-900 px-4 py-2.5 rounded-xl">
-      <i class="ri-information-line text-amber-500"></i>
-      Amarelos serão emitidos automaticamente para ausentes sem justificativa.
+<!-- Modal nova reunião -->
+<div id="modal-nova" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+  <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+    <div class="bg-gradient-to-r from-indigo-500 to-violet-600 px-6 py-4 flex items-center justify-between">
+      <h2 class="text-base font-semibold text-white flex items-center gap-2">
+        <i class="ri-calendar-line"></i> Nova reunião
+      </h2>
+      <button onclick="document.getElementById('modal-nova').classList.add('hidden')"
+              class="text-white/70 hover:text-white text-xl leading-none transition">&times;</button>
     </div>
-    <button type="submit"
-            class="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-violet-600 text-white text-sm px-6 py-2.5 rounded-xl hover:from-indigo-600 hover:to-violet-700 transition font-medium shadow-sm">
-      <i class="ri-save-line"></i> Salvar presenças
-    </button>
+    <form action="/reunioes/nova" method="POST" class="flex flex-col gap-4 p-6">
+      <div>
+        <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1.5">Data</label>
+        <input type="date" name="data" required
+               class="w-full border border-slate-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1.5">Tema <span class="text-gray-400 font-normal">(opcional)</span></label>
+        <input type="text" name="tema"
+               class="w-full border border-slate-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1.5">Descrição <span class="text-gray-400 font-normal">(opcional)</span></label>
+        <textarea name="descricao" rows="3"
+                  class="w-full border border-slate-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition resize-none"></textarea>
+      </div>
+      <div class="flex justify-end gap-3 pt-2">
+        <button type="button"
+                onclick="document.getElementById('modal-nova').classList.add('hidden')"
+                class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 px-4 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-gray-800 transition">
+          Cancelar
+        </button>
+        <button type="submit"
+                class="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-violet-600 text-white text-sm px-5 py-2.5 rounded-xl hover:from-indigo-600 hover:to-violet-700 transition font-medium shadow-sm">
+          <i class="ri-save-line"></i> Criar reunião
+        </button>
+      </div>
+    </form>
   </div>
-</form>
+</div>
 
 {% endblock %}
