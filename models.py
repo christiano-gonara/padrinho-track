@@ -367,3 +367,61 @@ def excluir_tema(tema_id):
     conn.execute("DELETE FROM temas WHERE id=?", (tema_id,))
     conn.commit()
     conn.close()
+
+def get_relatorio_aptos():
+    padrinhos = get_todos_padrinhos()
+    resultado = []
+    for p in padrinhos:
+        status = calcular_status(p["id"])
+        if status["status"] == "apto":
+            historico = get_historico_padrinho(p["id"])
+            resultado.append({
+                "padrinho": p,
+                "total_reunioes": len(historico["presencas"]),
+                "total_presentes": sum(1 for pr in historico["presencas"] if pr["presente"]),
+                "amarelos": status["amarelos"],
+                "vermelhos": status["vermelhos"],
+            })
+    return resultado
+
+def get_relatorio_vermelhos():
+    padrinhos = get_todos_padrinhos()
+    resultado = []
+    for p in padrinhos:
+        status = calcular_status(p["id"])
+        if status["status"] == "inapto_vermelho":
+            advertencias = get_advertencias_padrinho(p["id"])
+            vermelhos = [a for a in advertencias if a["tipo"] == "vermelho"]
+            resultado.append({
+                "padrinho": p,
+                "vermelhos": vermelhos,
+                "amarelos": status["amarelos"],
+                "total_vermelhos": status["vermelhos"],
+            })
+    return resultado
+
+def exportar_aptos_csv(caminho="instance/relatorio_aptos.csv"):
+    import pandas as pd
+    dados = get_relatorio_aptos()
+    rows = [{"Nome": d["padrinho"]["nome"], "Matrícula": d["padrinho"]["matricula"],
+             "Email": d["padrinho"]["email"] or "", "Turno": d["padrinho"]["turno"] or "",
+             "Reuniões": d["total_reunioes"], "Presenças": d["total_presentes"]} for d in dados]
+    pd.DataFrame(rows).to_csv(caminho, index=False, encoding="utf-8-sig")
+    return caminho
+
+def exportar_vermelhos_csv(caminho="instance/relatorio_vermelhos.csv"):
+    import pandas as pd
+    dados = get_relatorio_vermelhos()
+    rows = []
+    for d in dados:
+        for a in d["vermelhos"]:
+            rows.append({
+                "Nome": d["padrinho"]["nome"],
+                "Matrícula": d["padrinho"]["matricula"],
+                "Email": d["padrinho"]["email"] or "",
+                "Origem": a["origem"],
+                "Motivo": a["motivo"] or "",
+                "Data": a["data"],
+            })
+    pd.DataFrame(rows).to_csv(caminho, index=False, encoding="utf-8-sig")
+    return caminho

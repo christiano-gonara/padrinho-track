@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Relatório — Vermelhos{% endblock %}
+{% block page_title %}Relatório — Vermelhos{% endblock %}
+
+{% block content %}
+
+<div class="flex items-center justify-between mb-8">
+  <div>
+    <a href="/relatorio" class="inline-flex items-center gap-1.5 text-sm text-indigo-600 dark:text-indigo-400 hover:underline mb-2">
+      <i class="ri-arrow-left-line"></i> voltar para relatório geral
+    </a>
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Inaptos — Cartão vermelho</h1>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Padrinhos a serem reportados ao professor coordenador</p>
+  </div>
+  <a href="/relatorio/vermelhos/exportar"
+     class="flex items-center gap-2 bg-gradient-to-r from-red-500 to-rose-600 text-white text-sm px-4 py-2.5 rounded-xl hover:from-red-600 hover:to-rose-700 transition shadow-sm font-medium">
+    <i class="ri-download-line"></i> Exportar CSV
+  </a>
+</div>
+
+<div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 overflow-hidden shadow-sm">
+  <div class="px-6 py-4 border-b border-slate-200 dark:border-gray-800 flex items-center justify-between">
+    <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Lista de inaptos por vermelho</h2>
+    <span class="inline-flex items-center gap-1.5 bg-red-50 dark:bg-red-900/50 text-red-700 dark:text-red-300 px-3 py-1 rounded-full text-xs font-semibold">
+      <i class="ri-close-circle-line"></i> {{ dados | length }} padrinhos
+    </span>
+  </div>
+  <table class="w-full text-sm">
+    <thead class="bg-slate-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 uppercase text-xs">
+      <tr>
+        <th class="px-6 py-3 text-left font-semibold tracking-wide">Padrinho</th>
+        <th class="px-6 py-3 text-left font-semibold tracking-wide">Matrícula</th>
+        <th class="px-6 py-3 text-left font-semibold tracking-wide">Email</th>
+        <th class="px-6 py-3 text-center font-semibold tracking-wide">Vermelhos</th>
+        <th class="px-6 py-3 text-left font-semibold tracking-wide">Motivos</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100 dark:divide-gray-800">
+      {% for d in dados %}
+      <tr class="hover:bg-slate-50 dark:hover:bg-gray-800 transition">
+        <td class="px-6 py-4 font-medium text-gray-800 dark:text-gray-200">
+          <a href="/padrinhos/{{ d.padrinho['id'] }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">
+            {{ d.padrinho["nome"] }}
+          </a>
+        </td>
+        <td class="px-6 py-4 text-gray-500 dark:text-gray-400 font-mono text-xs">{{ d.padrinho["matricula"] }}</td>
+        <td class="px-6 py-4 text-gray-500 dark:text-gray-400">{{ d.padrinho["email"] or "—" }}</td>
+        <td class="px-6 py-4 text-center">
+          <span class="inline-flex items-center gap-1.5 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 px-2.5 py-1 rounded-full text-xs font-semibold">
+            <i class="ri-close-circle-line"></i> {{ d.total_vermelhos }}
+          </span>
+        </td>
+        <td class="px-6 py-4">
+          <div class="flex flex-col gap-1">
+            {% for a in d.vermelhos %}
+              <span class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                <i class="ri-arrow-right-s-line text-red-400"></i>
+                {{ a["motivo"] or "—" }}
+                <span class="text-gray-300 dark:text-gray-600">· {{ a["data"] | databr }}</span>
+              </span>
+            {% endfor %}
+          </div>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="5" class="px-6 py-10 text-center text-gray-400 dark:text-gray-600">
+          <i class="ri-shield-check-line text-3xl block mb-2"></i>
+          Nenhum padrinho com cartão vermelho.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

@@ -303,6 +303,38 @@ def excluir_tema(tema_id):
     flash("Tema removido.", "success")
     return redirect(url_for("temas"))
 
+# ── Relatórios separados ───────────────────────────────────────────────────
+
+@app.route("/relatorio/aptos")
+def relatorio_aptos():
+    from models import get_relatorio_aptos
+    dados = get_relatorio_aptos()
+    return render_template("relatorio_aptos.html", dados=dados)
+
+@app.route("/relatorio/vermelhos")
+def relatorio_vermelhos():
+    from models import get_relatorio_vermelhos
+    dados = get_relatorio_vermelhos()
+    return render_template("relatorio_vermelhos.html", dados=dados)
+
+@app.route("/relatorio/aptos/exportar")
+def exportar_aptos():
+    from models import exportar_aptos_csv
+    from flask import send_file
+    import os
+    caminho = exportar_aptos_csv()
+    return send_file(os.path.abspath(caminho), mimetype="text/csv",
+                     as_attachment=True, download_name="relatorio_aptos.csv")
+
+@app.route("/relatorio/vermelhos/exportar")
+def exportar_vermelhos():
+    from models import exportar_vermelhos_csv
+    from flask import send_file
+    import os
+    caminho = exportar_vermelhos_csv()
+    return send_file(os.path.abspath(caminho), mimetype="text/csv",
+                     as_attachment=True, download_name="relatorio_vermelhos.csv")
+
 # ── Inicialização ──────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
