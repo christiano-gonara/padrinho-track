@@ -6,12 +6,11 @@
 <div class="flex items-center justify-between mb-6">
   <h1 class="text-2xl font-semibold text-gray-800">Padrinhos</h1>
   <button onclick="document.getElementById('modal-novo').classList.remove('hidden')"
-          class="bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
-    + Novo padrinho
+          class="flex items-center gap-2 bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+    <i class="ri-user-add-line"></i> Novo padrinho
   </button>
 </div>
 
-<!-- Tabela -->
 <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
   <table class="w-full text-sm">
     <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
@@ -19,6 +18,8 @@
         <th class="px-4 py-3 text-left">Nome</th>
         <th class="px-4 py-3 text-left">Matrícula</th>
         <th class="px-4 py-3 text-left">Email</th>
+        <th class="px-4 py-3 text-left">Telefone</th>
+        <th class="px-4 py-3 text-left">Turno</th>
         <th class="px-4 py-3"></th>
       </tr>
     </thead>
@@ -28,14 +29,31 @@
         <td class="px-4 py-3 font-medium">{{ p["nome"] }}</td>
         <td class="px-4 py-3 text-gray-500">{{ p["matricula"] }}</td>
         <td class="px-4 py-3 text-gray-500">{{ p["email"] or "—" }}</td>
+        <td class="px-4 py-3 text-gray-500">{{ p["telefone"] or "—" }}</td>
+        <td class="px-4 py-3">
+          {% if p["turno"] == "Manhã" %}
+            <span class="inline-flex items-center gap-1 bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full text-xs">
+              <i class="ri-sun-line"></i> Manhã
+            </span>
+          {% elif p["turno"] == "Noite" %}
+            <span class="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full text-xs">
+              <i class="ri-moon-line"></i> Noite
+            </span>
+          {% else %}
+            <span class="text-gray-400">—</span>
+          {% endif %}
+        </td>
         <td class="px-4 py-3 text-right">
           <a href="/padrinhos/{{ p['id'] }}"
-             class="text-indigo-600 hover:underline text-xs">ver detalhes</a>
+             class="inline-flex items-center gap-1 text-indigo-600 hover:underline text-xs">
+            <i class="ri-eye-line"></i> ver detalhes
+          </a>
         </td>
       </tr>
       {% else %}
       <tr>
-        <td colspan="4" class="px-4 py-6 text-center text-gray-400">
+        <td colspan="6" class="px-4 py-6 text-center text-gray-400">
+          <i class="ri-user-line text-2xl block mb-1"></i>
           Nenhum padrinho cadastrado ainda.
         </td>
       </tr>
@@ -58,14 +76,30 @@
         <input type="text" name="nome" required
                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
       </div>
-      <div>
-        <label class="block text-sm text-gray-600 mb-1">Matrícula</label>
-        <input type="text" name="matricula" required
-               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">Matrícula</label>
+          <input type="text" name="matricula" required
+                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">Turno</label>
+          <select name="turno"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+            <option value="">Selecione...</option>
+            <option value="Manhã">Manhã</option>
+            <option value="Noite">Noite</option>
+          </select>
+        </div>
       </div>
       <div>
         <label class="block text-sm text-gray-600 mb-1">Email <span class="text-gray-400">(opcional)</span></label>
         <input type="email" name="email"
+               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+      </div>
+      <div>
+        <label class="block text-sm text-gray-600 mb-1">Telefone <span class="text-gray-400">(opcional)</span></label>
+        <input type="text" name="telefone"
                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
       </div>
       <div class="flex justify-end gap-3 mt-2">
@@ -73,8 +107,8 @@
                 onclick="document.getElementById('modal-novo').classList.add('hidden')"
                 class="text-sm text-gray-500 hover:text-gray-700">Cancelar</button>
         <button type="submit"
-                class="bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
-          Cadastrar
+                class="flex items-center gap-2 bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+          <i class="ri-save-line"></i> Cadastrar
         </button>
       </div>
     </form>

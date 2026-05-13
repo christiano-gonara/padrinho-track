@@ -4,8 +4,12 @@
 {% block content %}
 
 <div class="flex items-center justify-between mb-6">
-  <h1 class="text-2xl font-semibold text-gray-800">Lançar presenças</h1>
-  <a href="/reunioes" class="text-sm text-indigo-600 hover:underline">← voltar para reuniões</a>
+  <div>
+    <a href="/reunioes" class="inline-flex items-center gap-1 text-sm text-indigo-600 hover:underline mb-1">
+      <i class="ri-arrow-left-line"></i> voltar para reuniões
+    </a>
+    <h1 class="text-2xl font-semibold text-gray-800">Lançar presenças</h1>
+  </div>
 </div>
 
 <form action="/presencas/{{ reuniao_id }}" method="POST">
@@ -15,8 +19,16 @@
         <tr>
           <th class="px-4 py-3 text-left">Padrinho</th>
           <th class="px-4 py-3 text-left">Matrícula</th>
-          <th class="px-4 py-3 text-center">Presente</th>
-          <th class="px-4 py-3 text-center">Justificada</th>
+          <th class="px-4 py-3 text-center">
+            <span class="inline-flex items-center gap-1">
+              <i class="ri-checkbox-circle-line text-green-500"></i> Presente
+            </span>
+          </th>
+          <th class="px-4 py-3 text-center">
+            <span class="inline-flex items-center gap-1">
+              <i class="ri-file-text-line text-amber-500"></i> Justificada
+            </span>
+          </th>
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-100">
@@ -38,6 +50,7 @@
         {% else %}
         <tr>
           <td colspan="4" class="px-4 py-6 text-center text-gray-400">
+            <i class="ri-user-line text-2xl block mb-1"></i>
             Nenhum padrinho cadastrado ainda.
           </td>
         </tr>
@@ -47,12 +60,13 @@
   </div>
 
   <div class="flex items-center justify-between">
-    <p class="text-xs text-gray-400">
+    <p class="inline-flex items-center gap-1 text-xs text-gray-400">
+      <i class="ri-information-line"></i>
       Ao salvar, amarelos serão emitidos automaticamente para quem estiver ausente sem justificativa.
     </p>
     <button type="submit"
-            class="bg-indigo-600 text-white text-sm px-6 py-2 rounded-lg hover:bg-indigo-700 transition">
-      Salvar presenças
+            class="flex items-center gap-2 bg-indigo-600 text-white text-sm px-6 py-2 rounded-lg hover:bg-indigo-700 transition">
+      <i class="ri-save-line"></i> Salvar presenças
     </button>
   </div>
 </form>

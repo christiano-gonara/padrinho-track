@@ -5,28 +5,48 @@
 
 <div class="flex items-center justify-between mb-6">
   <div>
-    <a href="/padrinhos" class="text-sm text-indigo-600 hover:underline">← voltar para padrinhos</a>
-    <h1 class="text-2xl font-semibold text-gray-800 mt-1">{{ padrinho["nome"] }}</h1>
-    <p class="text-sm text-gray-500">{{ padrinho["matricula"] }} {{ "· " + padrinho["email"] if padrinho["email"] }}</p>
+    <a href="/padrinhos" class="inline-flex items-center gap-1 text-sm text-indigo-600 hover:underline mb-1">
+      <i class="ri-arrow-left-line"></i> voltar para padrinhos
+    </a>
+    <h1 class="text-2xl font-semibold text-gray-800">{{ padrinho["nome"] }}</h1>
+    <div class="flex items-center gap-3 mt-1 text-sm text-gray-500">
+      <span class="inline-flex items-center gap-1">
+        <i class="ri-id-card-line"></i> {{ padrinho["matricula"] }}
+      </span>
+      {% if padrinho["email"] %}
+        <span class="inline-flex items-center gap-1">
+          <i class="ri-mail-line"></i> {{ padrinho["email"] }}
+        </span>
+      {% endif %}
+      {% if padrinho["telefone"] %}
+        <span class="inline-flex items-center gap-1">
+          <i class="ri-phone-line"></i> {{ padrinho["telefone"] }}
+        </span>
+      {% endif %}
+      {% if padrinho["turno"] %}
+        <span class="inline-flex items-center gap-1">
+          <i class="ri-time-line"></i> {{ padrinho["turno"] }}
+        </span>
+      {% endif %}
+    </div>
   </div>
 
-  <!-- Badge de status -->
   <div>
     {% if status.status == "apto" %}
-      <span class="bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium">
-        Apto para ACG
+      <span class="inline-flex items-center gap-2 bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium">
+        <i class="ri-checkbox-circle-line"></i> Apto para ACG
       </span>
     {% elif status.status == "alerta" %}
-      <span class="bg-amber-100 text-amber-800 px-4 py-2 rounded-full text-sm font-medium">
-        Alerta — 1 amarelo
+      <span class="inline-flex items-center gap-2 bg-amber-100 text-amber-800 px-4 py-2 rounded-full text-sm font-medium">
+        <i class="ri-error-warning-line"></i> Alerta — 1 amarelo
       </span>
     {% elif status.status == "inapto_amarelo" %}
-      <span class="bg-orange-100 text-orange-800 px-4 py-2 rounded-full text-sm font-medium">
-        Inapto — 2 amarelos
+      <span class="inline-flex items-center gap-2 bg-orange-100 text-orange-800 px-4 py-2 rounded-full text-sm font-medium">
+        <i class="ri-alert-line"></i> Inapto — 2 amarelos
       </span>
     {% elif status.status == "inapto_vermelho" %}
-      <span class="bg-red-100 text-red-800 px-4 py-2 rounded-full text-sm font-medium">
-        Inapto — reportar professor
+      <span class="inline-flex items-center gap-2 bg-red-100 text-red-800 px-4 py-2 rounded-full text-sm font-medium">
+        <i class="ri-close-circle-line"></i> Inapto — reportar professor
       </span>
     {% endif %}
   </div>
@@ -35,19 +55,21 @@
 <!-- Cards amarelo/vermelho -->
 <div class="grid grid-cols-2 gap-4 mb-8">
   <div class="bg-white rounded-lg border border-amber-200 p-4 flex items-center gap-4">
-    <div class="bg-amber-100 text-amber-800 text-2xl font-semibold w-12 h-12 rounded-full flex items-center justify-center">
-      {{ status.amarelos }}
+    <div class="bg-amber-100 text-amber-700 w-12 h-12 rounded-full flex items-center justify-center text-2xl">
+      <i class="ri-error-warning-line"></i>
     </div>
     <div>
+      <p class="text-2xl font-semibold text-amber-700">{{ status.amarelos }}</p>
       <p class="text-sm font-medium text-gray-700">Cartões amarelos</p>
       <p class="text-xs text-gray-400">Faltas sem justificativa</p>
     </div>
   </div>
   <div class="bg-white rounded-lg border border-red-200 p-4 flex items-center gap-4">
-    <div class="bg-red-100 text-red-800 text-2xl font-semibold w-12 h-12 rounded-full flex items-center justify-center">
-      {{ status.vermelhos }}
+    <div class="bg-red-100 text-red-700 w-12 h-12 rounded-full flex items-center justify-center text-2xl">
+      <i class="ri-close-circle-line"></i>
     </div>
     <div>
+      <p class="text-2xl font-semibold text-red-700">{{ status.vermelhos }}</p>
       <p class="text-sm font-medium text-gray-700">Cartões vermelhos</p>
       <p class="text-xs text-gray-400">Não entrega ou comportamento</p>
     </div>
@@ -58,7 +80,9 @@
 
   <!-- Histórico de presenças -->
   <div>
-    <h2 class="text-base font-semibold text-gray-700 mb-3">Presenças</h2>
+    <h2 class="text-base font-semibold text-gray-700 mb-3 flex items-center gap-2">
+      <i class="ri-user-follow-line text-indigo-400"></i> Presenças
+    </h2>
     <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
       <table class="w-full text-sm">
         <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
@@ -71,15 +95,21 @@
         <tbody class="divide-y divide-gray-100">
           {% for pr in historico.presencas %}
           <tr>
-            <td class="px-4 py-2 text-gray-600">{{ pr["data"] }}</td>
+            <td class="px-4 py-2 text-gray-600">{{ pr["data"] | databr }}</td>
             <td class="px-4 py-2 text-gray-500">{{ pr["tema"] or "—" }}</td>
             <td class="px-4 py-2 text-center">
               {% if pr["presente"] %}
-                <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs">Presente</span>
+                <span class="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs">
+                  <i class="ri-checkbox-circle-line"></i> Presente
+                </span>
               {% elif pr["justificada"] %}
-                <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs">Justificada</span>
+                <span class="inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs">
+                  <i class="ri-file-text-line"></i> Justificada
+                </span>
               {% else %}
-                <span class="bg-red-100 text-red-800 px-2 py-0.5 rounded-full text-xs">Ausente</span>
+                <span class="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2 py-0.5 rounded-full text-xs">
+                  <i class="ri-close-circle-line"></i> Ausente
+                </span>
               {% endif %}
             </td>
           </tr>
@@ -97,7 +127,9 @@
 
   <!-- Histórico de temas -->
   <div>
-    <h2 class="text-base font-semibold text-gray-700 mb-3">Temas</h2>
+    <h2 class="text-base font-semibold text-gray-700 mb-3 flex items-center gap-2">
+      <i class="ri-book-open-line text-indigo-400"></i> Temas
+    </h2>
     <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
       <table class="w-full text-sm">
         <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
@@ -111,12 +143,24 @@
           {% for t in historico.temas %}
           <tr>
             <td class="px-4 py-2 text-gray-600">{{ t["titulo"] }}</td>
-            <td class="px-4 py-2 text-gray-500">{{ t["data_limite"] }}</td>
+            <td class="px-4 py-2 text-gray-500">{{ t["data_limite"] | databr }}</td>
             <td class="px-4 py-2 text-center">
-              {% if t["entregue"] %}
-                <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs">Entregue</span>
+              {% if t["situacao"] == "entregue" %}
+                <span class="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs">
+                  <i class="ri-checkbox-circle-line"></i> Entregue
+                </span>
+              {% elif t["situacao"] == "atraso" %}
+                <span class="inline-flex items-center gap-1 bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full text-xs">
+                  <i class="ri-time-line"></i> Atraso
+                </span>
+              {% elif t["situacao"] == "nao_entregue" %}
+                <span class="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2 py-0.5 rounded-full text-xs">
+                  <i class="ri-close-circle-line"></i> Não entregue
+                </span>
               {% else %}
-                <span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full text-xs">Pendente</span>
+                <span class="inline-flex items-center gap-1 bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-xs">
+                  <i class="ri-time-line"></i> Pendente
+                </span>
               {% endif %}
             </td>
           </tr>
@@ -136,7 +180,9 @@
 
 <!-- Advertências -->
 <div class="mt-6">
-  <h2 class="text-base font-semibold text-gray-700 mb-3">Advertências</h2>
+  <h2 class="text-base font-semibold text-gray-700 mb-3 flex items-center gap-2">
+    <i class="ri-alert-line text-red-400"></i> Advertências
+  </h2>
   <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
     <table class="w-full text-sm">
       <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
@@ -152,22 +198,37 @@
         <tr>
           <td class="px-4 py-2 text-center">
             {% if a["tipo"] == "amarelo" %}
-              <span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full text-xs font-medium">Amarelo</span>
+              <span class="inline-flex items-center gap-1 bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full text-xs font-medium">
+                <i class="ri-error-warning-line"></i> Amarelo
+              </span>
             {% else %}
-              <span class="bg-red-100 text-red-800 px-2 py-0.5 rounded-full text-xs font-medium">Vermelho</span>
+              <span class="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2 py-0.5 rounded-full text-xs font-medium">
+                <i class="ri-close-circle-line"></i> Vermelho
+              </span>
             {% endif %}
           </td>
           <td class="px-4 py-2 text-gray-500">
-            {% if a["origem"] == "falta" %}Falta em reunião
-            {% elif a["origem"] == "nao_entrega" %}Não entrega de tema
-            {% else %}Manual{% endif %}
+            {% if a["origem"] == "falta" %}
+              <span class="inline-flex items-center gap-1"><i class="ri-user-unfollow-line text-gray-400"></i> Falta em reunião</span>
+            {% elif a["origem"] == "nao_entrega" %}
+              <span class="inline-flex items-center gap-1"><i class="ri-file-damage-line text-gray-400"></i> Não entrega de tema</span>
+            {% elif a["origem"] == "atraso_tema" %}
+              <span class="inline-flex items-center gap-1"><i class="ri-time-line text-gray-400"></i> Atraso na entrega</span>
+            {% else %}
+              <span class="inline-flex items-center gap-1"><i class="ri-edit-line text-gray-400"></i> Manual</span>
+            {% endif %}
           </td>
           <td class="px-4 py-2 text-gray-500">{{ a["motivo"] or "—" }}</td>
-          <td class="px-4 py-2 text-gray-500">{{ a["data"] }}</td>
+          <td class="px-4 py-2 text-gray-500">
+            <span class="inline-flex items-center gap-1">
+              <i class="ri-calendar-line text-gray-400"></i> {{ a["data"] | databr }}
+            </span>
+          </td>
         </tr>
         {% else %}
         <tr>
           <td colspan="4" class="px-4 py-4 text-center text-gray-400 text-xs">
+            <i class="ri-shield-check-line text-lg block mb-1"></i>
             Nenhuma advertência registrada.
           </td>
         </tr>
