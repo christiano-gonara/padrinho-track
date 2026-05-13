@@ -126,28 +126,41 @@
       </div>
     </header>
 
-    <!-- Flash messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <div class="px-6 mt-4 flex flex-col gap-2">
-          {% for category, message in messages %}
-            <div class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium
-              {% if category == 'success' %}bg-emerald-50 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800
-              {% elif category == 'error' %}bg-red-50 dark:bg-red-950 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800
-              {% else %}bg-indigo-50 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800{% endif %}">
-              {% if category == 'success' %}
-                <i class="ri-checkbox-circle-line text-emerald-500 text-lg"></i>
-              {% elif category == 'error' %}
-                <i class="ri-alert-line text-red-500 text-lg"></i>
-              {% else %}
-                <i class="ri-information-line text-indigo-500 text-lg"></i>
-              {% endif %}
-              {{ message }}
-            </div>
-          {% endfor %}
+    <!-- Flash messages → Toast -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2">
+      {% for category, message in messages %}
+        <div class="toast-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium shadow-lg min-w-64 max-w-sm
+          {% if category == 'success' %}bg-emerald-500 text-white
+          {% elif category == 'error' %}bg-red-500 text-white
+          {% else %}bg-indigo-500 text-white{% endif %}
+          translate-x-0 transition-all duration-300">
+          {% if category == 'success' %}
+            <i class="ri-checkbox-circle-line text-lg shrink-0"></i>
+          {% elif category == 'error' %}
+            <i class="ri-alert-line text-lg shrink-0"></i>
+          {% else %}
+            <i class="ri-information-line text-lg shrink-0"></i>
+          {% endif %}
+          <span class="flex-1">{{ message }}</span>
+          <button onclick="this.parentElement.remove()" class="text-white/70 hover:text-white shrink-0">
+            <i class="ri-close-line"></i>
+          </button>
         </div>
-      {% endif %}
-    {% endwith %}
+      {% endfor %}
+    </div>
+    <script>
+      setTimeout(() => {
+        document.querySelectorAll('.toast-item').forEach(el => {
+          el.style.opacity = '0';
+          el.style.transform = 'translateX(100%)';
+          setTimeout(() => el.remove(), 300);
+        });
+      }, 4000);
+    </script>
+  {% endif %}
+{% endwith %}
 
     <!-- Content -->
     <main class="flex-1 px-6 py-8">
