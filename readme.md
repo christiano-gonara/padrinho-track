@@ -23,7 +23,9 @@ O sistema centraliza a gestão de **50 padrinhos** (veteranos voluntários) e **
 - **Alerta preventivo** para padrinhos com 1 amarelo antes de atingir o limite
 - **Relatório geral** de aptidão para ACG com exportação CSV
 - **Página de calouros** com match padrinho-calouro completo
-- **Sidebar colapsável e dark mode** persistidos
+- **Sidebar colapsável** com animação suave e link ativo destacado automaticamente
+- **Dark mode** com toggle e preferência salva no localStorage
+- **UI redesenhada** — cards com gradiente, badges modernos, modais com header colorido
 
 ---
 
