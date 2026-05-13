@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Padrinho Track{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen">
+
+  <!-- Navbar -->
+  <nav class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
+    <a href="/" class="text-lg font-semibold text-indigo-600 tracking-tight">
+      Padrinho Track
+    </a>
+    <div class="flex gap-6 text-sm text-gray-600">
+      <a href="/"               class="hover:text-indigo-600 transition">Dashboard</a>
+      <a href="/padrinhos"      class="hover:text-indigo-600 transition">Padrinhos</a>
+      <a href="/reunioes"       class="hover:text-indigo-600 transition">Reuniões</a>
+      <a href="/temas"          class="hover:text-indigo-600 transition">Temas</a>
+      <a href="/advertencias"   class="hover:text-indigo-600 transition">Advertências</a>
+      <a href="/relatorio"      class="hover:text-indigo-600 transition">Relatório</a>
+    </div>
+  </nav>
+
+  <!-- Flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="max-w-5xl mx-auto mt-4 px-6 flex flex-col gap-2">
+        {% for category, message in messages %}
+          <div class="px-4 py-3 rounded text-sm font-medium
+            {% if category == 'success' %}bg-green-100 text-green-800
+            {% elif category == 'error' %}bg-red-100 text-red-800
+            {% else %}bg-blue-100 text-blue-800{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Conteúdo da página -->
+  <main class="max-w-5xl mx-auto px-6 py-8">
+    {% block content %}{% endblock %}
+  </main>
+
+</body>
+</html>
