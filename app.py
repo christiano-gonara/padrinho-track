@@ -44,12 +44,30 @@ def dashboard():
     proximo_tema = conn.execute(
         "SELECT * FROM temas WHERE situacao = 'pendente' ORDER BY data_limite ASC LIMIT 1"
     ).fetchone()
+    reunioes = conn.execute(
+        "SELECT * FROM reunioes ORDER BY data ASC"
+    ).fetchall()
+
+    presencas_por_reuniao = []
+    for r in reunioes:
+        total = conn.execute(
+            "SELECT COUNT(*) FROM presencas WHERE reuniao_id=?", (r["id"],)
+        ).fetchone()[0]
+        presentes = conn.execute(
+            "SELECT COUNT(*) FROM presencas WHERE reuniao_id=? AND presente=1", (r["id"],)
+        ).fetchone()[0]
+        presencas_por_reuniao.append({
+            "label": f"{r['data'][5:]}",
+            "presentes": presentes,
+            "ausentes": total - presentes,
+        })
     conn.close()
 
     return render_template("dashboard.html",
         dados=dados,
         proxima_reuniao=proxima_reuniao,
-        proximo_tema=proximo_tema
+        proximo_tema=proximo_tema,
+        presencas_por_reuniao=presencas_por_reuniao,
     )
 
 # ── Padrinhos ──────────────────────────────────────────────────────────────
