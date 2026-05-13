@@ -81,6 +81,13 @@ def init_db():
         FOREIGN KEY (calouro_id)  REFERENCES calouros(id),
         UNIQUE (padrinho_id, calouro_id)
     );
+
+    CREATE TABLE IF NOT EXISTS config (
+        chave TEXT PRIMARY KEY,
+        valor TEXT NOT NULL
+    );
+
+    INSERT OR IGNORE INTO config (chave, valor) VALUES ('limite_amarelos', '2');
     """)
     conn.commit()
     conn.close()

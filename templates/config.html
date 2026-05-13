@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Configurações — Padrinho Track{% endblock %}
+{% block page_title %}Configurações{% endblock %}
+
+{% block content %}
+
+<div class="flex items-center justify-between mb-8">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Configurações</h1>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Parâmetros do programa de mentoria</p>
+  </div>
+</div>
+
+<div class="max-w-lg">
+  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 overflow-hidden shadow-sm">
+    <div class="px-6 py-4 border-b border-slate-200 dark:border-gray-800">
+      <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Regras de advertência</h2>
+    </div>
+    <form action="/config" method="POST" class="p-6 flex flex-col gap-6">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+          Limite de cartões amarelos para inapto
+        </label>
+        <p class="text-xs text-gray-400 dark:text-gray-500 mb-3">
+          Quando um padrinho atingir esse número de amarelos, será considerado inapto para o ACG.
+        </p>
+        <div class="flex items-center gap-3">
+          <select name="limite_amarelos"
+                  class="border border-slate-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition">
+            {% for i in range(1, 6) %}
+              <option value="{{ i }}" {% if i == limite_amarelos | int %}selected{% endif %}>
+                {{ i }} amarelo{{ 's' if i > 1 }}
+              </option>
+            {% endfor %}
+          </select>
+          <span class="text-sm text-gray-500 dark:text-gray-400">= inapto para ACG</span>
+        </div>
+      </div>
+
+      <div class="bg-indigo-50 dark:bg-indigo-950 border border-indigo-100 dark:border-indigo-900 rounded-xl px-4 py-3 text-xs text-indigo-700 dark:text-indigo-300 flex items-start gap-2">
+        <i class="ri-information-line shrink-0 mt-0.5"></i>
+        O alerta preventivo aparece quando o padrinho tem <strong>limite - 1</strong> amarelos. Com limite 2, o alerta aparece no primeiro amarelo.
+      </div>
+
+      <div class="flex justify-end">
+        <button type="submit"
+                class="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-violet-600 text-white text-sm px-5 py-2.5 rounded-xl hover:from-indigo-600 hover:to-violet-700 transition font-medium shadow-sm">
+          <i class="ri-save-line"></i> Salvar configurações
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

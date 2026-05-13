@@ -194,6 +194,12 @@ def get_advertencias_padrinho(padrinho_id):
     conn.close()
     return advertencias
 
+def get_config(chave, padrao=None):
+    conn = get_conn()
+    row = conn.execute("SELECT valor FROM config WHERE chave=?", (chave,)).fetchone()
+    conn.close()
+    return row["valor"] if row else padrao
+
 def calcular_status(padrinho_id):
     conn = get_conn()
     amarelos = conn.execute(
@@ -206,11 +212,13 @@ def calcular_status(padrinho_id):
     ).fetchone()[0]
     conn.close()
 
+    limite = int(get_config("limite_amarelos", "2"))
+
     if vermelhos >= 1:
         return {"status": "inapto_vermelho", "amarelos": amarelos, "vermelhos": vermelhos}
-    if amarelos >= 2:
+    if amarelos >= limite:
         return {"status": "inapto_amarelo", "amarelos": amarelos, "vermelhos": vermelhos}
-    if amarelos == 1:
+    if amarelos == limite - 1:
         return {"status": "alerta", "amarelos": amarelos, "vermelhos": vermelhos}
     return {"status": "apto", "amarelos": 0, "vermelhos": 0}
 

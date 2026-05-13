@@ -228,6 +228,25 @@ def calouros():
     dados = get_calouros_match_completo()
     return render_template("calouros.html", dados=dados)
 
+# ── Configurações ──────────────────────────────────────────────────────────
+
+@app.route("/config", methods=["GET", "POST"])
+def configuracoes():
+    if request.method == "POST":
+        limite = request.form.get("limite_amarelos", "2")
+        conn = get_conn()
+        conn.execute(
+            "UPDATE config SET valor=? WHERE chave='limite_amarelos'",
+            (limite,)
+        )
+        conn.commit()
+        conn.close()
+        flash("Configurações salvas.", "success")
+        return redirect(url_for("configuracoes"))
+    from models import get_config
+    limite_atual = get_config("limite_amarelos", "2")
+    return render_template("config.html", limite_amarelos=limite_atual)
+
 # ── Inicialização ──────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
