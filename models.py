@@ -271,3 +271,47 @@ def exportar_relatorio_csv(caminho="relatorio_acg.csv"):
     df = pd.DataFrame(rows)
     df.to_csv(caminho, index=False, encoding="utf-8-sig")
     return caminho
+
+def get_calouros_por_padrinho(padrinho_id):
+    conn = get_conn()
+    calouros = conn.execute("""
+        SELECT c.id, c.nome, c.telefone
+        FROM calouros c
+        JOIN matches m ON m.calouro_id = c.id
+        WHERE m.padrinho_id = ?
+        ORDER BY c.nome
+    """, (padrinho_id,)).fetchall()
+    conn.close()
+    return calouros
+
+def get_todos_matches():
+    conn = get_conn()
+    resultado = conn.execute("""
+        SELECT p.id AS padrinho_id, p.nome AS padrinho_nome,
+               p.turno, COUNT(m.calouro_id) AS total_calouros
+        FROM padrinhos p
+        LEFT JOIN matches m ON m.padrinho_id = p.id
+        WHERE p.ativo = 1
+        GROUP BY p.id
+        ORDER BY p.nome
+    """).fetchall()
+    conn.close()
+    return resultado
+
+def get_calouros_match_completo():
+    conn = get_conn()
+    padrinhos = conn.execute(
+        "SELECT * FROM padrinhos WHERE ativo = 1 ORDER BY nome"
+    ).fetchall()
+    resultado = []
+    for p in padrinhos:
+        calouros = conn.execute("""
+            SELECT c.id, c.nome, c.telefone
+            FROM calouros c
+            JOIN matches m ON m.calouro_id = c.id
+            WHERE m.padrinho_id = ?
+            ORDER BY c.nome
+        """, (p["id"],)).fetchall()
+        resultado.append({"padrinho": p, "calouros": calouros})
+    conn.close()
+    return resultado
