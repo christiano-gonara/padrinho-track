@@ -8,7 +8,7 @@ from models import (
     registrar_tema, registrar_entrega_tema, marcar_tema_nao_entregue,
     emitir_advertencia_manual, get_advertencias_padrinho,
     calcular_status, get_historico_padrinho, get_relatorio_geral,
-    get_todos_temas
+    get_todos_temas, get_calouros_match_completo
 )
 
 app = Flask(__name__)
@@ -202,6 +202,13 @@ def exportar_relatorio():
         as_attachment=True,
         download_name="relatorio_acg.csv"
     )
+
+# ── Calouros ───────────────────────────────────────────────────────────────
+
+@app.route("/calouros")
+def calouros():
+    dados = get_calouros_match_completo()
+    return render_template("calouros.html", dados=dados)
 
 # ── Inicialização ──────────────────────────────────────────────────────────
 
