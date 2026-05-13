@@ -1,137 +1,145 @@
 {% extends "base.html" %}
 {% block title %}Relatório — Padrinho Track{% endblock %}
+{% block page_title %}Relatório{% endblock %}
 
 {% block content %}
 
-<div class="flex items-center justify-between mb-6">
-  <h1 class="text-2xl font-semibold text-gray-800">Relatório geral</h1>
-  <div class="flex items-center gap-3">
+<div class="flex items-center justify-between mb-8">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Relatório geral</h1>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Aptidão para ACG — resultado final</p>
+  </div>
+  <div class="flex items-center gap-2">
     <a href="/relatorio/exportar"
-       class="flex items-center gap-2 bg-green-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-green-700 transition">
+       class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm px-4 py-2.5 rounded-xl hover:from-emerald-600 hover:to-teal-700 transition shadow-sm font-medium">
       <i class="ri-download-line"></i> Exportar CSV
     </a>
     <button onclick="window.print()"
-            class="flex items-center gap-2 bg-gray-700 text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-800 transition">
-      <i class="ri-printer-line"></i> Imprimir / salvar PDF
+            class="flex items-center gap-2 bg-slate-700 dark:bg-slate-600 text-white text-sm px-4 py-2.5 rounded-xl hover:bg-slate-800 dark:hover:bg-slate-500 transition shadow-sm font-medium">
+      <i class="ri-printer-line"></i> Imprimir / PDF
     </button>
   </div>
 </div>
 
-<!-- Cards de resumo -->
+<!-- Cards -->
 <div class="grid grid-cols-4 gap-4 mb-8">
   {% set aptos       = dados | selectattr("status", "eq", "apto")            | list %}
   {% set alertas     = dados | selectattr("status", "eq", "alerta")          | list %}
   {% set inapto_am   = dados | selectattr("status", "eq", "inapto_amarelo")  | list %}
   {% set inapto_verm = dados | selectattr("status", "eq", "inapto_vermelho") | list %}
 
-  <div class="bg-white rounded-lg border border-gray-200 p-4 flex items-center gap-4">
-    <div class="bg-green-100 text-green-600 w-10 h-10 rounded-full flex items-center justify-center text-xl">
-      <i class="ri-checkbox-circle-line"></i>
+  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 p-5 flex items-center gap-4 shadow-sm">
+    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shrink-0">
+      <i class="ri-checkbox-circle-line text-white text-xl"></i>
     </div>
     <div>
-      <p class="text-xs text-gray-500">Aptos</p>
-      <p class="text-2xl font-semibold text-green-600">{{ aptos | length }}</p>
+      <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Aptos</p>
+      <p class="text-3xl font-bold text-gray-800 dark:text-gray-100">{{ aptos | length }}</p>
     </div>
   </div>
 
-  <div class="bg-white rounded-lg border border-gray-200 p-4 flex items-center gap-4">
-    <div class="bg-amber-100 text-amber-500 w-10 h-10 rounded-full flex items-center justify-center text-xl">
-      <i class="ri-error-warning-line"></i>
+  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 p-5 flex items-center gap-4 shadow-sm">
+    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shrink-0">
+      <i class="ri-error-warning-line text-white text-xl"></i>
     </div>
     <div>
-      <p class="text-xs text-gray-500">Em alerta</p>
-      <p class="text-2xl font-semibold text-amber-500">{{ alertas | length }}</p>
+      <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Em alerta</p>
+      <p class="text-3xl font-bold text-gray-800 dark:text-gray-100">{{ alertas | length }}</p>
     </div>
   </div>
 
-  <div class="bg-white rounded-lg border border-gray-200 p-4 flex items-center gap-4">
-    <div class="bg-orange-100 text-orange-600 w-10 h-10 rounded-full flex items-center justify-center text-xl">
-      <i class="ri-alert-line"></i>
+  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 p-5 flex items-center gap-4 shadow-sm">
+    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shrink-0">
+      <i class="ri-alert-line text-white text-xl"></i>
     </div>
     <div>
-      <p class="text-xs text-gray-500">Inaptos — amarelo</p>
-      <p class="text-2xl font-semibold text-orange-600">{{ inapto_am | length }}</p>
+      <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Inaptos — amarelo</p>
+      <p class="text-3xl font-bold text-gray-800 dark:text-gray-100">{{ inapto_am | length }}</p>
     </div>
   </div>
 
-  <div class="bg-white rounded-lg border border-gray-200 p-4 flex items-center gap-4">
-    <div class="bg-red-100 text-red-600 w-10 h-10 rounded-full flex items-center justify-center text-xl">
-      <i class="ri-close-circle-line"></i>
+  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 p-5 flex items-center gap-4 shadow-sm">
+    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shrink-0">
+      <i class="ri-close-circle-line text-white text-xl"></i>
     </div>
     <div>
-      <p class="text-xs text-gray-500">Inaptos — vermelho</p>
-      <p class="text-2xl font-semibold text-red-600">{{ inapto_verm | length }}</p>
+      <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Inaptos — vermelho</p>
+      <p class="text-3xl font-bold text-gray-800 dark:text-gray-100">{{ inapto_verm | length }}</p>
     </div>
   </div>
 </div>
 
-<!-- Tabela completa -->
-<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+<!-- Tabela -->
+<div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 overflow-hidden shadow-sm">
+  <div class="px-6 py-4 border-b border-slate-200 dark:border-gray-800 flex items-center justify-between">
+    <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Resultado por padrinho</h2>
+    <span class="text-xs text-gray-400">{{ dados | length }} padrinhos</span>
+  </div>
   <table class="w-full text-sm">
-    <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+    <thead class="bg-slate-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 uppercase text-xs">
       <tr>
-        <th class="px-4 py-3 text-left">Padrinho</th>
-        <th class="px-4 py-3 text-left">Matrícula</th>
-        <th class="px-4 py-3 text-center">Reuniões</th>
-        <th class="px-4 py-3 text-center">Presenças</th>
-        <th class="px-4 py-3 text-center">
+        <th class="px-6 py-3 text-left font-semibold tracking-wide">Padrinho</th>
+        <th class="px-6 py-3 text-left font-semibold tracking-wide">Matrícula</th>
+        <th class="px-6 py-3 text-center font-semibold tracking-wide">Reuniões</th>
+        <th class="px-6 py-3 text-center font-semibold tracking-wide">Presenças</th>
+        <th class="px-6 py-3 text-center font-semibold tracking-wide">
           <span class="inline-flex items-center gap-1">
             <i class="ri-error-warning-line text-amber-500"></i> Amarelos
           </span>
         </th>
-        <th class="px-4 py-3 text-center">
+        <th class="px-6 py-3 text-center font-semibold tracking-wide">
           <span class="inline-flex items-center gap-1">
             <i class="ri-close-circle-line text-red-500"></i> Vermelhos
           </span>
         </th>
-        <th class="px-4 py-3 text-center">Status ACG</th>
+        <th class="px-6 py-3 text-center font-semibold tracking-wide">Status ACG</th>
       </tr>
     </thead>
-    <tbody class="divide-y divide-gray-100">
+    <tbody class="divide-y divide-slate-100 dark:divide-gray-800">
       {% for d in dados %}
-      <tr class="hover:bg-gray-50 transition">
-        <td class="px-4 py-3 font-medium">
+      <tr class="hover:bg-slate-50 dark:hover:bg-gray-800 transition">
+        <td class="px-6 py-4 font-medium text-gray-800 dark:text-gray-200">
           <a href="/padrinhos/{{ d.padrinho['id'] }}"
-             class="hover:text-indigo-600 hover:underline">
+             class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">
             {{ d.padrinho["nome"] }}
           </a>
         </td>
-        <td class="px-4 py-3 text-gray-500">{{ d.padrinho["matricula"] }}</td>
-        <td class="px-4 py-3 text-center text-gray-500">{{ d.total_reunioes }}</td>
-        <td class="px-4 py-3 text-center text-gray-500">{{ d.total_presentes }}</td>
-        <td class="px-4 py-3 text-center">
+        <td class="px-6 py-4 text-gray-500 dark:text-gray-400 font-mono text-xs">{{ d.padrinho["matricula"] }}</td>
+        <td class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">{{ d.total_reunioes }}</td>
+        <td class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">{{ d.total_presentes }}</td>
+        <td class="px-6 py-4 text-center">
           {% if d.amarelos > 0 %}
-            <span class="inline-flex items-center gap-1 bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-medium">
+            <span class="inline-flex items-center gap-1.5 bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-2.5 py-1 rounded-full text-xs font-semibold">
               <i class="ri-error-warning-line"></i> {{ d.amarelos }}
             </span>
           {% else %}
-            <span class="text-gray-300">—</span>
+            <span class="text-gray-300 dark:text-gray-600">—</span>
           {% endif %}
         </td>
-        <td class="px-4 py-3 text-center">
+        <td class="px-6 py-4 text-center">
           {% if d.vermelhos > 0 %}
-            <span class="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2 py-0.5 rounded-full font-medium">
+            <span class="inline-flex items-center gap-1.5 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 px-2.5 py-1 rounded-full text-xs font-semibold">
               <i class="ri-close-circle-line"></i> {{ d.vermelhos }}
             </span>
           {% else %}
-            <span class="text-gray-300">—</span>
+            <span class="text-gray-300 dark:text-gray-600">—</span>
           {% endif %}
         </td>
-        <td class="px-4 py-3 text-center">
+        <td class="px-6 py-4 text-center">
           {% if d.status == "apto" %}
-            <span class="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+            <span class="inline-flex items-center gap-1.5 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 px-3 py-1 rounded-full text-xs font-semibold">
               <i class="ri-checkbox-circle-line"></i> Apto
             </span>
           {% elif d.status == "alerta" %}
-            <span class="inline-flex items-center gap-1 bg-amber-100 text-amber-800 px-2 py-1 rounded-full text-xs font-medium">
+            <span class="inline-flex items-center gap-1.5 bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-3 py-1 rounded-full text-xs font-semibold">
               <i class="ri-error-warning-line"></i> Alerta
             </span>
           {% elif d.status == "inapto_amarelo" %}
-            <span class="inline-flex items-center gap-1 bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs font-medium">
+            <span class="inline-flex items-center gap-1.5 bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 px-3 py-1 rounded-full text-xs font-semibold">
               <i class="ri-alert-line"></i> Inapto
             </span>
           {% elif d.status == "inapto_vermelho" %}
-            <span class="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">
+            <span class="inline-flex items-center gap-1.5 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 px-3 py-1 rounded-full text-xs font-semibold">
               <i class="ri-close-circle-line"></i> Inapto — reportar prof.
             </span>
           {% endif %}

@@ -1,56 +1,62 @@
 {% extends "base.html" %}
 {% block title %}Presenças — Padrinho Track{% endblock %}
+{% block page_title %}Presenças{% endblock %}
 
 {% block content %}
 
-<div class="flex items-center justify-between mb-6">
+<div class="flex items-center justify-between mb-8">
   <div>
-    <a href="/reunioes" class="inline-flex items-center gap-1 text-sm text-indigo-600 hover:underline mb-1">
+    <a href="/reunioes" class="inline-flex items-center gap-1.5 text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium transition mb-2">
       <i class="ri-arrow-left-line"></i> voltar para reuniões
     </a>
-    <h1 class="text-2xl font-semibold text-gray-800">Lançar presenças</h1>
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Lançar presenças</h1>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Marque os padrinhos presentes e justificativas</p>
   </div>
 </div>
 
 <form action="/presencas/{{ reuniao_id }}" method="POST">
-  <div class="bg-white rounded-lg border border-gray-200 overflow-hidden mb-6">
+  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 overflow-hidden shadow-sm mb-6">
+    <div class="px-6 py-4 border-b border-slate-200 dark:border-gray-800 flex items-center justify-between">
+      <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Lista de padrinhos</h2>
+      <span class="text-xs text-gray-400">{{ presencas | length }} padrinhos</span>
+    </div>
     <table class="w-full text-sm">
-      <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+      <thead class="bg-slate-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 uppercase text-xs">
         <tr>
-          <th class="px-4 py-3 text-left">Padrinho</th>
-          <th class="px-4 py-3 text-left">Matrícula</th>
-          <th class="px-4 py-3 text-center">
-            <span class="inline-flex items-center gap-1">
-              <i class="ri-checkbox-circle-line text-green-500"></i> Presente
+          <th class="px-6 py-3 text-left font-semibold tracking-wide">Padrinho</th>
+          <th class="px-6 py-3 text-left font-semibold tracking-wide">Matrícula</th>
+          <th class="px-6 py-3 text-center font-semibold tracking-wide">
+            <span class="inline-flex items-center gap-1.5">
+              <i class="ri-checkbox-circle-line text-emerald-500"></i> Presente
             </span>
           </th>
-          <th class="px-4 py-3 text-center">
-            <span class="inline-flex items-center gap-1">
+          <th class="px-6 py-3 text-center font-semibold tracking-wide">
+            <span class="inline-flex items-center gap-1.5">
               <i class="ri-file-text-line text-amber-500"></i> Justificada
             </span>
           </th>
         </tr>
       </thead>
-      <tbody class="divide-y divide-gray-100">
+      <tbody class="divide-y divide-slate-100 dark:divide-gray-800">
         {% for p in presencas %}
-        <tr class="hover:bg-gray-50 transition">
-          <td class="px-4 py-3 font-medium">{{ p["nome"] }}</td>
-          <td class="px-4 py-3 text-gray-500">{{ p["matricula"] }}</td>
-          <td class="px-4 py-3 text-center">
+        <tr class="hover:bg-slate-50 dark:hover:bg-gray-800 transition">
+          <td class="px-6 py-4 font-medium text-gray-800 dark:text-gray-200">{{ p["nome"] }}</td>
+          <td class="px-6 py-4 text-gray-500 dark:text-gray-400 font-mono text-xs">{{ p["matricula"] }}</td>
+          <td class="px-6 py-4 text-center">
             <input type="checkbox" name="presentes" value="{{ p['id'] }}"
                    {% if p["presente"] %}checked{% endif %}
-                   class="w-4 h-4 accent-indigo-600" />
+                   class="w-4 h-4 accent-indigo-600 cursor-pointer" />
           </td>
-          <td class="px-4 py-3 text-center">
+          <td class="px-6 py-4 text-center">
             <input type="checkbox" name="justificadas" value="{{ p['id'] }}"
                    {% if p["justificada"] %}checked{% endif %}
-                   class="w-4 h-4 accent-amber-500" />
+                   class="w-4 h-4 accent-amber-500 cursor-pointer" />
           </td>
         </tr>
         {% else %}
         <tr>
-          <td colspan="4" class="px-4 py-6 text-center text-gray-400">
-            <i class="ri-user-line text-2xl block mb-1"></i>
+          <td colspan="4" class="px-6 py-10 text-center text-gray-400 dark:text-gray-600">
+            <i class="ri-user-line text-3xl block mb-2"></i>
             Nenhum padrinho cadastrado ainda.
           </td>
         </tr>
@@ -60,12 +66,12 @@
   </div>
 
   <div class="flex items-center justify-between">
-    <p class="inline-flex items-center gap-1 text-xs text-gray-400">
-      <i class="ri-information-line"></i>
-      Ao salvar, amarelos serão emitidos automaticamente para quem estiver ausente sem justificativa.
-    </p>
+    <div class="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500 bg-amber-50 dark:bg-amber-950 border border-amber-100 dark:border-amber-900 px-4 py-2.5 rounded-xl">
+      <i class="ri-information-line text-amber-500"></i>
+      Amarelos serão emitidos automaticamente para ausentes sem justificativa.
+    </div>
     <button type="submit"
-            class="flex items-center gap-2 bg-indigo-600 text-white text-sm px-6 py-2 rounded-lg hover:bg-indigo-700 transition">
+            class="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-violet-600 text-white text-sm px-6 py-2.5 rounded-xl hover:from-indigo-600 hover:to-violet-700 transition font-medium shadow-sm">
       <i class="ri-save-line"></i> Salvar presenças
     </button>
   </div>

@@ -1,74 +1,85 @@
 {% extends "base.html" %}
 {% block title %}Calouros — Padrinho Track{% endblock %}
+{% block page_title %}Calouros{% endblock %}
 
 {% block content %}
 
-<div class="flex items-center justify-between mb-6">
-  <h1 class="text-2xl font-semibold text-gray-800">Calouros</h1>
+<div class="flex items-center justify-between mb-8">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Calouros</h1>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Match padrinho-calouro do semestre</p>
+  </div>
   {% set total_calouros = namespace(value=0) %}
   {% for item in dados %}
     {% set total_calouros.value = total_calouros.value + (item.calouros | length) %}
   {% endfor %}
-  <span class="text-sm text-gray-500">
-    <i class="ri-group-line"></i>
-    {{ dados | length }} padrinhos · {{ total_calouros.value }} calouros
-  </span>
+  <div class="flex gap-2">
+    <span class="inline-flex items-center gap-1.5 bg-indigo-50 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 px-3 py-1.5 rounded-xl text-xs font-semibold border border-indigo-100 dark:border-indigo-800">
+      <i class="ri-user-star-line"></i> {{ dados | length }} padrinhos
+    </span>
+    <span class="inline-flex items-center gap-1.5 bg-violet-50 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 px-3 py-1.5 rounded-xl text-xs font-semibold border border-violet-100 dark:border-violet-800">
+      <i class="ri-group-line"></i> {{ total_calouros.value }} calouros
+    </span>
+  </div>
 </div>
 
 <div class="flex flex-col gap-4">
   {% for item in dados %}
     {% if item.calouros %}
-    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
-      <div class="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
+    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 overflow-hidden shadow-sm">
+      <div class="flex items-center justify-between px-6 py-3.5 bg-slate-50 dark:bg-gray-800 border-b border-slate-200 dark:border-gray-800">
         <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center shrink-0">
+            <i class="ri-user-star-line text-white text-sm"></i>
+          </div>
           <a href="/padrinhos/{{ item.padrinho['id'] }}"
-             class="font-medium text-indigo-600 hover:underline text-sm">
+             class="font-semibold text-gray-800 dark:text-gray-100 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm transition">
             {{ item.padrinho["nome"] }}
           </a>
           {% if item.padrinho["turno"] == "Manhã" %}
-            <span class="inline-flex items-center gap-1 bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full text-xs">
+            <span class="inline-flex items-center gap-1 bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full text-xs font-medium">
               <i class="ri-sun-line"></i> Manhã
             </span>
           {% elif item.padrinho["turno"] == "Noite" %}
-            <span class="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full text-xs">
+            <span class="inline-flex items-center gap-1 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-full text-xs font-medium">
               <i class="ri-moon-line"></i> Noite
             </span>
           {% endif %}
         </div>
-        <span class="text-xs text-gray-400">
+        <span class="text-xs font-medium text-gray-400 dark:text-gray-500 bg-white dark:bg-gray-900 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-gray-700">
           <i class="ri-user-line"></i> {{ item.calouros | length }} calouro(s)
         </span>
       </div>
       <table class="w-full text-sm">
-  <tbody class="divide-y divide-gray-100">
-    {% for c in item.calouros %}
-    <tr class="hover:bg-gray-50 transition">
-      <td class="px-4 py-2.5 text-gray-700 w-2/3">
-        <span class="inline-flex items-center gap-2">
-          <i class="ri-user-smile-line text-gray-400"></i>
-          {{ c["nome"] }}
-        </span>
-      </td>
-      <td class="px-4 py-2.5 text-gray-500 w-1/3">
-        {% if c["telefone"] %}
-          <span class="inline-flex items-center gap-1">
-            <i class="ri-phone-line text-gray-400"></i>
-            {{ c["telefone"] }}
-          </span>
-        {% else %}
-          <span class="text-gray-300">—</span>
-        {% endif %}
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+        <tbody class="divide-y divide-slate-100 dark:divide-gray-800">
+          {% for c in item.calouros %}
+          <tr class="hover:bg-slate-50 dark:hover:bg-gray-800 transition">
+            <td class="px-6 py-3 text-gray-700 dark:text-gray-300 w-2/3">
+              <span class="inline-flex items-center gap-2">
+                <i class="ri-user-smile-line text-violet-400 dark:text-violet-500"></i>
+                {{ c["nome"] }}
+              </span>
+            </td>
+            <td class="px-6 py-3 text-gray-500 dark:text-gray-400 w-1/3">
+              {% if c["telefone"] %}
+                <span class="inline-flex items-center gap-1.5">
+                  <i class="ri-phone-line text-gray-400 dark:text-gray-500"></i>
+                  {{ c["telefone"] }}
+                </span>
+              {% else %}
+                <span class="text-gray-300 dark:text-gray-600">—</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
     {% endif %}
   {% else %}
-  <div class="bg-white rounded-lg border border-gray-200 px-4 py-8 text-center text-gray-400">
-    <i class="ri-group-line text-3xl block mb-2"></i>
-    Nenhum match cadastrado ainda.
+  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 px-6 py-12 text-center text-gray-400 dark:text-gray-600 shadow-sm">
+    <i class="ri-group-line text-4xl block mb-3"></i>
+    <p class="text-sm">Nenhum match cadastrado ainda.</p>
   </div>
   {% endfor %}
 </div>
