@@ -1,5 +1,5 @@
 from database import get_conn
-from datetime import date
+from datetime import date, datetime
 
 def get_todos_padrinhos():
     conn = get_conn()
@@ -17,11 +17,11 @@ def get_padrinho(padrinho_id):
     conn.close()
     return padrinho
 
-def cadastrar_padrinho(nome, matricula, email):
+def cadastrar_padrinho(nome, matricula, email, telefone, turno):
     conn = get_conn()
     conn.execute(
-        "INSERT INTO padrinhos (nome, matricula, email) VALUES (?, ?, ?)",
-        (nome, matricula, email)
+        "INSERT INTO padrinhos (nome, matricula, email, telefone, turno) VALUES (?, ?, ?, ?, ?)",
+        (nome, matricula, email, telefone, turno)
     )
     conn.commit()
     conn.close()
@@ -69,36 +69,96 @@ def get_presencas_reuniao(reuniao_id):
     conn.close()
     return presencas
 
-def registrar_tema(titulo, data_limite, padrinho_id):
+def get_todos_temas():
     conn = get_conn()
-    conn.execute(
-        "INSERT INTO temas (titulo, data_limite, padrinho_id) VALUES (?, ?, ?)",
-        (titulo, data_limite, padrinho_id)
+    temas = conn.execute(
+        "SELECT * FROM temas ORDER BY data_limite ASC"
+    ).fetchall()
+    resultado = []
+    for t in temas:
+        padrinhos = conn.execute("""
+            SELECT p.id, p.nome FROM padrinhos p
+            JOIN tema_padrinhos tp ON tp.padrinho_id = p.id
+            WHERE tp.tema_id = ?
+            ORDER BY p.nome
+        """, (t["id"],)).fetchall()
+        resultado.append({"tema": t, "padrinhos": padrinhos})
+    conn.close()
+    return resultado
+
+def registrar_tema(titulo, data_aviso, data_limite, padrinho_ids):
+    conn = get_conn()
+    cur = conn.execute(
+        "INSERT INTO temas (titulo, data_aviso, data_limite) VALUES (?, ?, ?)",
+        (titulo, data_aviso, data_limite)
     )
+    tema_id = cur.lastrowid
+    for pid in padrinho_ids:
+        conn.execute(
+            "INSERT INTO tema_padrinhos (tema_id, padrinho_id) VALUES (?, ?)",
+            (tema_id, pid)
+        )
     conn.commit()
     conn.close()
 
-def marcar_tema_entregue(tema_id):
+def registrar_entrega_tema(tema_id, data_entrega_str):
     conn = get_conn()
+    tema = conn.execute("SELECT * FROM temas WHERE id = ?", (tema_id,)).fetchone()
+
+    data_limite  = datetime.strptime(tema["data_limite"], "%Y-%m-%d").date()
+    data_entrega = datetime.strptime(data_entrega_str, "%Y-%m-%d").date()
+    diff = (data_entrega - data_limite).days
+
+    if diff <= 0:
+        situacao = "entregue"
+    elif diff == 1:
+        situacao = "atraso"
+    else:
+        situacao = "nao_entregue"
+
     conn.execute(
-        "UPDATE temas SET entregue = 1, data_entrega = ? WHERE id = ?",
-        (date.today().isoformat(), tema_id)
+        "UPDATE temas SET data_entrega = ?, situacao = ? WHERE id = ?",
+        (data_entrega_str, situacao, tema_id)
     )
+
+    if situacao == "atraso":
+        padrinhos = conn.execute(
+            "SELECT padrinho_id FROM tema_padrinhos WHERE tema_id = ?", (tema_id,)
+        ).fetchall()
+        for p in padrinhos:
+            conn.execute("""
+                INSERT INTO advertencias (padrinho_id, tipo, origem, motivo, data)
+                VALUES (?, 'amarelo', 'atraso_tema', ?, ?)
+            """, (p["padrinho_id"], f"Entrega com atraso: {tema['titulo']}", date.today().isoformat()))
+
+    elif situacao == "nao_entregue":
+        padrinhos = conn.execute(
+            "SELECT padrinho_id FROM tema_padrinhos WHERE tema_id = ?", (tema_id,)
+        ).fetchall()
+        for p in padrinhos:
+            conn.execute("""
+                INSERT INTO advertencias (padrinho_id, tipo, origem, motivo, data)
+                VALUES (?, 'vermelho', 'nao_entrega', ?, ?)
+            """, (p["padrinho_id"], f"Não entregou: {tema['titulo']}", date.today().isoformat()))
+
     conn.commit()
     conn.close()
+    return situacao
 
 def marcar_tema_nao_entregue(tema_id):
     conn = get_conn()
-    tema = conn.execute(
-        "SELECT * FROM temas WHERE id = ?", (tema_id,)
-    ).fetchone()
+    tema = conn.execute("SELECT * FROM temas WHERE id = ?", (tema_id,)).fetchone()
     conn.execute(
-        "UPDATE temas SET entregue = 0 WHERE id = ?", (tema_id,)
+        "UPDATE temas SET situacao = 'nao_entregue' WHERE id = ?", (tema_id,)
     )
-    conn.execute("""
-        INSERT INTO advertencias (padrinho_id, tipo, origem, motivo, data)
-        VALUES (?, 'vermelho', 'nao_entrega', ?, ?)
-    """, (tema["padrinho_id"], f"Não entregou: {tema['titulo']}", date.today().isoformat()))
+    padrinhos = conn.execute(
+        "SELECT padrinho_id FROM tema_padrinhos WHERE tema_id = ?", (tema_id,)
+    ).fetchall()
+    for p in padrinhos:
+        conn.execute("""
+            INSERT INTO advertencias (padrinho_id, tipo, origem, motivo, data)
+            VALUES (?, 'vermelho', 'nao_entrega', ?, ?)
+        """, (p["padrinho_id"], f"Não entregou: {tema['titulo']}", date.today().isoformat()))
     conn.commit()
     conn.close()
 
@@ -163,10 +223,13 @@ def get_historico_padrinho(padrinho_id):
         WHERE pr.padrinho_id = ?
         ORDER BY r.data DESC
     """, (padrinho_id,)).fetchall()
-    temas = conn.execute(
-        "SELECT * FROM temas WHERE padrinho_id = ? ORDER BY data_limite DESC",
-        (padrinho_id,)
-    ).fetchall()
+    temas = conn.execute("""
+        SELECT t.titulo, t.data_limite, t.data_entrega, t.situacao
+        FROM temas t
+        JOIN tema_padrinhos tp ON tp.tema_id = t.id
+        WHERE tp.padrinho_id = ?
+        ORDER BY t.data_limite DESC
+    """, (padrinho_id,)).fetchall()
     conn.close()
     return {"presencas": presencas, "temas": temas}
 
@@ -174,16 +237,16 @@ def get_relatorio_geral():
     padrinhos = get_todos_padrinhos()
     relatorio = []
     for p in padrinhos:
-        status = calcular_status(p["id"])
+        status   = calcular_status(p["id"])
         historico = get_historico_padrinho(p["id"])
-        total_reunioes = len(historico["presencas"])
+        total_reunioes  = len(historico["presencas"])
         total_presentes = sum(1 for pr in historico["presencas"] if pr["presente"])
         relatorio.append({
-            "padrinho": p,
-            "status": status["status"],
-            "amarelos": status["amarelos"],
-            "vermelhos": status["vermelhos"],
-            "total_reunioes": total_reunioes,
+            "padrinho":        p,
+            "status":          status["status"],
+            "amarelos":        status["amarelos"],
+            "vermelhos":       status["vermelhos"],
+            "total_reunioes":  total_reunioes,
             "total_presentes": total_presentes,
         })
     return relatorio
