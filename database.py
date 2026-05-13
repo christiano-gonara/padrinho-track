@@ -17,6 +17,8 @@ def init_db():
         nome        TEXT NOT NULL,
         matricula   TEXT UNIQUE NOT NULL,
         email       TEXT,
+        telefone    TEXT,
+        turno       TEXT,
         ativo       INTEGER DEFAULT 1
     );
 
@@ -39,12 +41,19 @@ def init_db():
     );
 
     CREATE TABLE IF NOT EXISTS temas (
-        id           INTEGER PRIMARY KEY AUTOINCREMENT,
-        titulo       TEXT NOT NULL,
-        data_limite  TEXT NOT NULL,
-        padrinho_id  INTEGER NOT NULL,
-        entregue     INTEGER DEFAULT 0,
-        data_entrega TEXT,
+        id            INTEGER PRIMARY KEY AUTOINCREMENT,
+        titulo        TEXT NOT NULL,
+        data_aviso    TEXT,
+        data_limite   TEXT NOT NULL,
+        data_entrega  TEXT,
+        situacao      TEXT DEFAULT 'pendente'
+    );
+
+    CREATE TABLE IF NOT EXISTS tema_padrinhos (
+        tema_id     INTEGER NOT NULL,
+        padrinho_id INTEGER NOT NULL,
+        PRIMARY KEY (tema_id, padrinho_id),
+        FOREIGN KEY (tema_id)     REFERENCES temas(id),
         FOREIGN KEY (padrinho_id) REFERENCES padrinhos(id)
     );
 
