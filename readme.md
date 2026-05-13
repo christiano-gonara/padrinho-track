@@ -17,17 +17,23 @@ Veteranos do curso (padrinhos) se inscrevem voluntariamente para acompanhar calo
 ### Reuniões
 ![Reuniões](docs/images/reunioes.png)
 
-### Detalhe do padrinho
-![Detalhe](docs/images/padrinho_detalhe.png)
+### Lançar presenças
+![Presenças](docs/images/presencas.png)
 
 ### Temas
 ![Temas](docs/images/temas.png)
 
+### Calouros
+![Calouros](docs/images/calouros.png)
+
 ### Advertências
 ![Advertências](docs/images/advertencias.png)
 
-### Relatório geral
-![Relatório](docs/images/relatorio.png)
+### Detalhe do padrinho
+![Detalhe](docs/images/padrinho_detalhe.png)
+
+### Relatório geral — dark mode
+![Relatório](docs/images/relatorio_dark.png)
 
 ### Modais
 | Novo padrinho | Nova reunião | Novo tema | Advertência manual |
@@ -44,6 +50,7 @@ Veteranos do curso (padrinhos) se inscrevem voluntariamente para acompanhar calo
 - Histórico individual por padrinho — presenças, temas e advertências
 - Relatório geral de aptidão para ACG com exportação CSV
 - Página de calouros com match padrinho-calouro completo
+- Sidebar colapsável e dark mode persistido
 
 ## Regras de advertência
 
@@ -71,7 +78,7 @@ padrinho-track/
 ├── templates/       # Páginas HTML com Tailwind
 ├── static/          # Arquivos estáticos
 ├── instance/        # Banco de dados local (não sobe pro Git)
-├── docs/            # Imagens para o README
+├── docs/            # Screenshots para o README
 ├── requirements.txt
 └── README.md
 ```
@@ -80,7 +87,7 @@ padrinho-track/
 
 **1. Clone o repositório**
 ```bash
-git clone https://github.com/seu-usuario/padrinho-track.git
+git clone https://github.com/christiano-gonara/padrinho-track.git
 cd padrinho-track
 ```
 
