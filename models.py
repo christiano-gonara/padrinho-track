@@ -250,3 +250,24 @@ def get_relatorio_geral():
             "total_presentes": total_presentes,
         })
     return relatorio
+
+def exportar_relatorio_csv(caminho="relatorio_acg.csv"):
+    import pandas as pd
+    dados = get_relatorio_geral()
+    rows = []
+    for d in dados:
+        rows.append({
+            "Nome":            d["padrinho"]["nome"],
+            "Matrícula":       d["padrinho"]["matricula"],
+            "Email":           d["padrinho"]["email"] or "",
+            "Telefone":        d["padrinho"]["telefone"] or "",
+            "Turno":           d["padrinho"]["turno"] or "",
+            "Reuniões":        d["total_reunioes"],
+            "Presenças":       d["total_presentes"],
+            "Amarelos":        d["amarelos"],
+            "Vermelhos":       d["vermelhos"],
+            "Status":          d["status"],
+        })
+    df = pd.DataFrame(rows)
+    df.to_csv(caminho, index=False, encoding="utf-8-sig")
+    return caminho

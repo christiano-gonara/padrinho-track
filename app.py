@@ -189,6 +189,20 @@ def relatorio():
     dados = get_relatorio_geral()
     return render_template("relatorio.html", dados=dados)
 
+
+@app.route("/relatorio/exportar")
+def exportar_relatorio():
+    from models import exportar_relatorio_csv
+    from flask import send_file
+    import os
+    caminho = exportar_relatorio_csv("instance/relatorio_acg.csv")
+    return send_file(
+        os.path.abspath(caminho),
+        mimetype="text/csv",
+        as_attachment=True,
+        download_name="relatorio_acg.csv"
+    )
+
 # ── Inicialização ──────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
