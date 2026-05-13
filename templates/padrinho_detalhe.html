@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block title %}{{ padrinho["nome"] }} — Padrinho Track{% endblock %}
+
+{% block content %}
+
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <a href="/padrinhos" class="text-sm text-indigo-600 hover:underline">← voltar para padrinhos</a>
+    <h1 class="text-2xl font-semibold text-gray-800 mt-1">{{ padrinho["nome"] }}</h1>
+    <p class="text-sm text-gray-500">{{ padrinho["matricula"] }} {{ "· " + padrinho["email"] if padrinho["email"] }}</p>
+  </div>
+
+  <!-- Badge de status -->
+  <div>
+    {% if status.status == "apto" %}
+      <span class="bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium">
+        Apto para ACG
+      </span>
+    {% elif status.status == "alerta" %}
+      <span class="bg-amber-100 text-amber-800 px-4 py-2 rounded-full text-sm font-medium">
+        Alerta — 1 amarelo
+      </span>
+    {% elif status.status == "inapto_amarelo" %}
+      <span class="bg-orange-100 text-orange-800 px-4 py-2 rounded-full text-sm font-medium">
+        Inapto — 2 amarelos
+      </span>
+    {% elif status.status == "inapto_vermelho" %}
+      <span class="bg-red-100 text-red-800 px-4 py-2 rounded-full text-sm font-medium">
+        Inapto — reportar professor
+      </span>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Cards amarelo/vermelho -->
+<div class="grid grid-cols-2 gap-4 mb-8">
+  <div class="bg-white rounded-lg border border-amber-200 p-4 flex items-center gap-4">
+    <div class="bg-amber-100 text-amber-800 text-2xl font-semibold w-12 h-12 rounded-full flex items-center justify-center">
+      {{ status.amarelos }}
+    </div>
+    <div>
+      <p class="text-sm font-medium text-gray-700">Cartões amarelos</p>
+      <p class="text-xs text-gray-400">Faltas sem justificativa</p>
+    </div>
+  </div>
+  <div class="bg-white rounded-lg border border-red-200 p-4 flex items-center gap-4">
+    <div class="bg-red-100 text-red-800 text-2xl font-semibold w-12 h-12 rounded-full flex items-center justify-center">
+      {{ status.vermelhos }}
+    </div>
+    <div>
+      <p class="text-sm font-medium text-gray-700">Cartões vermelhos</p>
+      <p class="text-xs text-gray-400">Não entrega ou comportamento</p>
+    </div>
+  </div>
+</div>
+
+<div class="grid grid-cols-2 gap-6">
+
+  <!-- Histórico de presenças -->
+  <div>
+    <h2 class="text-base font-semibold text-gray-700 mb-3">Presenças</h2>
+    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+          <tr>
+            <th class="px-4 py-2 text-left">Data</th>
+            <th class="px-4 py-2 text-left">Tema</th>
+            <th class="px-4 py-2 text-center">Status</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          {% for pr in historico.presencas %}
+          <tr>
+            <td class="px-4 py-2 text-gray-600">{{ pr["data"] }}</td>
+            <td class="px-4 py-2 text-gray-500">{{ pr["tema"] or "—" }}</td>
+            <td class="px-4 py-2 text-center">
+              {% if pr["presente"] %}
+                <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs">Presente</span>
+              {% elif pr["justificada"] %}
+                <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs">Justificada</span>
+              {% else %}
+                <span class="bg-red-100 text-red-800 px-2 py-0.5 rounded-full text-xs">Ausente</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="3" class="px-4 py-4 text-center text-gray-400 text-xs">
+              Nenhuma presença registrada.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Histórico de temas -->
+  <div>
+    <h2 class="text-base font-semibold text-gray-700 mb-3">Temas</h2>
+    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+          <tr>
+            <th class="px-4 py-2 text-left">Título</th>
+            <th class="px-4 py-2 text-left">Prazo</th>
+            <th class="px-4 py-2 text-center">Status</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          {% for t in historico.temas %}
+          <tr>
+            <td class="px-4 py-2 text-gray-600">{{ t["titulo"] }}</td>
+            <td class="px-4 py-2 text-gray-500">{{ t["data_limite"] }}</td>
+            <td class="px-4 py-2 text-center">
+              {% if t["entregue"] %}
+                <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs">Entregue</span>
+              {% else %}
+                <span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full text-xs">Pendente</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="3" class="px-4 py-4 text-center text-gray-400 text-xs">
+              Nenhum tema registrado.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- Advertências -->
+<div class="mt-6">
+  <h2 class="text-base font-semibold text-gray-700 mb-3">Advertências</h2>
+  <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+        <tr>
+          <th class="px-4 py-2 text-center">Tipo</th>
+          <th class="px-4 py-2 text-left">Origem</th>
+          <th class="px-4 py-2 text-left">Motivo</th>
+          <th class="px-4 py-2 text-left">Data</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for a in advertencias %}
+        <tr>
+          <td class="px-4 py-2 text-center">
+            {% if a["tipo"] == "amarelo" %}
+              <span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full text-xs font-medium">Amarelo</span>
+            {% else %}
+              <span class="bg-red-100 text-red-800 px-2 py-0.5 rounded-full text-xs font-medium">Vermelho</span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-2 text-gray-500">
+            {% if a["origem"] == "falta" %}Falta em reunião
+            {% elif a["origem"] == "nao_entrega" %}Não entrega de tema
+            {% else %}Manual{% endif %}
+          </td>
+          <td class="px-4 py-2 text-gray-500">{{ a["motivo"] or "—" }}</td>
+          <td class="px-4 py-2 text-gray-500">{{ a["data"] }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="4" class="px-4 py-4 text-center text-gray-400 text-xs">
+            Nenhuma advertência registrada.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
