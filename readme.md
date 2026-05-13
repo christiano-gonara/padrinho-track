@@ -1,47 +1,62 @@
-# 🎓 Padrinho Track
+# Padrinho Track
 
 > Sistema web interno para gestão do programa de mentoria acadêmica da PUC Minas — Engenharia de Software.
 
 ---
 
-## 📖 Sobre o projeto
+## Sobre o projeto
 
-O **Padrinho Track** nasceu de uma necessidade real: o programa de mentoria da PUC Minas não tinha forma de registrar presenças, controlar entregas ou aplicar advertências de forma organizada. Tudo ficava disperso no WhatsApp e em planilhas manuais.
+O **Padrinho Track** nasceu de uma necessidade real: o programa de mentoria da PUC Minas não tinha forma estruturada de registrar presenças, controlar entregas ou aplicar advertências. Tudo ficava disperso no WhatsApp e em planilhas manuais.
 
-O sistema centraliza a gestão de **50 padrinhos** (veteranos voluntários) e **127 calouros**, automatizando as regras de advertência que definem quem está apto a receber horas ACG ao final do semestre.
-
----
-
-## 🚀 Funcionalidades
-
-- **Dashboard** com visão geral de status — padrinhos ativos, em risco e inaptos para ACG
-- **Cadastro de padrinhos** com turno, email e telefone
-- **Registro de presenças** por reunião com advertência automática por falta
-- **Controle de entrega de temas** com advertência automática por atraso ou não entrega
-- **Advertência manual** para comportamentos inadequados relatados por calouros
-- **Histórico individual** por padrinho — presenças, temas e advertências
-- **Alerta preventivo** para padrinhos com 1 amarelo antes de atingir o limite
-- **Relatório geral** de aptidão para ACG com exportação CSV
-- **Página de calouros** com match padrinho-calouro completo
-- **Sidebar colapsável** com animação suave e link ativo destacado automaticamente
-- **Dark mode** com toggle e preferência salva no localStorage
-- **UI redesenhada** — cards com gradiente, badges modernos, modais com header colorido
+O sistema centraliza a gestão de **50 padrinhos** (veteranos voluntários) e **127 calouros**, automatizando as regras de advertência que definem quem está apto a receber horas ACG ao final do semestre. Foi desenvolvido do zero por um coordenador do próprio programa, a partir de uma necessidade real identificada durante o semestre.
 
 ---
 
-## 🟡🔴 Regras de advertência
+## Funcionalidades
+
+**Gestão de padrinhos e calouros**
+- Cadastro de padrinhos com turno, email e telefone
+- Match padrinho-calouro com histórico completo
+- Histórico individual — presenças, temas e advertências
+
+**Presenças e reuniões**
+- Registro manual de presença por reunião
+- Importação automática via CSV exportado do Google Forms
+- Advertência amarela automática para faltas sem justificativa
+
+**Temas informativos**
+- Controle de entrega de temas em grupo (relação muitos-para-muitos)
+- Advertência automática por atraso (1 dia → amarelo) ou não entrega (vermelho)
+- Advertência manual com motivo livre para comportamentos inadequados
+
+**Relatórios e aptidão ACG**
+- Dashboard com visão geral — aptos, em alerta, inaptos
+- Gráficos de distribuição de status e presenças por reunião
+- Relatório geral exportável em CSV
+- Relatórios separados: aptos (para emissão de ACG) e vermelhos (para reportar ao professor)
+- Limite de amarelos configurável pela coordenação
+
+**Interface**
+- Sidebar colapsável com animação suave e link ativo destacado
+- Dark mode com toggle e preferência salva no localStorage
+- Busca em tempo real na lista de padrinhos
+- Toast notifications nas ações
+
+---
+
+## Regras de advertência
 
 | Situação | Cartão | Consequência |
 |---|---|---|
-| Falta sem justificativa em reunião | 🟡 Amarelo | — |
-| Entrega de tema com 1 dia de atraso | 🟡 Amarelo | — |
-| 2 amarelos acumulados | — | Inapto para ACG |
-| Não entrega de tema | 🔴 Vermelho | Inapto para ACG + reportar professor |
-| Comportamento inadequado (manual) | 🔴 Vermelho | Inapto para ACG + reportar professor |
+| Falta sem justificativa em reunião | Amarelo | — |
+| Entrega de tema com 1 dia de atraso | Amarelo | — |
+| N amarelos acumulados (configurável) | — | Inapto para ACG |
+| Não entrega de tema | Vermelho | Inapto para ACG + reportar professor |
+| Comportamento inadequado (manual) | Vermelho | Inapto para ACG + reportar professor |
 
 ---
 
-## 🖥️ Telas
+## Telas
 
 ### Dashboard
 ![Dashboard](docs/images/dashboard.png)
@@ -78,33 +93,36 @@ O sistema centraliza a gestão de **50 padrinhos** (veteranos voluntários) e **
 
 ---
 
-## 🛠️ Stack
+## Stack
 
 - **Backend:** Python + Flask
 - **Banco de dados:** SQLite
 - **Frontend:** HTML + Tailwind CSS + Remix Icon
-- **Testes:** pytest *(em desenvolvimento)*
+- **Testes:** pytest — 18 testes cobrindo regras de advertência e aptidão ACG
+- **Dados:** Pandas — importação de CSV e exportação de relatórios
 
 ---
 
-## 📂 Estrutura
+## Estrutura
 
 ```
 padrinho-track/
-├── app.py           # Flask: configuração e rotas
-├── database.py      # Conexão e criação do banco SQLite
-├── models.py        # Funções de leitura e escrita no banco
-├── templates/       # Páginas HTML com Tailwind
-├── static/          # Arquivos estáticos
-├── instance/        # Banco de dados local (não sobe pro Git)
-├── docs/            # Screenshots para o README
+├── app.py              # Flask: configuração e rotas
+├── database.py         # Conexão e criação do banco SQLite
+├── models.py           # Funções de leitura e escrita no banco
+├── seed_exemplo.py     # Dados fictícios para demonstração
+├── tests/              # Testes automatizados com pytest
+├── templates/          # Páginas HTML com Tailwind
+├── static/             # Arquivos estáticos
+├── instance/           # Banco de dados local (não sobe pro Git)
+├── docs/               # Screenshots para o README
 ├── requirements.txt
 └── README.md
 ```
 
 ---
 
-## ⚙️ Como rodar
+## Como rodar
 
 **1. Clone o repositório**
 ```bash
@@ -117,21 +135,41 @@ cd padrinho-track
 pip install -r requirements.txt
 ```
 
-**3. Rode o servidor**
+**3. Popule o banco com dados de exemplo**
+```bash
+python seed_exemplo.py
+```
+
+**4. Rode o servidor**
 ```bash
 python app.py
 ```
 
-**4. Acesse no navegador**
+**5. Acesse no navegador**
 ```
 http://127.0.0.1:5000
 ```
 
-> O banco de dados é criado automaticamente na primeira execução dentro da pasta `instance/`.
+O banco de dados é criado automaticamente na primeira execução dentro da pasta `instance/`.
+
+**Rodar os testes**
+```bash
+python -m pytest tests/ -v
+```
 
 ---
 
-## 👤 Autor
+## Roadmap
+
+- [ ] Login com autenticação para coordenadores
+- [ ] Deploy em nuvem com link público (Railway + PostgreSQL)
+- [ ] Geração de PDF de aptidão para ACG
+- [ ] Logs de auditoria — registro de quem alterou o quê
+- [ ] Integração direta com Google Sheets API
+
+---
+
+## Autor
 
 **Christiano Gonara**
 Engenharia de Software — PUC Minas
