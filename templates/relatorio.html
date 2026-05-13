@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Relatório — Padrinho Track{% endblock %}
+
+{% block content %}
+
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-semibold text-gray-800">Relatório geral</h1>
+  <button onclick="window.print()"
+          class="bg-gray-700 text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-800 transition">
+    Imprimir / salvar PDF
+  </button>
+</div>
+
+<!-- Cards de resumo -->
+<div class="grid grid-cols-4 gap-4 mb-8">
+  {% set aptos       = dados | selectattr("status", "eq", "apto")            | list %}
+  {% set alertas     = dados | selectattr("status", "eq", "alerta")          | list %}
+  {% set inapto_am   = dados | selectattr("status", "eq", "inapto_amarelo")  | list %}
+  {% set inapto_verm = dados | selectattr("status", "eq", "inapto_vermelho") | list %}
+
+  <div class="bg-white rounded-lg border border-gray-200 p-4">
+    <p class="text-sm text-gray-500">Aptos</p>
+    <p class="text-3xl font-semibold text-green-600">{{ aptos | length }}</p>
+  </div>
+  <div class="bg-white rounded-lg border border-gray-200 p-4">
+    <p class="text-sm text-gray-500">Em alerta</p>
+    <p class="text-3xl font-semibold text-amber-500">{{ alertas | length }}</p>
+  </div>
+  <div class="bg-white rounded-lg border border-gray-200 p-4">
+    <p class="text-sm text-gray-500">Inaptos — amarelo</p>
+    <p class="text-3xl font-semibold text-orange-600">{{ inapto_am | length }}</p>
+  </div>
+  <div class="bg-white rounded-lg border border-gray-200 p-4">
+    <p class="text-sm text-gray-500">Inaptos — vermelho</p>
+    <p class="text-3xl font-semibold text-red-600">{{ inapto_verm | length }}</p>
+  </div>
+</div>
+
+<!-- Tabela completa -->
+<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+      <tr>
+        <th class="px-4 py-3 text-left">Padrinho</th>
+        <th class="px-4 py-3 text-left">Matrícula</th>
+        <th class="px-4 py-3 text-center">Reuniões</th>
+        <th class="px-4 py-3 text-center">Presenças</th>
+        <th class="px-4 py-3 text-center">Amarelos</th>
+        <th class="px-4 py-3 text-center">Vermelhos</th>
+        <th class="px-4 py-3 text-center">Status ACG</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      {% for d in dados %}
+      <tr class="hover:bg-gray-50 transition">
+        <td class="px-4 py-3 font-medium">{{ d.padrinho["nome"] }}</td>
+        <td class="px-4 py-3 text-gray-500">{{ d.padrinho["matricula"] }}</td>
+        <td class="px-4 py-3 text-center text-gray-500">{{ d.total_reunioes }}</td>
+        <td class="px-4 py-3 text-center text-gray-500">{{ d.total_presentes }}</td>
+        <td class="px-4 py-3 text-center">
+          {% if d.amarelos > 0 %}
+            <span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-medium">
+              {{ d.amarelos }}
+            </span>
+          {% else %}
+            <span class="text-gray-300">—</span>
+          {% endif %}
+        </td>
+        <td class="px-4 py-3 text-center">
+          {% if d.vermelhos > 0 %}
+            <span class="bg-red-100 text-red-800 px-2 py-0.5 rounded-full font-medium">
+              {{ d.vermelhos }}
+            </span>
+          {% else %}
+            <span class="text-gray-300">—</span>
+          {% endif %}
+        </td>
+        <td class="px-4 py-3 text-center">
+          {% if d.status == "apto" %}
+            <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+              Apto
+            </span>
+          {% elif d.status == "alerta" %}
+            <span class="bg-amber-100 text-amber-800 px-2 py-1 rounded-full text-xs font-medium">
+              Alerta
+            </span>
+          {% elif d.status == "inapto_amarelo" %}
+            <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs font-medium">
+              Inapto
+            </span>
+          {% elif d.status == "inapto_vermelho" %}
+            <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">
+              Inapto — reportar prof.
+            </span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}
