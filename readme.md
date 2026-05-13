@@ -1,12 +1,44 @@
-# Padrinho Track
+# 🎓 Padrinho Track
 
-Sistema web interno para gestão do programa de mentoria acadêmica da PUC Minas — curso de Engenharia de Software.
+> Sistema web interno para gestão do programa de mentoria acadêmica da PUC Minas — Engenharia de Software.
 
-## Sobre o programa
+---
 
-Veteranos do curso (padrinhos) se inscrevem voluntariamente para acompanhar calouros ao longo do semestre. A coordenação registra presenças, controla entregas de temas e aplica o sistema de advertências que define a aptidão para recebimento de horas ACG.
+## 📖 Sobre o projeto
 
-## Telas
+O **Padrinho Track** nasceu de uma necessidade real: o programa de mentoria da PUC Minas não tinha forma de registrar presenças, controlar entregas ou aplicar advertências de forma organizada. Tudo ficava disperso no WhatsApp e em planilhas manuais.
+
+O sistema centraliza a gestão de **50 padrinhos** (veteranos voluntários) e **127 calouros**, automatizando as regras de advertência que definem quem está apto a receber horas ACG ao final do semestre.
+
+---
+
+## 🚀 Funcionalidades
+
+- **Dashboard** com visão geral de status — padrinhos ativos, em risco e inaptos para ACG
+- **Cadastro de padrinhos** com turno, email e telefone
+- **Registro de presenças** por reunião com advertência automática por falta
+- **Controle de entrega de temas** com advertência automática por atraso ou não entrega
+- **Advertência manual** para comportamentos inadequados relatados por calouros
+- **Histórico individual** por padrinho — presenças, temas e advertências
+- **Alerta preventivo** para padrinhos com 1 amarelo antes de atingir o limite
+- **Relatório geral** de aptidão para ACG com exportação CSV
+- **Match padrinho-calouro** completo com 127 calouros distribuídos
+
+---
+
+## 🟡🔴 Regras de advertência
+
+| Situação | Cartão | Consequência |
+|---|---|---|
+| Falta sem justificativa em reunião | 🟡 Amarelo | — |
+| Entrega de tema com 1 dia de atraso | 🟡 Amarelo | — |
+| 2 amarelos acumulados | — | Inapto para ACG |
+| Não entrega de tema | 🔴 Vermelho | Inapto para ACG + reportar professor |
+| Comportamento inadequado (manual) | 🔴 Vermelho | Inapto para ACG + reportar professor |
+
+---
+
+## 🖥️ Telas
 
 ### Dashboard
 ![Dashboard](docs/images/dashboard.png)
@@ -30,38 +62,22 @@ Veteranos do curso (padrinhos) se inscrevem voluntariamente para acompanhar calo
 ![Relatório](docs/images/relatorio.png)
 
 ### Modais
+
 | Novo padrinho | Nova reunião | Novo tema | Advertência manual |
 |---|---|---|---|
 | ![](docs/images/modal_padrinho.png) | ![](docs/images/modal_reuniao.png) | ![](docs/images/modal_tema.png) | ![](docs/images/modal_advertencia.png) |
 
-## Funcionalidades
+---
 
-- Cadastro de padrinhos com turno, email e telefone
-- Registro de presenças por reunião com advertência automática por falta
-- Controle de entrega de temas em grupo com advertência automática por atraso ou não entrega
-- Advertência manual para comportamentos inadequados
-- Dashboard com visão geral de status de todos os padrinhos
-- Histórico individual por padrinho — presenças, temas e advertências
-- Relatório geral de aptidão para ACG com exportação CSV
-- Página de calouros com match padrinho-calouro completo
-
-## Regras de advertência
-
-| Situação | Cartão | Consequência |
-|---|---|---|
-| Falta sem justificativa em reunião | Amarelo | — |
-| Entrega de tema com 1 dia de atraso | Amarelo | — |
-| 2 amarelos | — | Inapto para ACG |
-| Não entrega de tema | Vermelho | Inapto para ACG + reportar professor |
-| Comportamento inadequado (manual) | Vermelho | Inapto para ACG + reportar professor |
-
-## Stack
+## 🛠️ Stack
 
 - **Backend:** Python + Flask
 - **Banco de dados:** SQLite
 - **Frontend:** HTML + Tailwind CSS + Remix Icon
 
-## Estrutura
+---
+
+## 📂 Estrutura
 
 ```
 padrinho-track/
@@ -76,11 +92,13 @@ padrinho-track/
 └── README.md
 ```
 
-## Como rodar
+---
+
+## ⚙️ Como rodar
 
 **1. Clone o repositório**
 ```bash
-git clone https://github.com/seu-usuario/padrinho-track.git
+git clone https://github.com/christiano-gonara/padrinho-track.git
 cd padrinho-track
 ```
 
@@ -99,11 +117,12 @@ python app.py
 http://127.0.0.1:5000
 ```
 
-O banco de dados é criado automaticamente na primeira execução dentro da pasta `instance/`.
+> O banco de dados é criado automaticamente na primeira execução dentro da pasta `instance/`.
 
-## Dependências
+---
 
-```
-flask>=3.0
-pandas>=2.0
-```
+## 👤 Autor
+
+**Christiano Gonara**
+Engenharia de Software — PUC Minas
+[LinkedIn](https://linkedin.com/in/christiano-gonara) · [GitHub](https://github.com/christiano-gonara)
