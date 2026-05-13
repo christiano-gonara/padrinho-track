@@ -30,6 +30,7 @@
         <th class="px-6 py-3 text-left font-semibold tracking-wide">Data</th>
       </tr>
     </thead>
+
     <tbody class="divide-y divide-slate-100 dark:divide-gray-800">
       {% for a in advertencias %}
       <tr class="hover:bg-slate-50 dark:hover:bg-gray-800 transition">
@@ -76,10 +77,19 @@
             {{ a["data"] | databr }}
           </span>
         </td>
+        <td class="px-6 py-4 text-right">
+          <form action="/advertencias/{{ a['id'] }}/excluir" method="POST"
+                onsubmit="return confirm('Remover esta advertência?')">
+            <button type="submit"
+                    class="inline-flex items-center gap-1.5 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 px-3 py-1.5 rounded-lg text-xs font-medium transition">
+              <i class="ri-delete-bin-line"></i> Excluir
+            </button>
+          </form>
+        </td>
       </tr>
       {% else %}
       <tr>
-        <td colspan="5" class="px-6 py-10 text-center text-gray-400 dark:text-gray-600">
+        <td colspan="6" class="px-6 py-10 text-center text-gray-400 dark:text-gray-600">
           <i class="ri-shield-check-line text-3xl block mb-2"></i>
           Nenhuma advertência registrada ainda.
         </td>

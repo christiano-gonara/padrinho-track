@@ -247,6 +247,62 @@ def configuracoes():
     limite_atual = get_config("limite_amarelos", "2")
     return render_template("config.html", limite_amarelos=limite_atual)
 
+# ── CRUD Padrinhos ─────────────────────────────────────────────────────────
+
+@app.route("/padrinhos/<int:padrinho_id>/editar", methods=["POST"])
+def editar_padrinho(padrinho_id):
+    from models import editar_padrinho as _editar
+    _editar(
+        padrinho_id,
+        request.form["nome"].strip(),
+        request.form["matricula"].strip(),
+        request.form.get("email", "").strip(),
+        request.form.get("telefone", "").strip(),
+        request.form.get("turno", "").strip(),
+    )
+    flash("Padrinho atualizado.", "success")
+    return redirect(url_for("padrinho_detalhe", padrinho_id=padrinho_id))
+
+@app.route("/padrinhos/<int:padrinho_id>/excluir", methods=["POST"])
+def excluir_padrinho(padrinho_id):
+    from models import excluir_padrinho as _excluir
+    _excluir(padrinho_id)
+    flash("Padrinho removido do programa.", "success")
+    return redirect(url_for("padrinhos"))
+
+# ── CRUD Advertências ──────────────────────────────────────────────────────
+
+@app.route("/advertencias/<int:advertencia_id>/excluir", methods=["POST"])
+def excluir_advertencia(advertencia_id):
+    from models import excluir_advertencia as _excluir
+    conn = get_conn()
+    adv = conn.execute("SELECT padrinho_id FROM advertencias WHERE id=?", (advertencia_id,)).fetchone()
+    conn.close()
+    padrinho_id = adv["padrinho_id"] if adv else None
+    _excluir(advertencia_id)
+    flash("Advertência removida.", "success")
+    if padrinho_id:
+        return redirect(url_for("padrinho_detalhe", padrinho_id=padrinho_id))
+    return redirect(url_for("advertencias"))
+
+# ── CRUD Reuniões ──────────────────────────────────────────────────────────
+
+@app.route("/reunioes/<int:reuniao_id>/excluir", methods=["POST"])
+def excluir_reuniao(reuniao_id):
+    from models import excluir_reuniao as _excluir
+    _excluir(reuniao_id)
+    flash("Reunião removida.", "success")
+    return redirect(url_for("reunioes"))
+
+# ── CRUD Temas ─────────────────────────────────────────────────────────────
+
+@app.route("/temas/<int:tema_id>/excluir", methods=["POST"])
+def excluir_tema(tema_id):
+    from models import excluir_tema as _excluir
+    _excluir(tema_id)
+    flash("Tema removido.", "success")
+    return redirect(url_for("temas"))
+
 # ── Inicialização ──────────────────────────────────────────────────────────
 
 if __name__ == "__main__":

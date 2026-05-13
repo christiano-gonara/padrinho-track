@@ -323,3 +323,47 @@ def get_calouros_match_completo():
         resultado.append({"padrinho": p, "calouros": calouros})
     conn.close()
     return resultado
+
+def editar_padrinho(padrinho_id, nome, matricula, email, telefone, turno):
+    conn = get_conn()
+    conn.execute("""
+        UPDATE padrinhos SET nome=?, matricula=?, email=?, telefone=?, turno=?
+        WHERE id=?
+    """, (nome, matricula, email, telefone, turno, padrinho_id))
+    conn.commit()
+    conn.close()
+
+def excluir_padrinho(padrinho_id):
+    conn = get_conn()
+    conn.execute("UPDATE padrinhos SET ativo=0 WHERE id=?", (padrinho_id,))
+    conn.commit()
+    conn.close()
+
+def excluir_advertencia(advertencia_id):
+    conn = get_conn()
+    conn.execute("DELETE FROM advertencias WHERE id=?", (advertencia_id,))
+    conn.commit()
+    conn.close()
+
+def editar_presenca(reuniao_id, padrinho_id, presente, justificada):
+    conn = get_conn()
+    conn.execute("""
+        UPDATE presencas SET presente=?, justificada=?
+        WHERE reuniao_id=? AND padrinho_id=?
+    """, (presente, justificada, reuniao_id, padrinho_id))
+    conn.commit()
+    conn.close()
+
+def excluir_reuniao(reuniao_id):
+    conn = get_conn()
+    conn.execute("DELETE FROM presencas WHERE reuniao_id=?", (reuniao_id,))
+    conn.execute("DELETE FROM reunioes WHERE id=?", (reuniao_id,))
+    conn.commit()
+    conn.close()
+
+def excluir_tema(tema_id):
+    conn = get_conn()
+    conn.execute("DELETE FROM tema_padrinhos WHERE tema_id=?", (tema_id,))
+    conn.execute("DELETE FROM temas WHERE id=?", (tema_id,))
+    conn.commit()
+    conn.close()
