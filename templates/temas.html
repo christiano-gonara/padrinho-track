@@ -17,7 +17,8 @@
       <tr>
         <th class="px-4 py-3 text-left">Título</th>
         <th class="px-4 py-3 text-left">Responsáveis</th>
-        <th class="px-4 py-3 text-left">Prazo</th>
+        <th class="px-4 py-3 text-center">Aviso</th>
+        <th class="px-4 py-3 text-center">Prazo</th>
         <th class="px-4 py-3 text-center">Status</th>
         <th class="px-4 py-3"></th>
       </tr>
@@ -26,7 +27,7 @@
       {% for item in temas %}
       <tr class="hover:bg-gray-50 transition">
         <td class="px-4 py-3 font-medium">{{ item.tema["titulo"] }}</td>
-        <td class="px-4 py-3 text-gray-500">
+        <td class="px-4 py-3">
           <div class="flex flex-wrap gap-1">
             {% for p in item.padrinhos %}
               <span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full text-xs">
@@ -35,53 +36,68 @@
             {% endfor %}
           </div>
         </td>
-        <td class="px-4 py-3 text-gray-500">{{ item.tema["data_limite"] }}</td>
+        <td class="px-4 py-3 text-center text-gray-500">
+          <span class="inline-flex items-center gap-1">
+            <i class="ri-notification-line text-gray-400"></i>
+            {{ item.tema["data_aviso"] | databr }}
+          </span>
+        </td>
+        <td class="px-4 py-3 text-center text-gray-500">
+          <span class="inline-flex items-center gap-1">
+            <i class="ri-calendar-line text-gray-400"></i>
+            {{ item.tema["data_limite"] | databr }}
+          </span>
+        </td>
         <td class="px-4 py-3 text-center">
           {% if item.tema["situacao"] == "entregue" %}
-            <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+            <span class="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
               <i class="ri-checkbox-circle-line"></i> Entregue
             </span>
           {% elif item.tema["situacao"] == "atraso" %}
-            <span class="bg-amber-100 text-amber-800 px-2 py-1 rounded-full text-xs font-medium">
+            <span class="inline-flex items-center gap-1 bg-amber-100 text-amber-800 px-2 py-1 rounded-full text-xs font-medium">
               <i class="ri-time-line"></i> Atraso
             </span>
           {% elif item.tema["situacao"] == "nao_entregue" %}
-            <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">
+            <span class="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">
               <i class="ri-close-circle-line"></i> Não entregue
             </span>
           {% else %}
-            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs font-medium">
+            <span class="inline-flex items-center gap-1 bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs font-medium">
               <i class="ri-time-line"></i> Pendente
             </span>
           {% endif %}
         </td>
         <td class="px-4 py-3 text-right">
           {% if item.tema["situacao"] == "pendente" %}
-            <div class="flex justify-end gap-2">
+            <div class="flex justify-end items-center gap-2">
               <form action="/temas/{{ item.tema['id'] }}/entregue" method="POST" class="flex items-center gap-1">
                 <input type="date" name="data_entrega"
                        value="{{ today }}"
                        class="border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-400" />
                 <button type="submit"
-                        class="text-xs bg-green-50 text-green-700 px-3 py-1 rounded-lg hover:bg-green-100 transition">
+                        class="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 px-3 py-1.5 rounded-lg hover:bg-green-100 transition">
                   <i class="ri-check-line"></i> Entregue
                 </button>
               </form>
               <form action="/temas/{{ item.tema['id'] }}/nao_entregue" method="POST">
                 <button type="submit"
-                        class="text-xs bg-red-50 text-red-700 px-3 py-1 rounded-lg hover:bg-red-100 transition">
+                        class="inline-flex items-center gap-1 text-xs bg-red-50 text-red-700 px-3 py-1.5 rounded-lg hover:bg-red-100 transition">
                   <i class="ri-close-line"></i> Não entregue
                 </button>
               </form>
             </div>
           {% else %}
-            <span class="text-xs text-gray-400">{{ item.tema["data_entrega"] or "—" }}</span>
+            <span class="inline-flex items-center gap-1 text-xs text-gray-400">
+              <i class="ri-calendar-check-line"></i>
+              {{ item.tema["data_entrega"] | databr }}
+            </span>
           {% endif %}
         </td>
       </tr>
       {% else %}
       <tr>
-        <td colspan="5" class="px-4 py-6 text-center text-gray-400">
+        <td colspan="6" class="px-4 py-6 text-center text-gray-400">
+          <i class="ri-book-open-line text-2xl block mb-1"></i>
           Nenhum tema cadastrado ainda.
         </td>
       </tr>
@@ -124,15 +140,17 @@
             <option value="{{ p['id'] }}">{{ p["nome"] }}</option>
           {% endfor %}
         </select>
-        <p class="text-xs text-gray-400 mt-1">Segura Ctrl para selecionar mais de um</p>
+        <p class="text-xs text-gray-400 mt-1">
+          <i class="ri-information-line"></i> Segura Ctrl para selecionar mais de um
+        </p>
       </div>
       <div class="flex justify-end gap-3 mt-2">
         <button type="button"
                 onclick="document.getElementById('modal-novo').classList.add('hidden')"
                 class="text-sm text-gray-500 hover:text-gray-700">Cancelar</button>
         <button type="submit"
-                class="bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
-          Registrar
+                class="flex items-center gap-2 bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+          <i class="ri-save-line"></i> Registrar
         </button>
       </div>
     </form>
