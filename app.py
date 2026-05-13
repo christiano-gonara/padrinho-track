@@ -1,12 +1,14 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
+from datetime import date
 from database import init_db, get_conn
 from models import (
     get_todos_padrinhos, get_padrinho, cadastrar_padrinho,
     get_todas_reunioes, criar_reuniao,
     lancar_presenca, get_presencas_reuniao, emitir_advertencias_falta,
-    registrar_tema, marcar_tema_entregue, marcar_tema_nao_entregue,
+    registrar_tema, registrar_entrega_tema, marcar_tema_nao_entregue,
     emitir_advertencia_manual, get_advertencias_padrinho,
-    calcular_status, get_historico_padrinho, get_relatorio_geral
+    calcular_status, get_historico_padrinho, get_relatorio_geral,
+    get_todos_temas
 )
 
 app = Flask(__name__)
@@ -31,7 +33,7 @@ def dashboard():
         "SELECT * FROM reunioes ORDER BY data DESC LIMIT 1"
     ).fetchone()
     proximo_tema = conn.execute(
-        "SELECT * FROM temas WHERE entregue = 0 ORDER BY data_limite ASC LIMIT 1"
+        "SELECT * FROM temas WHERE situacao = 'pendente' ORDER BY data_limite ASC LIMIT 1"
     ).fetchone()
     conn.close()
 
@@ -54,8 +56,10 @@ def novo_padrinho():
         nome      = request.form["nome"].strip()
         matricula = request.form["matricula"].strip()
         email     = request.form.get("email", "").strip()
+        telefone  = request.form.get("telefone", "").strip()
+        turno     = request.form.get("turno", "").strip()
         try:
-            cadastrar_padrinho(nome, matricula, email)
+            cadastrar_padrinho(nome, matricula, email, telefone, turno)
             flash("Padrinho cadastrado com sucesso.", "success")
             return redirect(url_for("padrinhos"))
         except Exception:
@@ -64,9 +68,9 @@ def novo_padrinho():
 
 @app.route("/padrinhos/<int:padrinho_id>")
 def padrinho_detalhe(padrinho_id):
-    padrinho    = get_padrinho(padrinho_id)
-    status      = calcular_status(padrinho_id)
-    historico   = get_historico_padrinho(padrinho_id)
+    padrinho     = get_padrinho(padrinho_id)
+    status       = calcular_status(padrinho_id)
+    historico    = get_historico_padrinho(padrinho_id)
     advertencias = get_advertencias_padrinho(padrinho_id)
     return render_template("padrinho_detalhe.html",
         padrinho=padrinho,
@@ -113,30 +117,31 @@ def presencas(reuniao_id):
 
 @app.route("/temas")
 def temas():
-    conn = get_conn()
-    lista = conn.execute("""
-        SELECT t.*, p.nome AS padrinho_nome
-        FROM temas t
-        JOIN padrinhos p ON p.id = t.padrinho_id
-        ORDER BY t.data_limite ASC
-    """).fetchall()
-    conn.close()
+    lista     = get_todos_temas()
     padrinhos = get_todos_padrinhos()
-    return render_template("temas.html", temas=lista, padrinhos=padrinhos)
+    return render_template("temas.html", temas=lista, padrinhos=padrinhos, today=date.today().isoformat())
 
 @app.route("/temas/novo", methods=["POST"])
 def novo_tema():
-    titulo      = request.form["titulo"].strip()
-    data_limite = request.form["data_limite"]
-    padrinho_id = request.form["padrinho_id"]
-    registrar_tema(titulo, data_limite, padrinho_id)
+    titulo       = request.form["titulo"].strip()
+    data_aviso   = request.form.get("data_aviso", "")
+    data_limite  = request.form["data_limite"]
+    padrinho_ids = request.form.getlist("padrinho_ids")
+    registrar_tema(titulo, data_aviso, data_limite, padrinho_ids)
     flash("Tema registrado.", "success")
     return redirect(url_for("temas"))
 
 @app.route("/temas/<int:tema_id>/entregue", methods=["POST"])
 def tema_entregue(tema_id):
-    marcar_tema_entregue(tema_id)
-    flash("Tema marcado como entregue.", "success")
+    data_entrega = request.form.get("data_entrega", date.today().isoformat())
+    situacao = registrar_entrega_tema(tema_id, data_entrega)
+    mensagens = {
+        "entregue":     ("Tema entregue no prazo.", "success"),
+        "atraso":       ("Tema entregue com atraso — amarelo emitido.", "error"),
+        "nao_entregue": ("Tema não entregue — vermelho emitido.", "error"),
+    }
+    msg, cat = mensagens.get(situacao, ("Status atualizado.", "success"))
+    flash(msg, cat)
     return redirect(url_for("temas"))
 
 @app.route("/temas/<int:tema_id>/nao_entregue", methods=["POST"])
