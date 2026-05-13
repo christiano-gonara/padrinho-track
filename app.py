@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
-from datetime import date
+from datetime import date, datetime
 from database import init_db, get_conn
 from models import (
     get_todos_padrinhos, get_padrinho, cadastrar_padrinho,
@@ -13,6 +13,15 @@ from models import (
 
 app = Flask(__name__)
 app.secret_key = "padrinho-track-secret"
+
+@app.template_filter('databr')
+def databr(value):
+    if not value:
+        return "—"
+    try:
+        return datetime.strptime(str(value), "%Y-%m-%d").strftime("%d/%m")
+    except:
+        return value
 
 @app.before_request
 def setup():
