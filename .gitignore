@@ -5,3 +5,5 @@ __pycache__/
 *.db
 *.csv
 *.xlsx
+seed.py
+seed_calouros.py
