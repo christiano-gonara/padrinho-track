@@ -1,0 +1,62 @@
+import sqlite3
+from pathlib import Path
+
+DB_PATH = Path(__file__).parent / "instance" / "mentoria.db"
+
+def get_conn():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys = ON")
+    return conn
+
+def init_db():
+    conn = get_conn()
+    conn.executescript("""
+    CREATE TABLE IF NOT EXISTS padrinhos (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome        TEXT NOT NULL,
+        matricula   TEXT UNIQUE NOT NULL,
+        email       TEXT,
+        ativo       INTEGER DEFAULT 1
+    );
+
+    CREATE TABLE IF NOT EXISTS reunioes (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        data        TEXT NOT NULL,
+        tema        TEXT,
+        descricao   TEXT
+    );
+
+    CREATE TABLE IF NOT EXISTS presencas (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        reuniao_id  INTEGER NOT NULL,
+        padrinho_id INTEGER NOT NULL,
+        presente    INTEGER DEFAULT 0,
+        justificada INTEGER DEFAULT 0,
+        FOREIGN KEY (reuniao_id)  REFERENCES reunioes(id),
+        FOREIGN KEY (padrinho_id) REFERENCES padrinhos(id),
+        UNIQUE (reuniao_id, padrinho_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS temas (
+        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+        titulo       TEXT NOT NULL,
+        data_limite  TEXT NOT NULL,
+        padrinho_id  INTEGER NOT NULL,
+        entregue     INTEGER DEFAULT 0,
+        data_entrega TEXT,
+        FOREIGN KEY (padrinho_id) REFERENCES padrinhos(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS advertencias (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        padrinho_id INTEGER NOT NULL,
+        tipo        TEXT NOT NULL,
+        origem      TEXT NOT NULL,
+        motivo      TEXT,
+        data        TEXT NOT NULL,
+        FOREIGN KEY (padrinho_id) REFERENCES padrinhos(id)
+    );
+    """)
+    conn.commit()
+    conn.close()
