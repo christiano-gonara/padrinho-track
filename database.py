@@ -66,6 +66,21 @@ def init_db():
         data        TEXT NOT NULL,
         FOREIGN KEY (padrinho_id) REFERENCES padrinhos(id)
     );
+
+    CREATE TABLE IF NOT EXISTS calouros (
+        id        INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome      TEXT NOT NULL,
+        telefone  TEXT
+    );
+
+    CREATE TABLE IF NOT EXISTS matches (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        padrinho_id INTEGER NOT NULL,
+        calouro_id  INTEGER NOT NULL,
+        FOREIGN KEY (padrinho_id) REFERENCES padrinhos(id),
+        FOREIGN KEY (calouro_id)  REFERENCES calouros(id),
+        UNIQUE (padrinho_id, calouro_id)
+    );
     """)
     conn.commit()
     conn.close()
