@@ -7,7 +7,9 @@
       "Bash(Select-String -Pattern \"DEBUG|Running|Error\")",
       "Bash(Select-Object -First 10)",
       "Bash(git commit *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(del \"C:\\\\Users\\\\Pexy0\\\\padrinho-track\\\\Procfile\")",
+      "Bash(del \"C:\\\\Users\\\\Pexy0\\\\padrinho-track\\\\runtime.txt\")"
     ]
   }
 }
