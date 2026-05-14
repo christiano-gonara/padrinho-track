@@ -1,4 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+import os
+from dotenv import load_dotenv
+load_dotenv(override=True)
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from datetime import date, datetime
 from database import init_db, get_conn
 from models import (
@@ -12,7 +15,7 @@ from models import (
 )
 
 app = Flask(__name__)
-app.secret_key = "padrinho-track-secret"
+app.secret_key = os.environ.get("SECRET_KEY", "padrinho-track-secret")
 
 @app.template_filter('databr')
 def databr(value):
@@ -23,9 +26,40 @@ def databr(value):
     except:
         return value
 
+_APP_USER = os.environ.get("APP_USERNAME", "admin")
+_APP_PASS = os.environ.get("APP_PASSWORD", "")
+
 @app.before_request
 def setup():
     init_db()
+
+@app.before_request
+def require_login():
+    public = {"login", "static"}
+    if request.endpoint not in public and not session.get("logged_in"):
+        return redirect(url_for("login", next=request.path))
+
+# ── Login / Logout ─────────────────────────────────────────────────────────
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if session.get("logged_in"):
+        return redirect(url_for("dashboard"))
+    error = None
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+        if username == _APP_USER and password == _APP_PASS:
+            session["logged_in"] = True
+            next_url = request.args.get("next") or url_for("dashboard")
+            return redirect(next_url)
+        error = "Usuário ou senha inválidos."
+    return render_template("login.html", error=error)
+
+@app.route("/logout", methods=["POST"])
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
 
 # ── Dashboard ──────────────────────────────────────────────────────────────
 
