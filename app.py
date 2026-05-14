@@ -242,6 +242,19 @@ def relatorio():
     return render_template("relatorio.html", dados=dados)
 
 
+@app.route("/relatorio/pdf")
+def exportar_pdf_acg():
+    from models import gerar_pdf_acg
+    from flask import send_file
+    import io
+    pdf_bytes = gerar_pdf_acg()
+    return send_file(
+        io.BytesIO(pdf_bytes),
+        mimetype="application/pdf",
+        as_attachment=True,
+        download_name="relatorio_acg.pdf"
+    )
+
 @app.route("/relatorio/exportar")
 def exportar_relatorio():
     from models import exportar_relatorio_csv

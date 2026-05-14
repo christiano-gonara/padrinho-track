@@ -266,12 +266,12 @@ def exportar_relatorio_csv(caminho="relatorio_acg.csv"):
     for d in dados:
         rows.append({
             "Nome":            d["padrinho"]["nome"],
-            "Matrícula":       d["padrinho"]["matricula"],
+            "Matricula":       d["padrinho"]["matricula"],
             "Email":           d["padrinho"]["email"] or "",
             "Telefone":        d["padrinho"]["telefone"] or "",
             "Turno":           d["padrinho"]["turno"] or "",
-            "Reuniões":        d["total_reunioes"],
-            "Presenças":       d["total_presentes"],
+            "Reunioes":        d["total_reunioes"],
+            "Presencas":       d["total_presentes"],
             "Amarelos":        d["amarelos"],
             "Vermelhos":       d["vermelhos"],
             "Status":          d["status"],
@@ -403,9 +403,9 @@ def get_relatorio_vermelhos():
 def exportar_aptos_csv(caminho="instance/relatorio_aptos.csv"):
     import pandas as pd
     dados = get_relatorio_aptos()
-    rows = [{"Nome": d["padrinho"]["nome"], "Matrícula": d["padrinho"]["matricula"],
+    rows = [{"Nome": d["padrinho"]["nome"], "Matricula": d["padrinho"]["matricula"],
              "Email": d["padrinho"]["email"] or "", "Turno": d["padrinho"]["turno"] or "",
-             "Reuniões": d["total_reunioes"], "Presenças": d["total_presentes"]} for d in dados]
+             "Reunioes": d["total_reunioes"], "Presencas": d["total_presentes"]} for d in dados]
     pd.DataFrame(rows).to_csv(caminho, index=False, encoding="utf-8-sig")
     return caminho
 
@@ -417,7 +417,7 @@ def exportar_vermelhos_csv(caminho="instance/relatorio_vermelhos.csv"):
         for a in d["vermelhos"]:
             rows.append({
                 "Nome": d["padrinho"]["nome"],
-                "Matrícula": d["padrinho"]["matricula"],
+                "Matricula": d["padrinho"]["matricula"],
                 "Email": d["padrinho"]["email"] or "",
                 "Origem": a["origem"],
                 "Motivo": a["motivo"] or "",
@@ -425,6 +425,206 @@ def exportar_vermelhos_csv(caminho="instance/relatorio_vermelhos.csv"):
             })
     pd.DataFrame(rows).to_csv(caminho, index=False, encoding="utf-8-sig")
     return caminho
+
+def gerar_pdf_acg():
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.units import cm
+    from reportlab.lib.colors import HexColor, white
+    from reportlab.lib.styles import ParagraphStyle
+    from reportlab.lib.enums import TA_CENTER, TA_RIGHT
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from datetime import date
+    import io
+
+    dados = get_relatorio_geral()
+    hoje = date.today().strftime("%d/%m/%Y")
+
+    aptos            = [d for d in dados if d["status"] == "apto"]
+    inaptos_amarelo  = [d for d in dados if d["status"] == "inapto_amarelo"]
+    inaptos_vermelho = [d for d in dados if d["status"] == "inapto_vermelho"]
+
+    conn = get_conn()
+    vermelhos_rows_data = []
+    for d in inaptos_vermelho:
+        adv = conn.execute("""
+            SELECT motivo FROM advertencias
+            WHERE padrinho_id = ? AND tipo = 'vermelho'
+            ORDER BY data DESC LIMIT 1
+        """, (d["padrinho"]["id"],)).fetchone()
+        vermelhos_rows_data.append({
+            "padrinho": d["padrinho"],
+            "motivo": adv["motivo"] if adv else "-",
+        })
+    conn.close()
+
+    # Palette
+    INDIGO     = HexColor('#6366f1')
+    VERDE_BG   = HexColor('#dcfce7')
+    LARANJA_BG = HexColor('#ffedd5')
+    VERM_BG    = HexColor('#fee2e2')
+    SLATE_BG   = HexColor('#f8fafc')
+    STRIPE     = HexColor('#f1f5f9')
+    BORDER     = HexColor('#e2e8f0')
+    SLATE_TXT  = HexColor('#64748b')
+    BODY_TXT   = HexColor('#1e293b')
+
+    W = A4[0] - 4 * cm
+
+    buf = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buf, pagesize=A4,
+        leftMargin=2*cm, rightMargin=2*cm,
+        topMargin=2*cm, bottomMargin=2*cm,
+        title="Relatorio de Aptidao ACG - Padrinho Track",
+    )
+
+    def _p(text, font="Helvetica", size=9, color=BODY_TXT, align=TA_CENTER):
+        return Paragraph(
+            f'<font name="{font}" size="{size}">{text}</font>',
+            ParagraphStyle("_", fontName=font, fontSize=size, textColor=color, alignment=align),
+        )
+
+    def _section_header(label, bg, text_color):
+        t = Table([[_p(label, "Helvetica-Bold", 10, text_color, TA_CENTER)]],
+                  colWidths=[W])
+        t.setStyle(TableStyle([
+            ("BACKGROUND",    (0, 0), (-1, -1), bg),
+            ("TOPPADDING",    (0, 0), (-1, -1), 7),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 7),
+            ("LEFTPADDING",   (0, 0), (-1, -1), 10),
+            ("RIGHTPADDING",  (0, 0), (-1, -1), 10),
+            ("LINEBELOW",     (0, 0), (-1, 0),  0.5, BORDER),
+        ]))
+        return t
+
+    def _data_table(headers, rows, col_widths):
+        from reportlab.lib.enums import TA_LEFT
+        cell_style = ParagraphStyle(
+            "_cell", fontName="Helvetica", fontSize=10, textColor=BODY_TXT, alignment=TA_LEFT
+        )
+
+        def _cell(val):
+            return Paragraph(str(val) if val else "-", cell_style)
+
+        header_cells = [_p(h, "Helvetica-Bold", 7, SLATE_TXT) for h in headers]
+        raw_body = rows if rows else [["Nenhum registro."] + [""] * (len(headers) - 1)]
+        body = [[_cell(v) for v in row] for row in raw_body]
+        data = [header_cells] + body
+        style = [
+            ("BACKGROUND",    (0, 0), (-1, 0),  SLATE_BG),
+            ("LINEBELOW",     (0, 0), (-1, 0),  0.5, BORDER),
+            ("GRID",          (0, 0), (-1, -1), 0.4, BORDER),
+            ("TOPPADDING",    (0, 0), (-1, -1), 3),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+            ("LEFTPADDING",   (0, 0), (-1, -1), 5),
+            ("RIGHTPADDING",  (0, 0), (-1, -1), 5),
+            ("VALIGN",        (0, 0), (-1, -1), "MIDDLE"),
+        ]
+        for i in range(2, len(data), 2):
+            style.append(("BACKGROUND", (0, i), (-1, i), STRIPE))
+        t = Table(data, colWidths=col_widths)
+        t.setStyle(TableStyle(style))
+        return t
+
+    story = []
+
+    # Cabecalho
+    header = Table(
+        [[
+            _p("Padrinho Track - Relatorio de Aptidao ACG",
+               "Helvetica-Bold", 14, white, TA_CENTER),
+            _p(f"Semestre 2026/1  |  Gerado em {hoje}",
+               "Helvetica", 8, white, TA_RIGHT),
+        ]],
+        colWidths=[W * 0.65, W * 0.35],
+    )
+    header.setStyle(TableStyle([
+        ("BACKGROUND",    (0, 0), (-1, -1), INDIGO),
+        ("VALIGN",        (0, 0), (-1, -1), "MIDDLE"),
+        ("TOPPADDING",    (0, 0), (-1, -1), 14),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 14),
+        ("LEFTPADDING",   (0, 0), (0, -1),  16),
+        ("RIGHTPADDING",  (-1, 0), (-1, -1), 16),
+    ]))
+    story.append(header)
+    story.append(Spacer(1, 0.5 * cm))
+
+    # Cards de resumo
+    summary = Table(
+        [[
+            _p(f"<b>{len(aptos)}</b>  APTOS",
+               "Helvetica-Bold", 11, HexColor('#166534')),
+            _p(f"<b>{len(inaptos_amarelo)}</b>  INAPTOS",
+               "Helvetica-Bold", 11, HexColor('#c2410c')),
+            _p(f"<b>{len(inaptos_vermelho)}</b>  INAPTOS GRAVES",
+               "Helvetica-Bold", 11, HexColor('#991B1B')),
+        ]],
+        colWidths=[W / 3, W / 3, W / 3],
+    )
+    summary.setStyle(TableStyle([
+        ("BACKGROUND",    (0, 0), (0, -1),  HexColor('#f0fdf4')),
+        ("BACKGROUND",    (1, 0), (1, -1),  HexColor('#fff7ed')),
+        ("BACKGROUND",    (2, 0), (2, -1),  HexColor('#fff1f2')),
+        ("BOX",           (0, 0), (0, -1),  0.8, HexColor('#bbf7d0')),
+        ("BOX",           (1, 0), (1, -1),  0.8, HexColor('#fed7aa')),
+        ("BOX",           (2, 0), (2, -1),  0.8, HexColor('#fecdd3')),
+        ("ALIGN",         (0, 0), (-1, -1), "CENTER"),
+        ("VALIGN",        (0, 0), (-1, -1), "MIDDLE"),
+        ("TOPPADDING",    (0, 0), (-1, -1), 6),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+    ]))
+    story.append(summary)
+    story.append(Spacer(1, 0.6 * cm))
+
+    # Secao APTOS
+    story.append(_section_header(f"APTOS  ({len(aptos)})", VERDE_BG, HexColor('#166534')))
+    story.append(Spacer(1, 0.15 * cm))
+    rows_a = [[d["padrinho"]["nome"], d["padrinho"]["matricula"], d["padrinho"]["turno"] or "-"]
+              for d in aptos]
+    story.append(_data_table(["Nome", "Matricula", "Turno"], rows_a,
+                             [W * 0.55, W * 0.25, W * 0.20]))
+    story.append(Spacer(1, 0.5 * cm))
+
+    # Secao INAPTOS AMARELO
+    story.append(_section_header(
+        f"INAPTOS  ({len(inaptos_amarelo)})",
+        LARANJA_BG, HexColor('#c2410c')))
+    story.append(Spacer(1, 0.15 * cm))
+    rows_am = [[d["padrinho"]["nome"], d["padrinho"]["matricula"],
+                f"{d['amarelos']} amarelo{'s' if d['amarelos'] != 1 else ''}"]
+               for d in inaptos_amarelo]
+    story.append(_data_table(["Nome", "Matricula", "Amarelos"], rows_am,
+                             [W * 0.55, W * 0.25, W * 0.20]))
+    story.append(Spacer(1, 0.5 * cm))
+
+    # Secao INAPTOS VERMELHO
+    story.append(_section_header(
+        f"INAPTOS GRAVES  ({len(inaptos_vermelho)})",
+        VERM_BG, HexColor('#991B1B')))
+    story.append(Spacer(1, 0.15 * cm))
+    rows_v = [[r["padrinho"]["nome"], r["padrinho"]["matricula"], r["motivo"] or "-"]
+              for r in vermelhos_rows_data]
+    story.append(_data_table(["Nome", "Matricula", "Motivo"], rows_v,
+                             [W * 0.35, W * 0.20, W * 0.45]))
+    story.append(Spacer(1, 0.8 * cm))
+
+    # Rodape
+    footer = Table(
+        [[_p(f"Gerado automaticamente pelo Padrinho Track  |  PUC Minas  |  "
+             f"Eng. de Software  |  2026/1  |  {hoje}",
+             "Helvetica", 7, HexColor('#94a3b8'))]],
+        colWidths=[W],
+    )
+    footer.setStyle(TableStyle([
+        ("LINEABOVE",     (0, 0), (-1, 0),  0.5, BORDER),
+        ("TOPPADDING",    (0, 0), (-1, -1), 8),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+    ]))
+    story.append(footer)
+
+    doc.build(story)
+    return buf.getvalue()
+
 
 def importar_presencas_csv(caminho_csv, reuniao_id):
     import pandas as pd

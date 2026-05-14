@@ -14,6 +14,10 @@
        class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm px-4 py-2.5 rounded-xl hover:from-emerald-600 hover:to-teal-700 transition shadow-sm font-medium">
       <i class="ri-download-line"></i> Exportar CSV
     </a>
+    <a href="/relatorio/pdf"
+       class="flex items-center gap-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white text-sm px-4 py-2.5 rounded-xl hover:from-violet-600 hover:to-purple-700 transition shadow-sm font-medium">
+      <i class="ri-file-pdf-line"></i> Exportar PDF
+    </a>
     <button onclick="window.print()"
             class="flex items-center gap-2 bg-slate-700 dark:bg-slate-600 text-white text-sm px-4 py-2.5 rounded-xl hover:bg-slate-800 dark:hover:bg-slate-500 transition shadow-sm font-medium">
       <i class="ri-printer-line"></i> Imprimir / PDF
@@ -29,7 +33,7 @@
   {% set inapto_verm = dados | selectattr("status", "eq", "inapto_vermelho") | list %}
 
   <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 p-5 flex items-center gap-4 shadow-sm">
-    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shrink-0">
+    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-600 to-green-700 flex items-center justify-center shrink-0">
       <i class="ri-checkbox-circle-line text-white text-xl"></i>
     </div>
     <div>
@@ -53,17 +57,17 @@
       <i class="ri-alert-line text-white text-xl"></i>
     </div>
     <div>
-      <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Inaptos — amarelo</p>
+      <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Inaptos</p>
       <p class="text-3xl font-bold text-gray-800 dark:text-gray-100">{{ inapto_am | length }}</p>
     </div>
   </div>
 
   <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 p-5 flex items-center gap-4 shadow-sm">
-    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shrink-0">
+    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-700 to-red-800 flex items-center justify-center shrink-0">
       <i class="ri-close-circle-line text-white text-xl"></i>
     </div>
     <div>
-      <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Inaptos — vermelho</p>
+      <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Inaptos Graves</p>
       <p class="text-3xl font-bold text-gray-800 dark:text-gray-100">{{ inapto_verm | length }}</p>
     </div>
   </div>
@@ -73,7 +77,7 @@
 <div class="grid grid-cols-2 gap-4 mb-8">
   <a href="/relatorio/aptos"
      class="bg-white dark:bg-gray-900 rounded-2xl border border-emerald-200 dark:border-emerald-900 p-5 flex items-center gap-4 shadow-sm hover:shadow-md transition">
-    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shrink-0">
+    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-600 to-green-700 flex items-center justify-center shrink-0">
       <i class="ri-checkbox-circle-line text-white text-xl"></i>
     </div>
     <div>
@@ -153,11 +157,11 @@
         </td>
         <td class="px-6 py-4 text-center">
           {% if d.status == "apto" %}
-            <span class="inline-flex items-center gap-1.5 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 px-3 py-1 rounded-full text-xs font-semibold">
+            <span class="inline-flex items-center gap-1.5 bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300 px-3 py-1 rounded-full text-xs font-semibold">
               <i class="ri-checkbox-circle-line"></i> Apto
             </span>
           {% elif d.status == "alerta" %}
-            <span class="inline-flex items-center gap-1.5 bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-3 py-1 rounded-full text-xs font-semibold">
+            <span class="inline-flex items-center gap-1.5 bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-300 px-3 py-1 rounded-full text-xs font-semibold">
               <i class="ri-error-warning-line"></i> Alerta
             </span>
           {% elif d.status == "inapto_amarelo" %}
@@ -165,8 +169,8 @@
               <i class="ri-alert-line"></i> Inapto
             </span>
           {% elif d.status == "inapto_vermelho" %}
-            <span class="inline-flex items-center gap-1.5 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 px-3 py-1 rounded-full text-xs font-semibold">
-              <i class="ri-close-circle-line"></i> Inapto — reportar prof.
+            <span class="inline-flex items-center gap-1.5 bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300 px-3 py-1 rounded-full text-xs font-semibold">
+              <i class="ri-close-circle-line"></i> Inapto Grave — reportar prof.
             </span>
           {% endif %}
         </td>
