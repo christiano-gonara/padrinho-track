@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login — Padrinho Track</title>
+  <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -21,17 +22,11 @@
     <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-slate-200 dark:border-gray-800 px-8 py-10">
 
       <!-- Logo -->
-      <div class="flex flex-col items-center gap-3 mb-8">
-        <div class="w-12 h-12 flex items-center justify-center">
-          <svg viewBox="0 0 40 24" fill="none" class="w-full h-full">
-            <path d="M20 12C20 12 14 4 8 4C4.686 4 2 6.686 2 10C2 13.314 4.686 16 8 16C11 16 13.5 14 15 12C13.5 10 11 8 8 8C6.343 8 5 9.343 5 11" stroke="#7c5cff" stroke-width="3" stroke-linecap="round"/>
-            <path d="M20 12C20 12 26 20 32 20C35.314 20 38 17.314 38 14C38 10.686 35.314 8 32 8C29 8 26.5 10 25 12C26.5 14 29 16 32 16C33.657 16 35 14.657 35 13" stroke="#7c5cff" stroke-width="3" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <div class="text-center">
-          <h1 class="text-lg font-bold text-gray-800 dark:text-gray-100">Padrinho Track</h1>
-          <p class="text-xs text-gray-400 dark:text-gray-500">Eng. Software — PUC Minas</p>
-        </div>
+      <div class="flex justify-center mb-8">
+        <img src="{{ url_for('static', filename='padrinho-track-lockup.svg') }}"
+             class="h-14 block dark:hidden" alt="Padrinho Track" />
+        <img src="{{ url_for('static', filename='padrinho-track-lockup-dark.svg') }}"
+             class="h-14 hidden dark:block" alt="Padrinho Track" />
       </div>
 
       <!-- Erro -->

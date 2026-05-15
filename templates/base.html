@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}Padrinho Track{% endblock %}</title>
+  <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -40,16 +41,8 @@
     <!-- Logo -->
     <div class="flex items-center justify-between px-4 py-5 border-b sidebar-divider">
       <a href="/" class="flex items-center gap-2.5 overflow-hidden">
-        <div class="shrink-0 flex items-center justify-center"
-             style="width:36px;height:36px;border-radius:9px;background:linear-gradient(150deg,#8b6dff,#5b3df5);">
-          <svg viewBox="0 0 32 32" fill="none" style="width:20px;height:20px;">
-            <path d="M10 22 C5 22, 5 12, 10 12 C14 12, 16 20, 22 20 C27 20, 27 10, 22 10 C18 10, 16 18, 10 18"
-                  stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/>
-          </svg>
-        </div>
-        <span class="nav-label whitespace-nowrap text-sm">
-          <span style="color:white;font-weight:700;">Padrinho</span><span style="color:#8b6dff;font-weight:700;"> Track</span>
-        </span>
+        <img src="{{ url_for('static', filename='padrinho-track-tile.svg') }}" class="w-9 h-9 shrink-0" alt="" />
+        <span class="nav-label font-bold text-white whitespace-nowrap text-sm">Padrinho <span style="color:#8b6dff">Track</span></span>
       </a>
       <button onclick="toggleSidebar()"
               class="w-7 h-7 rounded-md flex items-center justify-center transition shrink-0 ml-1"
