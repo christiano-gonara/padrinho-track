@@ -6,18 +6,19 @@
 
 <div class="flex items-center justify-between mb-8">
   <div>
-    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Visão geral</h1>
-    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Acompanhamento do programa de mentoria</p>
+    <h1 class="text-2xl font-bold text-[#0f172a] dark:text-white/90">Visão geral</h1>
+    <p class="text-sm text-[#64748b] mt-0.5">Acompanhamento do programa de mentoria</p>
   </div>
   <div class="flex gap-2 text-sm">
     {% if proxima_reuniao %}
-      <span class="flex items-center gap-1.5 bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 px-3 py-1.5 rounded-xl border border-indigo-100 dark:border-indigo-900">
+      <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-medium"
+            style="background:#eee9ff;border-color:#d4c8ff;color:#5b3df5;">
         <i class="ri-video-chat-line"></i>
         Última reunião: {{ proxima_reuniao["data"] | databr }} — {{ proxima_reuniao["tema"] or "sem tema" }}
       </span>
     {% endif %}
     {% if proximo_tema %}
-      <span class="flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 px-3 py-1.5 rounded-xl border border-amber-100 dark:border-amber-900">
+      <span class="flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300 px-3 py-1.5 rounded-xl border border-amber-100 dark:border-amber-900/50 text-xs font-medium">
         <i class="ri-time-line"></i>
         Próximo prazo: {{ proximo_tema["titulo"] }} até {{ proximo_tema["data_limite"] | databr }}
       </span>
@@ -25,156 +26,186 @@
   </div>
 </div>
 
-<!-- Cards -->
-<div class="grid grid-cols-4 gap-4 mb-8">
-  {% set aptos       = dados | selectattr("status", "eq", "apto")            | list %}
-  {% set alertas     = dados | selectattr("status", "eq", "alerta")          | list %}
-  {% set inapto_am   = dados | selectattr("status", "eq", "inapto_amarelo")  | list %}
-  {% set inapto_verm = dados | selectattr("status", "eq", "inapto_vermelho") | list %}
+{% set aptos       = dados | selectattr("status", "eq", "apto")            | list %}
+{% set alertas     = dados | selectattr("status", "eq", "alerta")          | list %}
+{% set inapto_am   = dados | selectattr("status", "eq", "inapto_amarelo")  | list %}
+{% set inapto_verm = dados | selectattr("status", "eq", "inapto_vermelho") | list %}
 
-  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 p-5 flex items-center gap-4 shadow-sm">
-    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-600 to-green-700 flex items-center justify-center shrink-0">
+<!-- Metric Cards -->
+<div class="grid grid-cols-4 gap-4 mb-8">
+
+  <div class="bg-white dark:bg-[#151b2e] rounded-2xl p-5 flex items-center gap-4"
+       style="border:1px solid #e6e7ee;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+    <div class="shrink-0 flex items-center justify-center"
+         style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#10b981,#059669);">
       <i class="ri-checkbox-circle-line text-white text-xl"></i>
     </div>
     <div>
-      <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Aptos</p>
-      <p class="text-3xl font-bold text-gray-800 dark:text-gray-100">{{ aptos | length }}</p>
+      <p class="mono uppercase text-[#64748b]" style="font-size:10px;letter-spacing:0.1em;">Aptos</p>
+      <p class="font-extrabold text-[#0f172a] dark:text-white/90" style="font-size:32px;line-height:1.1;">{{ aptos | length }}</p>
     </div>
   </div>
 
-  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 p-5 flex items-center gap-4 shadow-sm">
-    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shrink-0">
+  <div class="bg-white dark:bg-[#151b2e] rounded-2xl p-5 flex items-center gap-4"
+       style="border:1px solid #e6e7ee;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+    <div class="shrink-0 flex items-center justify-center"
+         style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#f59e0b,#b45309);">
       <i class="ri-error-warning-line text-white text-xl"></i>
     </div>
     <div>
-      <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Em alerta</p>
-      <p class="text-3xl font-bold text-gray-800 dark:text-gray-100">{{ alertas | length }}</p>
+      <p class="mono uppercase text-[#64748b]" style="font-size:10px;letter-spacing:0.1em;">Em alerta</p>
+      <p class="font-extrabold text-[#0f172a] dark:text-white/90" style="font-size:32px;line-height:1.1;">{{ alertas | length }}</p>
     </div>
   </div>
 
-  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 p-5 flex items-center gap-4 shadow-sm">
-    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shrink-0">
+  <div class="bg-white dark:bg-[#151b2e] rounded-2xl p-5 flex items-center gap-4"
+       style="border:1px solid #e6e7ee;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+    <div class="shrink-0 flex items-center justify-center"
+         style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#f97316,#ea580c);">
       <i class="ri-alert-line text-white text-xl"></i>
     </div>
     <div>
-      <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Inaptos</p>
-      <p class="text-3xl font-bold text-gray-800 dark:text-gray-100">{{ inapto_am | length }}</p>
+      <p class="mono uppercase text-[#64748b]" style="font-size:10px;letter-spacing:0.1em;">Inaptos</p>
+      <p class="font-extrabold text-[#0f172a] dark:text-white/90" style="font-size:32px;line-height:1.1;">{{ inapto_am | length }}</p>
     </div>
   </div>
 
-  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 p-5 flex items-center gap-4 shadow-sm">
-    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-700 to-red-800 flex items-center justify-center shrink-0">
+  <div class="bg-white dark:bg-[#151b2e] rounded-2xl p-5 flex items-center gap-4"
+       style="border:1px solid #e6e7ee;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+    <div class="shrink-0 flex items-center justify-center"
+         style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#dc2626,#b91c1c);">
       <i class="ri-close-circle-line text-white text-xl"></i>
     </div>
     <div>
-      <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Inaptos Graves</p>
-      <p class="text-3xl font-bold text-gray-800 dark:text-gray-100">{{ inapto_verm | length }}</p>
+      <p class="mono uppercase text-[#64748b]" style="font-size:10px;letter-spacing:0.1em;">Inaptos Graves</p>
+      <p class="font-extrabold text-[#0f172a] dark:text-white/90" style="font-size:32px;line-height:1.1;">{{ inapto_verm | length }}</p>
     </div>
   </div>
+
 </div>
 
-<!-- Gráficos -->
+<!-- Charts -->
 <div class="grid grid-cols-2 gap-6 mb-8 items-start">
 
-  <!-- Pizza -->
-  <!-- Pizza -->
-<div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 p-6 shadow-sm flex flex-col justify-center">
-  <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Distribuição de status</h2>
-  <div class="flex items-center gap-6">
-    <div class="shrink-0" style="width:160px;height:160px;">
-      <canvas id="graficoPizza" width="160" height="160"></canvas>
-    </div>
-      <div class="flex flex-col gap-2 text-xs">
+  <!-- Donut -->
+  <div class="bg-white dark:bg-[#151b2e] rounded-2xl p-6 flex flex-col justify-center"
+       style="border:1px solid #e6e7ee;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+    <h2 class="text-sm font-semibold text-[#0f172a] dark:text-white/80 mb-4">Distribuição de status</h2>
+    <div class="flex items-center gap-6">
+      <div class="shrink-0" style="width:160px;height:160px;">
+        <canvas id="graficoPizza" width="160" height="160"></canvas>
+      </div>
+      <div class="flex flex-col gap-2.5 text-xs">
         <div class="flex items-center gap-2">
-          <span class="w-3 h-3 rounded-full bg-green-700 shrink-0"></span>
-          <span class="text-gray-600 dark:text-gray-300">Aptos <span class="font-semibold text-gray-800 dark:text-gray-100">{{ aptos | length }}</span></span>
+          <span class="w-3 h-3 rounded-full shrink-0" style="background:#10b981;"></span>
+          <span class="text-[#64748b]">Aptos <span class="font-semibold text-[#0f172a] dark:text-white/90">{{ aptos | length }}</span></span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="w-3 h-3 rounded-full bg-amber-400 shrink-0"></span>
-          <span class="text-gray-600 dark:text-gray-300">Em alerta <span class="font-semibold text-gray-800 dark:text-gray-100">{{ alertas | length }}</span></span>
+          <span class="w-3 h-3 rounded-full shrink-0" style="background:#f59e0b;"></span>
+          <span class="text-[#64748b]">Em alerta <span class="font-semibold text-[#0f172a] dark:text-white/90">{{ alertas | length }}</span></span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="w-3 h-3 rounded-full bg-orange-500 shrink-0"></span>
-          <span class="text-gray-600 dark:text-gray-300">Inaptos <span class="font-semibold text-gray-800 dark:text-gray-100">{{ inapto_am | length }}</span></span>
+          <span class="w-3 h-3 rounded-full shrink-0" style="background:#f97316;"></span>
+          <span class="text-[#64748b]">Inaptos <span class="font-semibold text-[#0f172a] dark:text-white/90">{{ inapto_am | length }}</span></span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="w-3 h-3 rounded-full bg-red-800 shrink-0"></span>
-          <span class="text-gray-600 dark:text-gray-300">Inaptos Graves <span class="font-semibold text-gray-800 dark:text-gray-100">{{ inapto_verm | length }}</span></span>
+          <span class="w-3 h-3 rounded-full shrink-0" style="background:#dc2626;"></span>
+          <span class="text-[#64748b]">Inaptos Graves <span class="font-semibold text-[#0f172a] dark:text-white/90">{{ inapto_verm | length }}</span></span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Linha do tempo -->
-  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 p-6 shadow-sm">
-    <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Presenças por reunião</h2>
+  <!-- Line chart -->
+  <div class="bg-white dark:bg-[#151b2e] rounded-2xl p-6"
+       style="border:1px solid #e6e7ee;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+    <h2 class="text-sm font-semibold text-[#0f172a] dark:text-white/80 mb-4">Presenças por reunião</h2>
     <canvas id="graficoPresencas" height="140"></canvas>
   </div>
 
 </div>
 
-<!-- Tabela -->
-<div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 overflow-hidden shadow-sm">
-  <div class="px-6 py-4 border-b border-slate-200 dark:border-gray-800 flex items-center justify-between">
-    <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Padrinhos</h2>
-    <span class="text-xs text-gray-400">{{ dados | length }} no total</span>
+<!-- Table -->
+<div class="bg-white dark:bg-[#151b2e] rounded-2xl overflow-hidden"
+     style="border:1px solid #e6e7ee;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+  <div class="px-6 py-4 flex items-center justify-between"
+       style="border-bottom:1px solid #e6e7ee;">
+    <h2 class="text-sm font-semibold text-[#0f172a] dark:text-white/80">Padrinhos</h2>
+    <span class="text-xs text-[#64748b]">{{ dados | length }} no total</span>
   </div>
   <table class="w-full text-sm">
-    <thead class="bg-slate-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 uppercase text-xs">
-      <tr>
-        <th class="px-6 py-3 text-left font-semibold tracking-wide">Padrinho</th>
-        <th class="px-6 py-3 text-left font-semibold tracking-wide">Matrícula</th>
-        <th class="px-6 py-3 text-center font-semibold tracking-wide">Amarelos</th>
-        <th class="px-6 py-3 text-center font-semibold tracking-wide">Vermelhos</th>
-        <th class="px-6 py-3 text-center font-semibold tracking-wide">Status</th>
+    <thead style="background:#f6f6fa;">
+      <tr class="dark:bg-[#151b2e]" style="background:#f6f6fa;">
+        <th class="px-6 py-3 text-left text-[#64748b] mono uppercase" style="font-size:10px;letter-spacing:0.08em;">Padrinho</th>
+        <th class="px-6 py-3 text-left text-[#64748b] mono uppercase" style="font-size:10px;letter-spacing:0.08em;">Matrícula</th>
+        <th class="px-6 py-3 text-center text-[#64748b] mono uppercase" style="font-size:10px;letter-spacing:0.08em;">Amarelos</th>
+        <th class="px-6 py-3 text-center text-[#64748b] mono uppercase" style="font-size:10px;letter-spacing:0.08em;">Vermelhos</th>
+        <th class="px-6 py-3 text-center text-[#64748b] mono uppercase" style="font-size:10px;letter-spacing:0.08em;">Status</th>
         <th class="px-6 py-3"></th>
       </tr>
     </thead>
-    <tbody class="divide-y divide-slate-100 dark:divide-gray-800">
+    <tbody>
       {% for d in dados %}
-      <tr class="hover:bg-slate-50 dark:hover:bg-gray-800 transition">
-        <td class="px-6 py-4 font-medium text-gray-800 dark:text-gray-200">{{ d.padrinho["nome"] }}</td>
-        <td class="px-6 py-4 text-gray-500 dark:text-gray-400 font-mono text-xs">{{ d.padrinho["matricula"] }}</td>
+      {% set parts = d.padrinho["nome"].split() %}
+      {% set ini = (parts[0][0] + (parts[-1][0] if parts|length > 1 else ''))|upper %}
+      <tr class="transition" style="border-top:1px solid #e6e7ee;"
+          onmouseover="this.style.background='#f6f6fa';"
+          onmouseout="this.style.background='';">
+        <td class="px-6 py-4">
+          <div class="flex items-center gap-3">
+            <div class="shrink-0 flex items-center justify-center font-bold"
+                 style="width:32px;height:32px;border-radius:10px;background:#eee9ff;color:#5b3df5;font-size:11px;">
+              {{ ini }}
+            </div>
+            <span class="font-medium text-[#0f172a] dark:text-white/90">{{ d.padrinho["nome"] }}</span>
+          </div>
+        </td>
+        <td class="px-6 py-4 text-[#64748b] mono text-xs">{{ d.padrinho["matricula"] }}</td>
         <td class="px-6 py-4 text-center">
           {% if d.amarelos > 0 %}
-            <span class="inline-flex items-center gap-1.5 bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-300 px-2.5 py-1 rounded-full text-xs font-semibold">
-              <i class="ri-error-warning-line"></i> {{ d.amarelos }}
+            <span class="inline-flex items-center gap-1.5" style="background:#fffbeb;border:1px solid #fde68a;color:#b45309;padding:2px 10px;border-radius:20px;">
+              <span style="width:6px;height:6px;border-radius:50%;background:#f59e0b;flex-shrink:0;"></span>
+              <span class="mono" style="font-size:12px;font-weight:600;">{{ d.amarelos }}</span>
             </span>
           {% else %}
-            <span class="text-gray-300 dark:text-gray-600">—</span>
+            <span class="text-[#64748b]/40">—</span>
           {% endif %}
         </td>
         <td class="px-6 py-4 text-center">
           {% if d.vermelhos > 0 %}
-            <span class="inline-flex items-center gap-1.5 bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300 px-2.5 py-1 rounded-full text-xs font-semibold">
-              <i class="ri-close-circle-line"></i> {{ d.vermelhos }}
+            <span class="inline-flex items-center gap-1.5" style="background:#fef2f2;border:1px solid #fecaca;color:#dc2626;padding:2px 10px;border-radius:20px;">
+              <span style="width:6px;height:6px;border-radius:50%;background:#dc2626;flex-shrink:0;"></span>
+              <span class="mono" style="font-size:12px;font-weight:600;">{{ d.vermelhos }}</span>
             </span>
           {% else %}
-            <span class="text-gray-300 dark:text-gray-600">—</span>
+            <span class="text-[#64748b]/40">—</span>
           {% endif %}
         </td>
         <td class="px-6 py-4 text-center">
           {% if d.status == "apto" %}
-            <span class="inline-flex items-center gap-1.5 bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300 px-3 py-1 rounded-full text-xs font-semibold">
+            <span class="inline-flex items-center gap-1.5" style="background:#ecfdf5;border:1px solid #d1fae5;color:#10b981;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;">
               <i class="ri-checkbox-circle-line"></i> Apto
             </span>
           {% elif d.status == "alerta" %}
-            <span class="inline-flex items-center gap-1.5 bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-300 px-3 py-1 rounded-full text-xs font-semibold">
+            <span class="inline-flex items-center gap-1.5" style="background:#fffbeb;border:1px solid #fde68a;color:#b45309;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;">
               <i class="ri-error-warning-line"></i> Alerta
             </span>
           {% elif d.status == "inapto_amarelo" %}
-            <span class="inline-flex items-center gap-1.5 bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 px-3 py-1 rounded-full text-xs font-semibold">
+            <span class="inline-flex items-center gap-1.5" style="background:#fff7ed;border:1px solid #fed7aa;color:#f97316;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;">
               <i class="ri-alert-line"></i> Inapto
             </span>
           {% elif d.status == "inapto_vermelho" %}
-            <span class="inline-flex items-center gap-1.5 bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300 px-3 py-1 rounded-full text-xs font-semibold">
+            <span class="inline-flex items-center gap-1.5" style="background:#fef2f2;border:1px solid #fecaca;color:#dc2626;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;">
               <i class="ri-close-circle-line"></i> Inapto Grave
             </span>
           {% endif %}
         </td>
         <td class="px-6 py-4 text-right">
           <a href="/padrinhos/{{ d.padrinho['id'] }}"
-             class="inline-flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-xs font-medium transition">
+             class="inline-flex items-center gap-1.5 text-xs font-medium transition"
+             style="color:#7c5cff;"
+             onmouseover="this.style.color='#5b3df5';"
+             onmouseout="this.style.color='#7c5cff';">
             <i class="ri-eye-line"></i> ver detalhes
           </a>
         </td>
@@ -188,19 +219,18 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
   const isDark = document.documentElement.classList.contains('dark');
-  const textColor = isDark ? '#9ca3af' : '#6b7280';
-  const gridColor = isDark ? '#1f2937' : '#f1f5f9';
+  const textColor = isDark ? 'rgba(255,255,255,0.5)' : '#64748b';
+  const gridColor = isDark ? 'rgba(255,255,255,0.06)' : '#f1f5f9';
 
-  // Pizza
   new Chart(document.getElementById('graficoPizza'), {
     type: 'doughnut',
     data: {
       labels: ['Aptos', 'Em alerta', 'Inaptos', 'Inaptos Graves'],
       datasets: [{
         data: [{{ aptos | length }}, {{ alertas | length }}, {{ inapto_am | length }}, {{ inapto_verm | length }}],
-        backgroundColor: ['#166534', '#f59e0b', '#f97316', '#991B1B'],
+        backgroundColor: ['#10b981', '#f59e0b', '#f97316', '#dc2626'],
         borderWidth: 2,
-        borderColor: isDark ? '#111827' : '#ffffff',
+        borderColor: isDark ? '#151b2e' : '#ffffff',
       }]
     },
     options: {
@@ -210,7 +240,6 @@
     }
   });
 
-  // Presenças por reunião
   const reunioes = {{ presencas_por_reuniao | tojson }};
   new Chart(document.getElementById('graficoPresencas'), {
     type: 'line',
@@ -220,20 +249,20 @@
         {
           label: 'Presentes',
           data: reunioes.map(r => r.presentes),
-          borderColor: '#6366f1',
-          backgroundColor: 'rgba(99,102,241,0.1)',
+          borderColor: '#7c5cff',
+          backgroundColor: 'rgba(124,92,255,0.08)',
           tension: 0.4,
           fill: true,
-          pointBackgroundColor: '#6366f1',
+          pointBackgroundColor: '#7c5cff',
         },
         {
           label: 'Ausentes',
           data: reunioes.map(r => r.ausentes),
-          borderColor: '#f43f5e',
-          backgroundColor: 'rgba(244,63,94,0.07)',
+          borderColor: '#dc2626',
+          backgroundColor: 'rgba(220,38,38,0.06)',
           tension: 0.4,
           fill: true,
-          pointBackgroundColor: '#f43f5e',
+          pointBackgroundColor: '#dc2626',
         }
       ]
     },

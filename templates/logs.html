@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Logs de Auditoria — Padrinho Track{% endblock %}
+{% block page_title %}Logs de Auditoria{% endblock %}
+
+{% block content %}
+
+<div class="flex items-center justify-between mb-8">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Logs de auditoria</h1>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Registro de todas as ações realizadas no sistema</p>
+  </div>
+</div>
+
+<div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 overflow-hidden shadow-sm">
+  <div class="px-6 py-4 border-b border-slate-200 dark:border-gray-800 flex items-center justify-between">
+    <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Histórico de ações</h2>
+    <span class="text-xs text-gray-400">{{ logs | length }} registros</span>
+  </div>
+  <table class="w-full text-sm">
+    <thead class="bg-slate-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 uppercase text-xs">
+      <tr>
+        <th class="px-6 py-3 text-left font-semibold tracking-wide">Data / Hora</th>
+        <th class="px-6 py-3 text-left font-semibold tracking-wide">Ação</th>
+        <th class="px-6 py-3 text-left font-semibold tracking-wide">Descrição</th>
+        <th class="px-6 py-3 text-left font-semibold tracking-wide">IP</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100 dark:divide-gray-800">
+      {% for log in logs %}
+      <tr class="hover:bg-slate-50 dark:hover:bg-gray-800 transition">
+        <td class="px-6 py-4 text-gray-500 dark:text-gray-400 font-mono text-xs whitespace-nowrap">
+          <span class="inline-flex items-center gap-1.5">
+            <i class="ri-calendar-line text-gray-400"></i>
+            {{ log["data"] }}
+          </span>
+        </td>
+        <td class="px-6 py-4">
+          {% if log["acao"] == "CADASTRO_PADRINHO" %}
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
+                  style="background:#eee9ff;color:#7c5cff;">
+              <i class="ri-user-add-line"></i> Cadastro padrinho
+            </span>
+          {% elif log["acao"] == "EDICAO_PADRINHO" %}
+            <span class="inline-flex items-center gap-1.5 bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-300 px-2.5 py-1 rounded-full text-xs font-semibold">
+              <i class="ri-edit-line"></i> Edição padrinho
+            </span>
+          {% elif log["acao"] == "EXCLUSAO_PADRINHO" %}
+            <span class="inline-flex items-center gap-1.5 bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300 px-2.5 py-1 rounded-full text-xs font-semibold">
+              <i class="ri-delete-bin-line"></i> Exclusão padrinho
+            </span>
+          {% elif log["acao"] == "LANCAMENTO_PRESENCA" %}
+            <span class="inline-flex items-center gap-1.5 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 px-2.5 py-1 rounded-full text-xs font-semibold">
+              <i class="ri-user-follow-line"></i> Lançamento presença
+            </span>
+          {% elif log["acao"] == "ADVERTENCIA_MANUAL" %}
+            <span class="inline-flex items-center gap-1.5 bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 px-2.5 py-1 rounded-full text-xs font-semibold">
+              <i class="ri-alert-line"></i> Advertência manual
+            </span>
+          {% elif log["acao"] == "EXCLUSAO_ADVERTENCIA" %}
+            <span class="inline-flex items-center gap-1.5 bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300 px-2.5 py-1 rounded-full text-xs font-semibold">
+              <i class="ri-delete-bin-line"></i> Exclusão advertência
+            </span>
+          {% elif log["acao"] == "ALTERACAO_CONFIG" %}
+            <span class="inline-flex items-center gap-1.5 bg-slate-100 dark:bg-gray-800 text-slate-600 dark:text-gray-300 px-2.5 py-1 rounded-full text-xs font-semibold">
+              <i class="ri-settings-3-line"></i> Configuração
+            </span>
+          {% else %}
+            <span class="inline-flex items-center gap-1.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2.5 py-1 rounded-full text-xs font-semibold">
+              <i class="ri-history-line"></i> {{ log["acao"] }}
+            </span>
+          {% endif %}
+        </td>
+        <td class="px-6 py-4 text-gray-600 dark:text-gray-400">{{ log["descricao"] or "—" }}</td>
+        <td class="px-6 py-4 text-gray-400 dark:text-gray-500 font-mono text-xs">{{ log["ip"] or "—" }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="4" class="px-6 py-10 text-center text-gray-400 dark:text-gray-600">
+          <i class="ri-history-line text-3xl block mb-2"></i>
+          Nenhum log registrado ainda.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

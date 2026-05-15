@@ -11,7 +11,7 @@ from models import (
     registrar_tema, registrar_entrega_tema, marcar_tema_nao_entregue,
     emitir_advertencia_manual, get_advertencias_padrinho,
     calcular_status, get_historico_padrinho, get_relatorio_geral,
-    get_todos_temas, get_calouros_match_completo
+    get_todos_temas, get_calouros_match_completo, registrar_log
 )
 
 app = Flask(__name__)
@@ -121,6 +121,7 @@ def novo_padrinho():
         turno     = request.form.get("turno", "").strip()
         try:
             cadastrar_padrinho(nome, matricula, email, telefone, turno)
+            registrar_log("CADASTRO_PADRINHO", f"Padrinho '{nome}' (matrícula {matricula}) cadastrado.")
             flash("Padrinho cadastrado com sucesso.", "success")
             return redirect(url_for("padrinhos"))
         except Exception:
@@ -168,6 +169,7 @@ def presencas(reuniao_id):
             justificada = 1 if pid in request.form.getlist("justificadas") else 0
             lancar_presenca(reuniao_id, p["id"], presente, justificada)
         emitir_advertencias_falta(reuniao_id)
+        registrar_log("LANCAMENTO_PRESENCA", f"Presenças lançadas para a reunião ID {reuniao_id}.")
         flash("Presenças registradas. Advertências automáticas emitidas.", "success")
         return redirect(url_for("reunioes"))
 
@@ -231,6 +233,7 @@ def advertencia_manual():
     padrinho_id = request.form["padrinho_id"]
     motivo      = request.form["motivo"].strip()
     emitir_advertencia_manual(padrinho_id, motivo)
+    registrar_log("ADVERTENCIA_MANUAL", f"Advertência manual para padrinho ID {padrinho_id}: {motivo}")
     flash("Advertência manual registrada.", "error")
     return redirect(url_for("advertencias"))
 
@@ -288,6 +291,7 @@ def configuracoes():
         )
         conn.commit()
         conn.close()
+        registrar_log("ALTERACAO_CONFIG", f"Limite de amarelos alterado para {limite}.")
         flash("Configurações salvas.", "success")
         return redirect(url_for("configuracoes"))
     from models import get_config
@@ -299,21 +303,25 @@ def configuracoes():
 @app.route("/padrinhos/<int:padrinho_id>/editar", methods=["POST"])
 def editar_padrinho(padrinho_id):
     from models import editar_padrinho as _editar
+    nome = request.form["nome"].strip()
     _editar(
         padrinho_id,
-        request.form["nome"].strip(),
+        nome,
         request.form["matricula"].strip(),
         request.form.get("email", "").strip(),
         request.form.get("telefone", "").strip(),
         request.form.get("turno", "").strip(),
     )
+    registrar_log("EDICAO_PADRINHO", f"Padrinho '{nome}' (ID {padrinho_id}) atualizado.")
     flash("Padrinho atualizado.", "success")
     return redirect(url_for("padrinho_detalhe", padrinho_id=padrinho_id))
 
 @app.route("/padrinhos/<int:padrinho_id>/excluir", methods=["POST"])
 def excluir_padrinho(padrinho_id):
     from models import excluir_padrinho as _excluir
+    p = get_padrinho(padrinho_id)
     _excluir(padrinho_id)
+    registrar_log("EXCLUSAO_PADRINHO", f"Padrinho '{p['nome']}' (ID {padrinho_id}) removido do programa.")
     flash("Padrinho removido do programa.", "success")
     return redirect(url_for("padrinhos"))
 
@@ -327,6 +335,7 @@ def excluir_advertencia(advertencia_id):
     conn.close()
     padrinho_id = adv["padrinho_id"] if adv else None
     _excluir(advertencia_id)
+    registrar_log("EXCLUSAO_ADVERTENCIA", f"Advertência ID {advertencia_id} removida (padrinho ID {padrinho_id}).")
     flash("Advertência removida.", "success")
     if padrinho_id:
         return redirect(url_for("padrinho_detalhe", padrinho_id=padrinho_id))
@@ -381,6 +390,15 @@ def exportar_vermelhos():
     caminho = exportar_vermelhos_csv()
     return send_file(os.path.abspath(caminho), mimetype="text/csv",
                      as_attachment=True, download_name="relatorio_vermelhos.csv")
+
+# ── Logs de auditoria ─────────────────────────────────────────────────────
+
+@app.route("/logs")
+def logs():
+    conn = get_conn()
+    lista = conn.execute("SELECT * FROM logs ORDER BY id DESC").fetchall()
+    conn.close()
+    return render_template("logs.html", logs=lista)
 
 # ── Importação CSV ─────────────────────────────────────────────────────────
 

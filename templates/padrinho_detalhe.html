@@ -6,7 +6,7 @@
 
 <div class="flex items-center justify-between mb-8">
   <div>
-    <a href="/padrinhos" class="inline-flex items-center gap-1.5 text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium transition mb-2">
+    <a href="/padrinhos" class="inline-flex items-center gap-1.5 text-sm text-[#7c5cff] hover:text-[#5b3df5] font-medium transition mb-2">
       <i class="ri-arrow-left-line"></i> voltar para padrinhos
     </a>
     <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ padrinho["nome"] }}</h1>
@@ -30,7 +30,8 @@
           <i class="ri-sun-line"></i> Manhã
         </span>
       {% elif padrinho["turno"] == "Noite" %}
-        <span class="inline-flex items-center gap-1.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 px-2.5 py-0.5 rounded-full text-xs font-semibold">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold"
+              style="background:#eee9ff;color:#7c5cff;">
           <i class="ri-moon-line"></i> Noite
         </span>
       {% endif %}
@@ -72,7 +73,7 @@
 <!-- Modal editar padrinho -->
 <div id="modal-editar" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
   <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-    <div class="bg-gradient-to-r from-indigo-500 to-violet-600 px-6 py-4 flex items-center justify-between">
+    <div class="bg-[#7c5cff] px-6 py-4 flex items-center justify-between">
       <h2 class="text-base font-semibold text-white flex items-center gap-2">
         <i class="ri-edit-line"></i> Editar padrinho
       </h2>
@@ -83,18 +84,18 @@
       <div>
         <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1.5">Nome completo</label>
         <input type="text" name="nome" value="{{ padrinho['nome'] }}" required
-               class="w-full border border-slate-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition" />
+               class="w-full border border-slate-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c5cff] transition" />
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1.5">Matrícula</label>
           <input type="text" name="matricula" value="{{ padrinho['matricula'] }}" required
-                 class="w-full border border-slate-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition" />
+                 class="w-full border border-slate-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c5cff] transition" />
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1.5">Turno</label>
           <select name="turno"
-                  class="w-full border border-slate-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition">
+                  class="w-full border border-slate-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c5cff] transition">
             <option value="Manhã" {% if padrinho['turno'] == 'Manhã' %}selected{% endif %}>Manhã</option>
             <option value="Noite" {% if padrinho['turno'] == 'Noite' %}selected{% endif %}>Noite</option>
           </select>
@@ -103,12 +104,12 @@
       <div>
         <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1.5">Email</label>
         <input type="email" name="email" value="{{ padrinho['email'] or '' }}"
-               class="w-full border border-slate-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition" />
+               class="w-full border border-slate-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c5cff] transition" />
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1.5">Telefone</label>
         <input type="text" name="telefone" value="{{ padrinho['telefone'] or '' }}"
-               class="w-full border border-slate-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition" />
+               class="w-full border border-slate-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c5cff] transition" />
       </div>
       <div class="flex justify-end gap-3 pt-2">
         <button type="button"
@@ -117,7 +118,7 @@
           Cancelar
         </button>
         <button type="submit"
-                class="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-violet-600 text-white text-sm px-5 py-2.5 rounded-xl hover:from-indigo-600 hover:to-violet-700 transition font-medium shadow-sm">
+                class="flex items-center gap-2 bg-[#7c5cff] text-white text-sm px-5 py-2.5 rounded-xl hover:bg-[#5b3df5] transition font-medium shadow-sm">
           <i class="ri-save-line"></i> Salvar
         </button>
       </div>
@@ -154,7 +155,7 @@
   <!-- Presenças -->
   <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 overflow-hidden shadow-sm">
     <div class="px-6 py-4 border-b border-slate-200 dark:border-gray-800 flex items-center gap-2">
-      <i class="ri-user-follow-line text-indigo-400"></i>
+      <i class="ri-user-follow-line text-[#7c5cff]"></i>
       <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Presenças</h2>
     </div>
     <table class="w-full text-sm">
@@ -200,7 +201,7 @@
   <!-- Temas -->
   <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 overflow-hidden shadow-sm">
     <div class="px-6 py-4 border-b border-slate-200 dark:border-gray-800 flex items-center gap-2">
-      <i class="ri-book-open-line text-indigo-400"></i>
+      <i class="ri-book-open-line text-[#7c5cff]"></i>
       <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Temas</h2>
     </div>
     <table class="w-full text-sm">

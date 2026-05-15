@@ -6,69 +6,79 @@
 
 <div class="flex items-center justify-between mb-8">
   <div>
-    <a href="/relatorio" class="inline-flex items-center gap-1.5 text-sm text-indigo-600 dark:text-indigo-400 hover:underline mb-2">
+    <a href="/relatorio" class="inline-flex items-center gap-1.5 text-sm hover:underline mb-2"
+       style="color:#5b3df5;">
       <i class="ri-arrow-left-line"></i> voltar para relatório geral
     </a>
-    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Aptos para ACG</h1>
-    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Padrinhos elegíveis para recebimento de horas ACG</p>
+    <h1 class="text-2xl font-bold text-[#0f172a] dark:text-white/90">Aptos para ACG</h1>
+    <p class="text-sm text-[#64748b] mt-0.5">Padrinhos elegíveis para recebimento de horas ACG</p>
   </div>
   <a href="/relatorio/aptos/exportar"
-     class="flex items-center gap-2 bg-gradient-to-r from-green-600 to-green-700 text-white text-sm px-4 py-2.5 rounded-xl hover:from-green-700 hover:to-green-800 transition shadow-sm font-medium">
+     class="flex items-center gap-2 text-white text-sm px-4 py-2.5 rounded-[10px] transition shadow-sm font-medium"
+     style="background:linear-gradient(135deg,#10b981,#059669);"
+     onmouseover="this.style.background='linear-gradient(135deg,#059669,#047857)';"
+     onmouseout="this.style.background='linear-gradient(135deg,#10b981,#059669)';">
     <i class="ri-download-line"></i> Exportar CSV
   </a>
 </div>
 
-<div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 overflow-hidden shadow-sm">
-  <div class="px-6 py-4 border-b border-slate-200 dark:border-gray-800 flex items-center justify-between">
-    <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Lista de aptos</h2>
-    <span class="inline-flex items-center gap-1.5 bg-green-50 dark:bg-green-900/50 text-green-800 dark:text-green-300 px-3 py-1 rounded-full text-xs font-semibold">
+<div class="bg-white dark:bg-[#151b2e] rounded-2xl overflow-hidden"
+     style="border:1px solid #e6e7ee;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+  <div class="px-6 py-4 flex items-center justify-between" style="border-bottom:1px solid #e6e7ee;">
+    <h2 class="text-sm font-semibold text-[#0f172a] dark:text-white/80">Lista de aptos</h2>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
+          style="background:#ecfdf5;border:1px solid #d1fae5;color:#10b981;">
       <i class="ri-checkbox-circle-line"></i> {{ dados | length }} padrinhos
     </span>
   </div>
   <table class="w-full text-sm">
-    <thead class="bg-slate-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 uppercase text-xs">
+    <thead style="background:#f6f6fa;">
       <tr>
-        <th class="px-6 py-3 text-left font-semibold tracking-wide">Padrinho</th>
-        <th class="px-6 py-3 text-left font-semibold tracking-wide">Matrícula</th>
-        <th class="px-6 py-3 text-left font-semibold tracking-wide">Email</th>
-        <th class="px-6 py-3 text-left font-semibold tracking-wide">Turno</th>
-        <th class="px-6 py-3 text-center font-semibold tracking-wide">Reuniões</th>
-        <th class="px-6 py-3 text-center font-semibold tracking-wide">Presenças</th>
-        <th class="px-6 py-3 text-center font-semibold tracking-wide">Status</th>
+        <th class="px-6 py-3 text-left mono uppercase text-[#64748b]" style="font-size:10px;letter-spacing:0.08em;">Padrinho</th>
+        <th class="px-6 py-3 text-left mono uppercase text-[#64748b]" style="font-size:10px;letter-spacing:0.08em;">Matrícula</th>
+        <th class="px-6 py-3 text-left mono uppercase text-[#64748b]" style="font-size:10px;letter-spacing:0.08em;">Email</th>
+        <th class="px-6 py-3 text-left mono uppercase text-[#64748b]" style="font-size:10px;letter-spacing:0.08em;">Turno</th>
+        <th class="px-6 py-3 text-center mono uppercase text-[#64748b]" style="font-size:10px;letter-spacing:0.08em;">Reuniões</th>
+        <th class="px-6 py-3 text-center mono uppercase text-[#64748b]" style="font-size:10px;letter-spacing:0.08em;">Presenças</th>
+        <th class="px-6 py-3 text-center mono uppercase text-[#64748b]" style="font-size:10px;letter-spacing:0.08em;">Status</th>
       </tr>
     </thead>
-    <tbody class="divide-y divide-slate-100 dark:divide-gray-800">
+    <tbody>
       {% for d in dados %}
-      <tr class="hover:bg-slate-50 dark:hover:bg-gray-800 transition">
-        <td class="px-6 py-4 font-medium text-gray-800 dark:text-gray-200">
-          <a href="/padrinhos/{{ d.padrinho['id'] }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">
+      <tr class="transition" style="border-top:1px solid #e6e7ee;"
+          onmouseover="this.style.background='#f6f6fa';" onmouseout="this.style.background='';">
+        <td class="px-6 py-4 font-medium text-[#0f172a] dark:text-white/90">
+          <a href="/padrinhos/{{ d.padrinho['id'] }}" class="transition"
+             style="color:#0f172a;" onmouseover="this.style.color='#5b3df5';" onmouseout="this.style.color='#0f172a';">
             {{ d.padrinho["nome"] }}
           </a>
         </td>
-        <td class="px-6 py-4 text-gray-500 dark:text-gray-400 font-mono text-xs">{{ d.padrinho["matricula"] }}</td>
-        <td class="px-6 py-4 text-gray-500 dark:text-gray-400">{{ d.padrinho["email"] or "—" }}</td>
+        <td class="px-6 py-4 text-[#64748b] mono text-xs">{{ d.padrinho["matricula"] }}</td>
+        <td class="px-6 py-4 text-[#64748b]">{{ d.padrinho["email"] or "—" }}</td>
         <td class="px-6 py-4">
           {% if d.padrinho["turno"] == "Manhã" %}
-            <span class="inline-flex items-center gap-1 bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full text-xs font-medium">
+            <span class="inline-flex items-center gap-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full text-xs font-medium">
               <i class="ri-sun-line"></i> Manhã
             </span>
           {% elif d.padrinho["turno"] == "Noite" %}
-            <span class="inline-flex items-center gap-1 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-full text-xs font-medium">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
+                  style="background:#eee9ff;color:#7c5cff;">
               <i class="ri-moon-line"></i> Noite
             </span>
           {% endif %}
         </td>
-        <td class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">{{ d.total_reunioes }}</td>
-        <td class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">{{ d.total_presentes }}</td>
+        <td class="px-6 py-4 text-center text-[#64748b]">{{ d.total_reunioes }}</td>
+        <td class="px-6 py-4 text-center text-[#64748b]">{{ d.total_presentes }}</td>
         <td class="px-6 py-4 text-center">
-          <span class="inline-flex items-center gap-1.5 bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300 px-3 py-1 rounded-full text-xs font-semibold">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
+                style="background:#ecfdf5;border:1px solid #d1fae5;color:#10b981;">
             <i class="ri-checkbox-circle-line"></i> Apto
           </span>
         </td>
       </tr>
       {% else %}
       <tr>
-        <td colspan="7" class="px-6 py-10 text-center text-gray-400 dark:text-gray-600">
+        <td colspan="7" class="px-6 py-10 text-center text-[#64748b]">
           <i class="ri-checkbox-circle-line text-3xl block mb-2"></i>
           Nenhum padrinho apto ainda.
         </td>

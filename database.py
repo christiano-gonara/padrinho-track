@@ -87,6 +87,14 @@ def init_db():
         valor TEXT NOT NULL
     );
 
+    CREATE TABLE IF NOT EXISTS logs (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        acao        TEXT NOT NULL,
+        descricao   TEXT,
+        data        TEXT NOT NULL,
+        ip          TEXT
+    );
+
     INSERT OR IGNORE INTO config (chave, valor) VALUES ('limite_amarelos', '2');
     """)
     conn.commit()

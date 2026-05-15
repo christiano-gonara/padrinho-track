@@ -1,6 +1,20 @@
 from database import get_conn
 from datetime import date, datetime
 
+def registrar_log(acao, descricao):
+    from flask import request as _req
+    conn = get_conn()
+    try:
+        ip = _req.remote_addr
+    except RuntimeError:
+        ip = None
+    conn.execute(
+        "INSERT INTO logs (acao, descricao, data, ip) VALUES (?, ?, ?, ?)",
+        (acao, descricao, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), ip)
+    )
+    conn.commit()
+    conn.close()
+
 def get_todos_padrinhos():
     conn = get_conn()
     padrinhos = conn.execute(

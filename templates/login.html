@@ -5,22 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login — Padrinho Track</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca',
-            }
-          }
-        }
-      }
-    }
+    tailwind.config = { darkMode: 'class', theme: { extend: {} } }
   </script>
+  <style>body { font-family: 'Inter', sans-serif; }</style>
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet" />
 </head>
 <body class="h-full bg-slate-100 dark:bg-gray-950 flex items-center justify-center">
@@ -32,8 +22,11 @@
 
       <!-- Logo -->
       <div class="flex flex-col items-center gap-3 mb-8">
-        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow">
-          <i class="ri-shield-star-line text-white text-2xl"></i>
+        <div class="w-12 h-12 flex items-center justify-center">
+          <svg viewBox="0 0 40 24" fill="none" class="w-full h-full">
+            <path d="M20 12C20 12 14 4 8 4C4.686 4 2 6.686 2 10C2 13.314 4.686 16 8 16C11 16 13.5 14 15 12C13.5 10 11 8 8 8C6.343 8 5 9.343 5 11" stroke="#7c5cff" stroke-width="3" stroke-linecap="round"/>
+            <path d="M20 12C20 12 26 20 32 20C35.314 20 38 17.314 38 14C38 10.686 35.314 8 32 8C29 8 26.5 10 25 12C26.5 14 29 16 32 16C33.657 16 35 14.657 35 13" stroke="#7c5cff" stroke-width="3" stroke-linecap="round"/>
+          </svg>
         </div>
         <div class="text-center">
           <h1 class="text-lg font-bold text-gray-800 dark:text-gray-100">Padrinho Track</h1>
@@ -58,7 +51,7 @@
             <input
               id="username" name="username" type="text"
               autocomplete="username" autofocus required
-              class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:focus:ring-indigo-600 transition"
+              class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#7c5cff] transition"
               placeholder="seu usuário"
             />
           </div>
@@ -71,14 +64,14 @@
             <input
               id="password" name="password" type="password"
               autocomplete="current-password" required
-              class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:focus:ring-indigo-600 transition"
+              class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#7c5cff] transition"
               placeholder="••••••••"
             />
           </div>
         </div>
 
         <button type="submit"
-          class="mt-2 w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white text-sm font-semibold shadow transition">
+          class="mt-2 w-full py-2.5 rounded-xl bg-[#7c5cff] hover:bg-[#5b3df5] text-white text-sm font-semibold shadow transition">
           Entrar
         </button>
       </form>

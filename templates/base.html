@@ -4,116 +4,136 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}Padrinho Track{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50:  '#eef2ff',
-              100: '#e0e7ff',
-              200: '#c7d2fe',
-              400: '#818cf8',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca',
-              800: '#3730a3',
-              900: '#312e81',
-            }
-          }
-        }
-      }
+      theme: { extend: {} }
     }
   </script>
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet" />
   <style>
+    body { font-family: 'Inter', sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
     #sidebar { transition: width 0.25s cubic-bezier(.4,0,.2,1); }
     .nav-label { transition: opacity 0.15s ease, max-width 0.25s ease; }
     #main-content { transition: margin-left 0.25s cubic-bezier(.4,0,.2,1); }
-    .nav-item.active { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; }
-    .nav-item.active i { color: white; }
-    html.dark .nav-item.active { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
+    .nav-item.active { background: #7c5cff !important; color: white !important; border-radius: 10px; }
+    .nav-item.active i { color: white !important; }
+    .topbar-border { border-bottom: 1px solid #e6e7ee; }
+    html.dark .topbar-border { border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-divider { border-color: rgba(255,255,255,0.06); }
   </style>
 </head>
-<body class="h-full bg-slate-100 dark:bg-gray-950 text-gray-800 dark:text-gray-100">
+<body class="h-full bg-[#f6f6fa] dark:bg-[#0f1424] text-[#0f172a] dark:text-white/90">
 
 <div class="flex h-full min-h-screen">
 
-  <!-- Sidebar -->
+  <!-- Sidebar (always dark) -->
   <aside id="sidebar"
-         class="fixed top-0 left-0 h-full z-40 w-60 bg-white dark:bg-gray-900 border-r border-slate-200 dark:border-gray-800 flex flex-col shadow-sm">
+         class="fixed top-0 left-0 h-full z-40 w-60 flex flex-col"
+         style="background:#0f1424;">
 
     <!-- Logo -->
-    <div class="flex items-center justify-between px-4 py-5 border-b border-slate-200 dark:border-gray-800">
+    <div class="flex items-center justify-between px-4 py-5 border-b sidebar-divider">
       <a href="/" class="flex items-center gap-2.5 overflow-hidden">
-        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shrink-0">
-          <i class="ri-shield-star-line text-white text-base"></i>
+        <div class="shrink-0 flex items-center justify-center"
+             style="width:36px;height:36px;border-radius:9px;background:linear-gradient(150deg,#8b6dff,#5b3df5);">
+          <svg viewBox="0 0 32 32" fill="none" style="width:20px;height:20px;">
+            <path d="M10 22 C5 22, 5 12, 10 12 C14 12, 16 20, 22 20 C27 20, 27 10, 22 10 C18 10, 16 18, 10 18"
+                  stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/>
+          </svg>
         </div>
-        <span class="nav-label font-bold text-gray-800 dark:text-gray-100 whitespace-nowrap text-sm">Padrinho Track</span>
+        <span class="nav-label whitespace-nowrap text-sm">
+          <span style="color:white;font-weight:700;">Padrinho</span><span style="color:#8b6dff;font-weight:700;"> Track</span>
+        </span>
       </a>
       <button onclick="toggleSidebar()"
-              class="w-7 h-7 rounded-md flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-slate-100 dark:hover:bg-gray-800 transition shrink-0 ml-1">
+              class="w-7 h-7 rounded-md flex items-center justify-center transition shrink-0 ml-1"
+              style="color:rgba(255,255,255,0.4);"
+              onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.8)';"
+              onmouseout="this.style.background='';this.style.color='rgba(255,255,255,0.4)';">
         <i id="toggle-icon" class="ri-menu-fold-line text-base"></i>
       </button>
     </div>
 
     <!-- Nav -->
-    <nav class="flex-1 px-3 py-4 flex flex-col gap-1 overflow-hidden">
+    <nav class="flex-1 px-3 py-4 flex flex-col gap-0.5 overflow-hidden">
 
-      <p class="nav-label text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-2 mb-1 whitespace-nowrap">Menu</p>
+      <p class="nav-label text-[10px] font-semibold uppercase tracking-[0.1em] px-2 mb-1.5 whitespace-nowrap"
+         style="color:rgba(255,255,255,0.3);">Menu</p>
 
-      <a href="/" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-800 transition">
+      <a href="/" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm transition"
+         style="color:rgba(255,255,255,0.78);">
         <i class="ri-dashboard-line text-lg shrink-0"></i>
         <span class="nav-label whitespace-nowrap">Dashboard</span>
       </a>
-      <a href="/padrinhos" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-800 transition">
+      <a href="/padrinhos" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm transition"
+         style="color:rgba(255,255,255,0.78);">
         <i class="ri-user-star-line text-lg shrink-0"></i>
         <span class="nav-label whitespace-nowrap">Padrinhos</span>
       </a>
-      <a href="/reunioes" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-800 transition">
+      <a href="/reunioes" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm transition"
+         style="color:rgba(255,255,255,0.78);">
         <i class="ri-video-chat-line text-lg shrink-0"></i>
         <span class="nav-label whitespace-nowrap">Reuniões</span>
       </a>
-      <a href="/temas" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-800 transition">
+      <a href="/temas" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm transition"
+         style="color:rgba(255,255,255,0.78);">
         <i class="ri-book-open-line text-lg shrink-0"></i>
         <span class="nav-label whitespace-nowrap">Temas</span>
       </a>
-      <a href="/calouros" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-800 transition">
+      <a href="/calouros" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm transition"
+         style="color:rgba(255,255,255,0.78);">
         <i class="ri-group-line text-lg shrink-0"></i>
         <span class="nav-label whitespace-nowrap">Calouros</span>
       </a>
 
-      <p class="nav-label text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-2 mt-3 mb-1 whitespace-nowrap">Gestão</p>
+      <p class="nav-label text-[10px] font-semibold uppercase tracking-[0.1em] px-2 mt-4 mb-1.5 whitespace-nowrap"
+         style="color:rgba(255,255,255,0.3);">Gestão</p>
 
-      <a href="/advertencias" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-800 transition">
+      <a href="/advertencias" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm transition"
+         style="color:rgba(255,255,255,0.78);">
         <i class="ri-error-warning-line text-lg shrink-0"></i>
         <span class="nav-label whitespace-nowrap">Advertências</span>
       </a>
-      <a href="/relatorio" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-800 transition">
+      <a href="/relatorio" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm transition"
+         style="color:rgba(255,255,255,0.78);">
         <i class="ri-file-chart-line text-lg shrink-0"></i>
         <span class="nav-label whitespace-nowrap">Relatório</span>
       </a>
-      <a href="/config" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-800 transition">
+      <a href="/config" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm transition"
+         style="color:rgba(255,255,255,0.78);">
         <i class="ri-settings-3-line text-lg shrink-0"></i>
         <span class="nav-label whitespace-nowrap">Configurações</span>
+      </a>
+      <a href="/logs" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm transition"
+         style="color:rgba(255,255,255,0.78);">
+        <i class="ri-history-line text-lg shrink-0"></i>
+        <span class="nav-label whitespace-nowrap">Logs</span>
       </a>
 
     </nav>
 
     <!-- Footer -->
-    <div class="px-3 py-4 border-t border-slate-200 dark:border-gray-800 flex flex-col gap-2">
+    <div class="px-3 py-4 flex flex-col gap-2 border-t sidebar-divider">
       <div class="flex items-center justify-between px-2">
-        <span class="nav-label text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap">PUC Minas</span>
+        <span class="nav-label text-xs whitespace-nowrap" style="color:rgba(255,255,255,0.3);">PUC Minas</span>
         <button onclick="toggleDark()"
-                class="w-8 h-8 rounded-lg flex items-center justify-center bg-slate-100 dark:bg-gray-800 text-gray-500 dark:text-yellow-400 hover:bg-slate-200 dark:hover:bg-gray-700 transition shrink-0">
+                class="w-8 h-8 rounded-lg flex items-center justify-center transition shrink-0"
+                style="background:rgba(124,92,255,0.15);color:#7c5cff;">
           <i id="dark-icon" class="ri-moon-line text-base"></i>
         </button>
       </div>
       <form method="POST" action="/logout">
         <button type="submit"
-          class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-gray-500 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-600 dark:hover:text-red-400 transition">
+                class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-[10px] text-sm transition"
+                style="color:rgba(255,255,255,0.45);"
+                onmouseover="this.style.background='rgba(239,68,68,0.12)';this.style.color='#f87171';"
+                onmouseout="this.style.background='';this.style.color='rgba(255,255,255,0.45)';">
           <i class="ri-logout-box-r-line text-lg shrink-0"></i>
           <span class="nav-label whitespace-nowrap">Sair</span>
         </button>
@@ -126,13 +146,14 @@
   <div id="main-content" class="flex-1 flex flex-col min-h-screen ml-60">
 
     <!-- Topbar -->
-    <header class="sticky top-0 z-30 bg-white/80 dark:bg-gray-900/80 backdrop-blur border-b border-slate-200 dark:border-gray-800 px-6 py-3.5 flex items-center justify-between">
-      <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-        <i class="ri-map-pin-2-line text-indigo-400"></i>
+    <header class="sticky top-0 z-30 bg-white/80 dark:bg-[#151b2e]/80 backdrop-blur px-6 py-3.5 flex items-center justify-between topbar-border">
+      <div class="flex items-center gap-2 text-sm text-[#64748b]">
+        <i class="ri-map-pin-2-line" style="color:#7c5cff;"></i>
         <span>{% block page_title %}Padrinho Track{% endblock %}</span>
       </div>
       <div class="flex items-center gap-2">
-        <span class="text-xs bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 px-3 py-1 rounded-full font-medium">
+        <span class="text-xs px-3 py-1 rounded-full font-medium"
+              style="background:#eee9ff;color:#5b3df5;">
           Eng. Software — PUC Minas
         </span>
       </div>
@@ -146,8 +167,9 @@
         <div class="toast-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium shadow-lg min-w-64 max-w-sm
           {% if category == 'success' %}bg-emerald-500 text-white
           {% elif category == 'error' %}bg-red-500 text-white
-          {% else %}bg-indigo-500 text-white{% endif %}
-          translate-x-0 transition-all duration-300">
+          {% else %}text-white{% endif %}
+          translate-x-0 transition-all duration-300"
+          {% if category != 'success' and category != 'error' %}style="background:#7c5cff;"{% endif %}>
           {% if category == 'success' %}
             <i class="ri-checkbox-circle-line text-lg shrink-0"></i>
           {% elif category == 'error' %}
@@ -231,7 +253,21 @@
     document.getElementById('dark-icon').className = 'ri-sun-line text-base';
   }
 
-  // Link ativo
+  // Sidebar nav hover (inline styles since sidebar is always dark)
+  document.querySelectorAll('.nav-item[href]').forEach(link => {
+    link.addEventListener('mouseenter', function() {
+      if (!this.classList.contains('active')) {
+        this.style.background = 'rgba(255,255,255,0.06)';
+      }
+    });
+    link.addEventListener('mouseleave', function() {
+      if (!this.classList.contains('active')) {
+        this.style.background = '';
+      }
+    });
+  });
+
+  // Active link
   document.querySelectorAll('.nav-item').forEach(link => {
     if (link.getAttribute('href') === window.location.pathname) {
       link.classList.add('active');
