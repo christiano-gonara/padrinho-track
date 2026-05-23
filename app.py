@@ -11,11 +11,13 @@ from models import (
     registrar_tema, registrar_entrega_tema, marcar_tema_nao_entregue,
     emitir_advertencia_manual, get_advertencias_padrinho,
     calcular_status, get_historico_padrinho, get_relatorio_geral,
-    get_todos_temas, get_calouros_match_completo, registrar_log
+    get_todos_temas, get_calouros_match_completo, registrar_log,
+    abreviar_nome
 )
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "padrinho-track-secret")
+app.jinja_env.filters['abreviar'] = abreviar_nome
 
 @app.template_filter('databr')
 def databr(value):
@@ -33,11 +35,11 @@ _APP_PASS = os.environ.get("APP_PASSWORD", "")
 def setup():
     init_db()
 
-@app.before_request
-def require_login():
-    public = {"login", "static"}
-    if request.endpoint not in public and not session.get("logged_in"):
-        return redirect(url_for("login", next=request.path))
+# @app.before_request
+# def require_login():
+#     public = {"login", "static"}
+#     if request.endpoint not in public and not session.get("logged_in"):
+#         return redirect(url_for("login", next=request.path))
 
 # ── Login / Logout ─────────────────────────────────────────────────────────
 
@@ -54,7 +56,7 @@ def login():
             next_url = request.args.get("next") or url_for("dashboard")
             return redirect(next_url)
         error = "Usuário ou senha inválidos."
-    return render_template("login.html", error=error)
+    return render_template("pages/login.html", error=error)
 
 @app.route("/logout", methods=["POST"])
 def logout():
@@ -97,7 +99,7 @@ def dashboard():
         })
     conn.close()
 
-    return render_template("dashboard.html",
+    return render_template("pages/dashboard.html",
         dados=dados,
         proxima_reuniao=proxima_reuniao,
         proximo_tema=proximo_tema,
@@ -109,7 +111,7 @@ def dashboard():
 @app.route("/padrinhos")
 def padrinhos():
     lista = get_todos_padrinhos()
-    return render_template("padrinhos.html", padrinhos=lista)
+    return render_template("pages/padrinhos.html", padrinhos=lista)
 
 @app.route("/padrinhos/novo", methods=["GET", "POST"])
 def novo_padrinho():
@@ -126,7 +128,7 @@ def novo_padrinho():
             return redirect(url_for("padrinhos"))
         except Exception:
             flash("Matrícula já cadastrada.", "error")
-    return render_template("padrinhos.html", padrinhos=get_todos_padrinhos())
+    return render_template("pages/padrinhos.html", padrinhos=get_todos_padrinhos())
 
 @app.route("/padrinhos/<int:padrinho_id>")
 def padrinho_detalhe(padrinho_id):
@@ -134,7 +136,7 @@ def padrinho_detalhe(padrinho_id):
     status       = calcular_status(padrinho_id)
     historico    = get_historico_padrinho(padrinho_id)
     advertencias = get_advertencias_padrinho(padrinho_id)
-    return render_template("padrinho_detalhe.html",
+    return render_template("pages/padrinho_detalhe.html",
         padrinho=padrinho,
         status=status,
         historico=historico,
@@ -146,7 +148,7 @@ def padrinho_detalhe(padrinho_id):
 @app.route("/reunioes")
 def reunioes():
     lista = get_todas_reunioes()
-    return render_template("reunioes.html", reunioes=lista)
+    return render_template("pages/reunioes.html", reunioes=lista)
 
 @app.route("/reunioes/nova", methods=["POST"])
 def nova_reuniao():
@@ -174,7 +176,7 @@ def presencas(reuniao_id):
         return redirect(url_for("reunioes"))
 
     lista = get_presencas_reuniao(reuniao_id)
-    return render_template("presencas.html", presencas=lista, reuniao_id=reuniao_id)
+    return render_template("pages/presencas.html", presencas=lista, reuniao_id=reuniao_id)
 
 # ── Temas ──────────────────────────────────────────────────────────────────
 
@@ -182,7 +184,7 @@ def presencas(reuniao_id):
 def temas():
     lista     = get_todos_temas()
     padrinhos = get_todos_padrinhos()
-    return render_template("temas.html", temas=lista, padrinhos=padrinhos, today=date.today().isoformat())
+    return render_template("pages/temas.html", temas=lista, padrinhos=padrinhos, today=date.today().isoformat())
 
 @app.route("/temas/novo", methods=["POST"])
 def novo_tema():
@@ -226,7 +228,7 @@ def advertencias():
     """).fetchall()
     conn.close()
     padrinhos = get_todos_padrinhos()
-    return render_template("advertencias.html", advertencias=lista, padrinhos=padrinhos)
+    return render_template("pages/advertencias.html", advertencias=lista, padrinhos=padrinhos)
 
 @app.route("/advertencias/manual", methods=["POST"])
 def advertencia_manual():
@@ -242,7 +244,7 @@ def advertencia_manual():
 @app.route("/relatorio")
 def relatorio():
     dados = get_relatorio_geral()
-    return render_template("relatorio.html", dados=dados)
+    return render_template("pages/relatorio.html", dados=dados)
 
 
 @app.route("/relatorio/pdf")
@@ -251,12 +253,26 @@ def exportar_pdf_acg():
     from flask import send_file
     import io
     pdf_bytes = gerar_pdf_acg()
-    return send_file(
-        io.BytesIO(pdf_bytes),
-        mimetype="application/pdf",
-        as_attachment=True,
-        download_name="relatorio_acg.pdf"
-    )
+    return send_file(io.BytesIO(pdf_bytes), mimetype="application/pdf",
+                     as_attachment=True, download_name="relatorio_acg.pdf")
+
+@app.route("/relatorio/pdf/semestre")
+def exportar_pdf_semestre():
+    from models import gerar_pdf_resumo_semestre
+    from flask import send_file
+    import io
+    pdf_bytes = gerar_pdf_resumo_semestre()
+    return send_file(io.BytesIO(pdf_bytes), mimetype="application/pdf",
+                     as_attachment=True, download_name="resumo_semestre.pdf")
+
+@app.route("/relatorio/pdf/graves")
+def exportar_pdf_graves():
+    from models import gerar_pdf_inaptos_graves
+    from flask import send_file
+    import io
+    pdf_bytes = gerar_pdf_inaptos_graves()
+    return send_file(io.BytesIO(pdf_bytes), mimetype="application/pdf",
+                     as_attachment=True, download_name="inaptos_graves.pdf")
 
 @app.route("/relatorio/exportar")
 def exportar_relatorio():
@@ -276,27 +292,42 @@ def exportar_relatorio():
 @app.route("/calouros")
 def calouros():
     dados = get_calouros_match_completo()
-    return render_template("calouros.html", dados=dados)
+    return render_template("pages/calouros.html", dados=dados)
 
 # ── Configurações ──────────────────────────────────────────────────────────
 
 @app.route("/config", methods=["GET", "POST"])
 def configuracoes():
+    from models import get_config, get_config_semestre, salvar_config_semestre
     if request.method == "POST":
-        limite = request.form.get("limite_amarelos", "2")
-        conn = get_conn()
-        conn.execute(
-            "UPDATE config SET valor=? WHERE chave='limite_amarelos'",
-            (limite,)
-        )
-        conn.commit()
-        conn.close()
-        registrar_log("ALTERACAO_CONFIG", f"Limite de amarelos alterado para {limite}.")
+        action = request.form.get("action", "amarelos")
+        if action == "semestre":
+            cfg = {
+                "semestre": request.form.get("semestre", "2026/1").strip(),
+                "professor_coordenador": request.form.get("professor_coordenador", "").strip(),
+                "programa": request.form.get("programa", "").strip(),
+                "instituicao": request.form.get("instituicao", "").strip(),
+                "total_reunioes": int(request.form.get("total_reunioes", 3)),
+                "data_inicio": request.form.get("data_inicio", "").strip(),
+                "data_fim": request.form.get("data_fim", "").strip(),
+            }
+            salvar_config_semestre(cfg)
+            registrar_log("ALTERACAO_CONFIG", f"Configurações do semestre {cfg['semestre']} atualizadas.")
+        else:
+            limite = request.form.get("limite_amarelos", "2")
+            conn = get_conn()
+            conn.execute(
+                "UPDATE config SET valor=? WHERE chave='limite_amarelos'",
+                (limite,)
+            )
+            conn.commit()
+            conn.close()
+            registrar_log("ALTERACAO_CONFIG", f"Limite de amarelos alterado para {limite}.")
         flash("Configurações salvas.", "success")
         return redirect(url_for("configuracoes"))
-    from models import get_config
     limite_atual = get_config("limite_amarelos", "2")
-    return render_template("config.html", limite_amarelos=limite_atual)
+    config_semestre = get_config_semestre()
+    return render_template("pages/config.html", limite_amarelos=limite_atual, config_semestre=config_semestre)
 
 # ── CRUD Padrinhos ─────────────────────────────────────────────────────────
 
@@ -359,38 +390,6 @@ def excluir_tema(tema_id):
     flash("Tema removido.", "success")
     return redirect(url_for("temas"))
 
-# ── Relatórios separados ───────────────────────────────────────────────────
-
-@app.route("/relatorio/aptos")
-def relatorio_aptos():
-    from models import get_relatorio_aptos
-    dados = get_relatorio_aptos()
-    return render_template("relatorio_aptos.html", dados=dados)
-
-@app.route("/relatorio/vermelhos")
-def relatorio_vermelhos():
-    from models import get_relatorio_vermelhos
-    dados = get_relatorio_vermelhos()
-    return render_template("relatorio_vermelhos.html", dados=dados)
-
-@app.route("/relatorio/aptos/exportar")
-def exportar_aptos():
-    from models import exportar_aptos_csv
-    from flask import send_file
-    import os
-    caminho = exportar_aptos_csv()
-    return send_file(os.path.abspath(caminho), mimetype="text/csv",
-                     as_attachment=True, download_name="relatorio_aptos.csv")
-
-@app.route("/relatorio/vermelhos/exportar")
-def exportar_vermelhos():
-    from models import exportar_vermelhos_csv
-    from flask import send_file
-    import os
-    caminho = exportar_vermelhos_csv()
-    return send_file(os.path.abspath(caminho), mimetype="text/csv",
-                     as_attachment=True, download_name="relatorio_vermelhos.csv")
-
 # ── Logs de auditoria ─────────────────────────────────────────────────────
 
 @app.route("/logs")
@@ -398,7 +397,7 @@ def logs():
     conn = get_conn()
     lista = conn.execute("SELECT * FROM logs ORDER BY id DESC").fetchall()
     conn.close()
-    return render_template("logs.html", logs=lista)
+    return render_template("pages/logs.html", logs=lista)
 
 # ── Importação CSV ─────────────────────────────────────────────────────────
 
@@ -435,7 +434,7 @@ def importar_presencas(reuniao_id):
             flash(msg, "success")
         return redirect(url_for("reunioes"))
 
-    return render_template("importar_presencas.html", reuniao=reuniao)
+    return render_template("pages/importar_presencas.html", reuniao=reuniao)
 
 # ── Inicialização ──────────────────────────────────────────────────────────
 

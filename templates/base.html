@@ -9,126 +9,103 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: { extend: {} }
-    }
-  </script>
+  <script>tailwind.config = { darkMode: 'class', theme: { extend: {} } }</script>
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}" />
   <style>
-    body { font-family: 'Inter', sans-serif; }
     .mono { font-family: 'JetBrains Mono', monospace; }
-    #sidebar { transition: width 0.25s cubic-bezier(.4,0,.2,1); }
-    .nav-label { transition: opacity 0.15s ease, max-width 0.25s ease; }
-    #main-content { transition: margin-left 0.25s cubic-bezier(.4,0,.2,1); }
-    .nav-item.active { background: #7c5cff !important; color: white !important; border-radius: 10px; }
-    .nav-item.active i { color: white !important; }
-    .topbar-border { border-bottom: 1px solid #e6e7ee; }
-    html.dark .topbar-border { border-bottom: 1px solid rgba(255,255,255,0.08); }
-    .sidebar-divider { border-color: rgba(255,255,255,0.06); }
   </style>
 </head>
-<body class="h-full bg-[#f6f6fa] dark:bg-[#0f1424] text-[#0f172a] dark:text-white/90">
+<body class="h-full">
 
-<div class="flex h-full min-h-screen">
+<div class="pt-app">
 
-  <!-- Sidebar (always dark) -->
-  <aside id="sidebar"
-         class="fixed top-0 left-0 h-full z-40 w-60 flex flex-col"
-         style="background:#0f1424;">
+  <!-- Sidebar -->
+  <aside id="sidebar" class="pt-sidebar">
 
     <!-- Logo -->
-    <div class="flex items-center justify-between px-4 py-5 border-b sidebar-divider">
-      <a href="/" class="flex items-center gap-2.5 overflow-hidden">
-        <img src="{{ url_for('static', filename='padrinho-track-tile.svg') }}" class="w-9 h-9 shrink-0" alt="" />
-        <span class="nav-label font-bold text-white whitespace-nowrap text-sm">Padrinho <span style="color:#8b6dff">Track</span></span>
+    <div class="pt-sidebar-logo">
+      <a href="/" style="display:flex;align-items:center;gap:12px;text-decoration:none;min-width:0;flex:1;overflow:hidden;">
+        <span class="pt-knot-tile">
+          <img src="{{ url_for('static', filename='padrinho-track-tile.svg') }}" style="width:65%;height:65%;" alt="" />
+        </span>
+        <span class="pt-sidebar-logo-text">Padrinho <span style="color:#8b6dff;">Track</span></span>
       </a>
-      <button onclick="toggleSidebar()"
-              class="w-7 h-7 rounded-md flex items-center justify-center transition shrink-0 ml-1"
-              style="color:rgba(255,255,255,0.4);"
-              onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.8)';"
-              onmouseout="this.style.background='';this.style.color='rgba(255,255,255,0.4)';">
-        <i id="toggle-icon" class="ri-menu-fold-line text-base"></i>
+      <button class="pt-sidebar-collapse-btn" onclick="toggleSidebar()" aria-label="Colapsar sidebar">
+        <i id="toggle-icon" class="ri-menu-fold-line" style="font-size:16px;"></i>
       </button>
     </div>
 
     <!-- Nav -->
-    <nav class="flex-1 px-3 py-4 flex flex-col gap-0.5 overflow-hidden">
+    <nav style="flex:1;display:flex;flex-direction:column;gap:4px;overflow:hidden;">
 
-      <p class="nav-label text-[10px] font-semibold uppercase tracking-[0.1em] px-2 mb-1.5 whitespace-nowrap"
-         style="color:rgba(255,255,255,0.3);">Menu</p>
+      <p class="pt-sidebar-section">Menu</p>
 
-      <a href="/" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm transition"
-         style="color:rgba(255,255,255,0.78);">
-        <i class="ri-dashboard-line text-lg shrink-0"></i>
-        <span class="nav-label whitespace-nowrap">Dashboard</span>
-      </a>
-      <a href="/padrinhos" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm transition"
-         style="color:rgba(255,255,255,0.78);">
-        <i class="ri-user-star-line text-lg shrink-0"></i>
-        <span class="nav-label whitespace-nowrap">Padrinhos</span>
-      </a>
-      <a href="/reunioes" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm transition"
-         style="color:rgba(255,255,255,0.78);">
-        <i class="ri-video-chat-line text-lg shrink-0"></i>
-        <span class="nav-label whitespace-nowrap">Reuniões</span>
-      </a>
-      <a href="/temas" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm transition"
-         style="color:rgba(255,255,255,0.78);">
-        <i class="ri-book-open-line text-lg shrink-0"></i>
-        <span class="nav-label whitespace-nowrap">Temas</span>
-      </a>
-      <a href="/calouros" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm transition"
-         style="color:rgba(255,255,255,0.78);">
-        <i class="ri-group-line text-lg shrink-0"></i>
-        <span class="nav-label whitespace-nowrap">Calouros</span>
-      </a>
+      <div class="pt-sidebar-group">
+        <a href="/" class="pt-nav-item" data-tooltip="Dashboard">
+          <i class="ri-dashboard-line"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="/padrinhos" class="pt-nav-item" data-tooltip="Padrinhos">
+          <i class="ri-user-star-line"></i>
+          <span>Padrinhos</span>
+        </a>
+        <a href="/reunioes" class="pt-nav-item" data-tooltip="Reuniões">
+          <i class="ri-video-chat-line"></i>
+          <span>Reuniões</span>
+        </a>
+        <a href="/temas" class="pt-nav-item" data-tooltip="Temas">
+          <i class="ri-book-open-line"></i>
+          <span>Temas</span>
+        </a>
+        <a href="/calouros" class="pt-nav-item" data-tooltip="Calouros">
+          <i class="ri-group-line"></i>
+          <span>Calouros</span>
+        </a>
+      </div>
 
-      <p class="nav-label text-[10px] font-semibold uppercase tracking-[0.1em] px-2 mt-4 mb-1.5 whitespace-nowrap"
-         style="color:rgba(255,255,255,0.3);">Gestão</p>
+      <p class="pt-sidebar-section">Gestão</p>
 
-      <a href="/advertencias" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm transition"
-         style="color:rgba(255,255,255,0.78);">
-        <i class="ri-error-warning-line text-lg shrink-0"></i>
-        <span class="nav-label whitespace-nowrap">Advertências</span>
-      </a>
-      <a href="/relatorio" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm transition"
-         style="color:rgba(255,255,255,0.78);">
-        <i class="ri-file-chart-line text-lg shrink-0"></i>
-        <span class="nav-label whitespace-nowrap">Relatório</span>
-      </a>
-      <a href="/config" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm transition"
-         style="color:rgba(255,255,255,0.78);">
-        <i class="ri-settings-3-line text-lg shrink-0"></i>
-        <span class="nav-label whitespace-nowrap">Configurações</span>
-      </a>
-      <a href="/logs" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm transition"
-         style="color:rgba(255,255,255,0.78);">
-        <i class="ri-history-line text-lg shrink-0"></i>
-        <span class="nav-label whitespace-nowrap">Logs</span>
-      </a>
+      <div class="pt-sidebar-group">
+        <a href="/advertencias" class="pt-nav-item" data-tooltip="Advertências">
+          <i class="ri-error-warning-line"></i>
+          <span>Advertências</span>
+        </a>
+        <a href="/relatorio" class="pt-nav-item" data-tooltip="Relatório">
+          <i class="ri-file-chart-line"></i>
+          <span>Relatório</span>
+        </a>
+        <a href="/config" class="pt-nav-item" data-tooltip="Configurações">
+          <i class="ri-settings-3-line"></i>
+          <span>Configurações</span>
+        </a>
+        <a href="/logs" class="pt-nav-item" data-tooltip="Logs">
+          <i class="ri-history-line"></i>
+          <span>Logs</span>
+        </a>
+      </div>
 
     </nav>
 
     <!-- Footer -->
-    <div class="px-3 py-4 flex flex-col gap-2 border-t sidebar-divider">
-      <div class="flex items-center justify-between px-2">
-        <span class="nav-label text-xs whitespace-nowrap" style="color:rgba(255,255,255,0.3);">PUC Minas</span>
-        <button onclick="toggleDark()"
-                class="w-8 h-8 rounded-lg flex items-center justify-center transition shrink-0"
-                style="background:rgba(124,92,255,0.15);color:#7c5cff;">
-          <i id="dark-icon" class="ri-moon-line text-base"></i>
+    <div class="pt-sidebar-footer">
+      <div class="pt-sidebar-footer-info">
+        <div class="pt-sidebar-org-tile">PUC</div>
+        <div class="pt-sidebar-org-text">
+          <strong>PUC Minas</strong>
+          <small>Eng. Software</small>
+        </div>
+        <button class="pt-theme-btn" onclick="toggleDark()" aria-label="Alternar tema">
+          <i id="dark-icon" class="ri-moon-line" style="font-size:16px;"></i>
         </button>
       </div>
       <form method="POST" action="/logout">
-        <button type="submit"
-                class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-[10px] text-sm transition"
-                style="color:rgba(255,255,255,0.45);"
+        <button type="submit" class="pt-nav-item"
+                style="width:100%;border:none;cursor:pointer;color:rgba(255,255,255,0.45);"
                 onmouseover="this.style.background='rgba(239,68,68,0.12)';this.style.color='#f87171';"
-                onmouseout="this.style.background='';this.style.color='rgba(255,255,255,0.45)';">
-          <i class="ri-logout-box-r-line text-lg shrink-0"></i>
-          <span class="nav-label whitespace-nowrap">Sair</span>
+                onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,0.45)';">
+          <i class="ri-logout-box-r-line"></i>
+          <span>Sair</span>
         </button>
       </form>
     </div>
@@ -136,61 +113,60 @@
   </aside>
 
   <!-- Main -->
-  <div id="main-content" class="flex-1 flex flex-col min-h-screen ml-60">
+  <div id="main-content" class="pt-main">
 
     <!-- Topbar -->
-    <header class="sticky top-0 z-30 bg-white/80 dark:bg-[#151b2e]/80 backdrop-blur px-6 py-3.5 flex items-center justify-between topbar-border">
-      <div class="flex items-center gap-2 text-sm text-[#64748b]">
-        <i class="ri-map-pin-2-line" style="color:#7c5cff;"></i>
+    <header class="pt-topbar">
+      <div class="pt-breadcrumb">
+        <i class="ri-map-pin-2-line" style="color:var(--pt-violet-deep);"></i>
         <span>{% block page_title %}Padrinho Track{% endblock %}</span>
       </div>
-      <div class="flex items-center gap-2">
-        <span class="text-xs px-3 py-1 rounded-full font-medium"
-              style="background:#eee9ff;color:#5b3df5;">
-          Eng. Software — PUC Minas
+      <div>
+        <span class="pt-course-pill">
+          <i class="ri-building-line"></i> Eng. Software — PUC Minas
         </span>
       </div>
     </header>
 
-    <!-- Flash messages → Toast -->
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2">
-      {% for category, message in messages %}
-        <div class="toast-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium shadow-lg min-w-64 max-w-sm
-          {% if category == 'success' %}bg-emerald-500 text-white
-          {% elif category == 'error' %}bg-red-500 text-white
-          {% else %}text-white{% endif %}
-          translate-x-0 transition-all duration-300"
-          {% if category != 'success' and category != 'error' %}style="background:#7c5cff;"{% endif %}>
-          {% if category == 'success' %}
-            <i class="ri-checkbox-circle-line text-lg shrink-0"></i>
-          {% elif category == 'error' %}
-            <i class="ri-alert-line text-lg shrink-0"></i>
-          {% else %}
-            <i class="ri-information-line text-lg shrink-0"></i>
-          {% endif %}
-          <span class="flex-1">{{ message }}</span>
-          <button onclick="this.parentElement.remove()" class="text-white/70 hover:text-white shrink-0">
-            <i class="ri-close-line"></i>
-          </button>
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2">
+          {% for category, message in messages %}
+            <div class="toast-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium shadow-lg min-w-64 max-w-sm
+              {% if category == 'success' %}bg-emerald-500 text-white
+              {% elif category == 'error' %}bg-red-500 text-white
+              {% else %}text-white{% endif %}
+              translate-x-0 transition-all duration-300"
+              {% if category != 'success' and category != 'error' %}style="background:#7c5cff;"{% endif %}>
+              {% if category == 'success' %}
+                <i class="ri-checkbox-circle-line text-lg shrink-0"></i>
+              {% elif category == 'error' %}
+                <i class="ri-alert-line text-lg shrink-0"></i>
+              {% else %}
+                <i class="ri-information-line text-lg shrink-0"></i>
+              {% endif %}
+              <span class="flex-1">{{ message }}</span>
+              <button onclick="this.parentElement.remove()" class="text-white/70 hover:text-white shrink-0">
+                <i class="ri-close-line"></i>
+              </button>
+            </div>
+          {% endfor %}
         </div>
-      {% endfor %}
-    </div>
-    <script>
-      setTimeout(() => {
-        document.querySelectorAll('.toast-item').forEach(el => {
-          el.style.opacity = '0';
-          el.style.transform = 'translateX(100%)';
-          setTimeout(() => el.remove(), 300);
-        });
-      }, 4000);
-    </script>
-  {% endif %}
-{% endwith %}
+        <script>
+          setTimeout(() => {
+            document.querySelectorAll('.toast-item').forEach(el => {
+              el.style.opacity = '0';
+              el.style.transform = 'translateX(100%)';
+              setTimeout(() => el.remove(), 300);
+            });
+          }, 4000);
+        </script>
+      {% endif %}
+    {% endwith %}
 
     <!-- Content -->
-    <main class="flex-1 px-6 py-8">
+    <main class="pt-content pt-content-padded" style="flex:1;padding-top:32px;padding-bottom:32px;">
       {% block content %}{% endblock %}
     </main>
 
@@ -198,74 +174,52 @@
 </div>
 
 <script>
-  const sidebar = document.getElementById('sidebar');
-  const main = document.getElementById('main-content');
-  const toggleIcon = document.getElementById('toggle-icon');
-  const navLabels = document.querySelectorAll('.nav-label');
-  let collapsed = false;
+  // --- Sidebar ---
+  let collapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+  if (collapsed) {
+    document.body.classList.add('pt-sidebar-collapsed');
+    document.getElementById('toggle-icon').className = 'ri-menu-unfold-line';
+  }
 
   function toggleSidebar() {
     collapsed = !collapsed;
-    if (collapsed) {
-      sidebar.style.width = '68px';
-      main.style.marginLeft = '68px';
-      toggleIcon.className = 'ri-menu-unfold-line text-base';
-      navLabels.forEach(el => {
-        el.style.opacity = '0';
-        el.style.maxWidth = '0';
-        el.style.overflow = 'hidden';
-      });
-    } else {
-      sidebar.style.width = '240px';
-      main.style.marginLeft = '240px';
-      toggleIcon.className = 'ri-menu-fold-line text-base';
-      navLabels.forEach(el => {
-        el.style.opacity = '1';
-        el.style.maxWidth = '200px';
-        el.style.overflow = '';
-      });
-    }
+    document.body.classList.toggle('pt-sidebar-collapsed', collapsed);
+    document.getElementById('toggle-icon').className = collapsed ? 'ri-menu-unfold-line' : 'ri-menu-fold-line';
+    localStorage.setItem('sidebarCollapsed', collapsed);
   }
 
+  // --- Dark mode ---
   function toggleDark() {
     const html = document.documentElement;
     const icon = document.getElementById('dark-icon');
     if (html.classList.contains('dark')) {
       html.classList.remove('dark');
-      icon.className = 'ri-moon-line text-base';
+      html.removeAttribute('data-theme');
+      icon.className = 'ri-moon-line';
       localStorage.setItem('theme', 'light');
     } else {
       html.classList.add('dark');
-      icon.className = 'ri-sun-line text-base';
+      html.setAttribute('data-theme', 'dark');
+      icon.className = 'ri-sun-line';
       localStorage.setItem('theme', 'dark');
     }
   }
-
   if (localStorage.getItem('theme') === 'dark') {
     document.documentElement.classList.add('dark');
-    document.getElementById('dark-icon').className = 'ri-sun-line text-base';
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.getElementById('dark-icon').className = 'ri-sun-line';
   }
 
-  // Sidebar nav hover (inline styles since sidebar is always dark)
-  document.querySelectorAll('.nav-item[href]').forEach(link => {
-    link.addEventListener('mouseenter', function() {
-      if (!this.classList.contains('active')) {
-        this.style.background = 'rgba(255,255,255,0.06)';
-      }
-    });
-    link.addEventListener('mouseleave', function() {
-      if (!this.classList.contains('active')) {
-        this.style.background = '';
-      }
-    });
-  });
-
-  // Active link
-  document.querySelectorAll('.nav-item').forEach(link => {
+  // --- Active nav link ---
+  document.querySelectorAll('.pt-nav-item[href]').forEach(link => {
     if (link.getAttribute('href') === window.location.pathname) {
-      link.classList.add('active');
+      link.classList.add('is-active');
     }
   });
+
+  // --- Modal helpers ---
+  function openModal(id) { document.getElementById(id).classList.add('is-open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('is-open'); }
 </script>
 
 </body>

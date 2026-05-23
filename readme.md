@@ -8,7 +8,18 @@
 
 O **Padrinho Track** nasceu de uma necessidade real: o programa de mentoria da PUC Minas não tinha forma estruturada de registrar presenças, controlar entregas ou aplicar advertências. Tudo ficava disperso no WhatsApp e em planilhas manuais.
 
-O sistema centraliza a gestão de **50 padrinhos** (veteranos voluntários) e **127 calouros**, automatizando as regras de advertência que definem quem está apto a receber horas ACG ao final do semestre. Foi desenvolvido do zero por um coordenador do próprio programa, a partir de uma necessidade real identificada durante o semestre.
+O sistema centraliza a gestão de **50 padrinhos** (veteranos voluntários) e **127 calouros**, automatizando as regras de advertência que definem quem está aprovado para receber horas ACG ao final do semestre. Foi desenvolvido do zero por um coordenador do próprio programa, a partir de uma necessidade real identificada durante o semestre.
+
+---
+
+## Sobre o programa
+
+**Programa de Mentoria Acadêmica — Engenharia de Software**
+PUC Minas · Semestre 2026/1
+
+- **Professor Coordenador:** Prof. Laerte Xavier
+- **Coordenadora Geral:** Ana Santos
+- **Coordenadores:** Christiano Gonçalves, Perciliana, Giovanna, Zaine, Luiz
 
 ---
 
@@ -22,37 +33,49 @@ O sistema centraliza a gestão de **50 padrinhos** (veteranos voluntários) e **
 **Presenças e reuniões**
 - Registro manual de presença por reunião
 - Importação automática via CSV exportado do Google Forms
-- Advertência amarela automática para faltas sem justificativa
+- Advertência automática para faltas sem justificativa
 
 **Temas informativos**
-- Controle de entrega de temas em grupo (relação muitos-para-muitos)
-- Advertência automática por atraso (1 dia → amarelo) ou não entrega (vermelho)
-- Advertência manual com motivo livre para comportamentos inadequados
+- Controle de entrega de temas em grupo
+- Advertência automática por atraso ou não entrega
+- Advertência manual para comportamentos inadequados
 
 **Relatórios e aptidão ACG**
-- Dashboard com visão geral — aptos, em alerta, inaptos
+- Dashboard com visão geral — aprovados, em alerta, reprovados, reportados
 - Gráficos de distribuição de status e presenças por reunião
 - Relatório geral exportável em CSV
-- Relatórios separados: aptos (para emissão de ACG) e vermelhos (para reportar ao professor)
-- Limite de amarelos configurável pela coordenação
+- PDF de Aptidão ACG para emissão de horas
+- PDF de Resumo do Semestre para arquivo
+- PDF de Reportados para entrega ao professor coordenador
+- Limite de advertências configurável pela coordenação
 
 **Interface**
-- Sidebar colapsável com animação suave e link ativo destacado
-- Dark mode com toggle e preferência salva no localStorage
+- Design system próprio com identidade visual da marca
+- Sidebar colapsável com animação suave
+- Dark mode com toggle e preferência salva
 - Busca em tempo real na lista de padrinhos
 - Toast notifications nas ações
 
 ---
 
-## Regras de advertência
+## Sistema de advertências
 
-| Situação | Cartão | Consequência |
+| Situação | Tipo | Consequência |
 |---|---|---|
-| Falta sem justificativa em reunião | Amarelo | — |
-| Entrega de tema com 1 dia de atraso | Amarelo | — |
-| N amarelos acumulados (configurável) | — | Inapto para ACG |
-| Não entrega de tema | Vermelho | Inapto para ACG + reportar professor |
-| Comportamento inadequado (manual) | Vermelho | Inapto para ACG + reportar professor |
+| Falta sem justificativa em reunião | Advertência | — |
+| Entrega de tema com 1 dia de atraso | Advertência | — |
+| N advertências acumuladas (configurável) | — | Reprovado para ACG |
+| Não entrega de tema | Advertência Grave | Reprovado + reportar professor |
+| Comportamento inadequado (manual) | Advertência Grave | Reprovado + reportar professor |
+
+## Status dos padrinhos
+
+| Status | Cor | Significado |
+|---|---|---|
+| **Aprovado** | 🟢 Verde | Elegível para receber horas ACG |
+| **Em alerta** | 🟡 Âmbar | Próximo do limite de advertências |
+| **Reprovado** | 🟠 Laranja | Limite atingido — sem ACG |
+| **Reportado** | 🔴 Vermelho | Advertência grave — reportar ao professor |
 
 ---
 
@@ -97,9 +120,12 @@ O sistema centraliza a gestão de **50 padrinhos** (veteranos voluntários) e **
 
 - **Backend:** Python + Flask
 - **Banco de dados:** SQLite
-- **Frontend:** HTML + Tailwind CSS + Remix Icon
+- **Frontend:** HTML + Tailwind CSS + design system próprio (app.css)
+- **Ícones:** Remix Icon
+- **Gráficos:** ApexCharts
 - **Testes:** pytest — 18 testes cobrindo regras de advertência e aptidão ACG
 - **Dados:** Pandas — importação de CSV e exportação de relatórios
+- **PDF:** reportlab
 
 ---
 
@@ -107,17 +133,25 @@ O sistema centraliza a gestão de **50 padrinhos** (veteranos voluntários) e **
 
 ```
 padrinho-track/
-├── app.py              # Flask: configuração e rotas
-├── database.py         # Conexão e criação do banco SQLite
-├── models.py           # Funções de leitura e escrita no banco
-├── seed_exemplo.py     # Dados fictícios para demonstração
-├── tests/              # Testes automatizados com pytest
-├── templates/          # Páginas HTML com Tailwind
-├── static/             # Arquivos estáticos
-├── instance/           # Banco de dados local (não sobe pro Git)
-├── docs/               # Screenshots para o README
-├── requirements.txt
-└── README.md
+├── app.py                  # Flask: configuração e rotas
+├── database.py             # Conexão e criação do banco SQLite
+├── models.py               # Funções de leitura e escrita no banco
+├── seed_exemplo.py         # Dados fictícios para demonstração
+├── config_semestre.json    # Configurações do semestre (gitignore)
+├── CLAUDE.md               # Contexto do projeto para Claude Code
+├── APRENDIZADOS.md         # Lições aprendidas no desenvolvimento
+├── tarefas.md              # Tarefas pendentes para Claude Code
+├── tests/                  # Testes automatizados com pytest
+├── templates/              # Páginas HTML
+│   ├── base.html
+│   ├── components/         # Modais reutilizáveis
+│   └── pages/              # Páginas principais
+├── static/
+│   ├── css/app.css         # Design system completo
+│   └── *.svg               # Logo e favicon
+├── instance/               # Banco de dados local (gitignore)
+├── docs/                   # Screenshots para o README
+└── requirements.txt
 ```
 
 ---
@@ -161,16 +195,21 @@ python -m pytest tests/ -v
 
 ## Roadmap
 
-- [ ] Login com autenticação para coordenadores
-- [ ] Deploy em nuvem com link público (Railway + PostgreSQL)
-- [ ] Geração de PDF de aptidão para ACG
-- [ ] Logs de auditoria — registro de quem alterou o quê
-- [ ] Integração direta com Google Sheets API
+- [x] Sistema de advertências automáticas
+- [x] Importação de presenças via CSV do Google Forms
+- [x] Geração de PDFs de aptidão ACG
+- [x] Login com autenticação
+- [x] Design system com identidade visual própria
+- [ ] Deploy em nuvem
+- [ ] Logs de auditoria
+- [ ] Interface de match padrinho-calouro
+- [ ] Bot do Telegram para a coordenação
+- [ ] Integração com Google Sheets API
 
 ---
 
 ## Autor
 
-**Christiano Gonara**
-Engenharia de Software — PUC Minas
+**Christiano Gonçalves**
+Coordenador da Monitoria — Engenharia de Software · PUC Minas
 [LinkedIn](https://linkedin.com/in/christiano-gonara) · [GitHub](https://github.com/christiano-gonara)

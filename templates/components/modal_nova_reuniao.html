@@ -1,45 +1,30 @@
-<div id="modal-nova" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-  <div class="bg-white dark:bg-[#151b2e] rounded-2xl shadow-xl w-full max-w-md overflow-hidden"
-       style="border:1px solid #e6e7ee;">
-    <div class="px-6 py-4 flex items-center justify-between" style="background:#7c5cff;">
-      <h2 class="text-base font-semibold text-white flex items-center gap-2">
-        <i class="ri-calendar-line"></i> Nova reunião
-      </h2>
-      <button onclick="document.getElementById('modal-nova').classList.add('hidden')"
-              class="text-white/70 hover:text-white text-xl leading-none transition">&times;</button>
+<div id="modal-nova" class="pt-modal-backdrop">
+  <div class="pt-modal">
+    <div class="pt-modal-header pt-tone-violet">
+      <i class="ri-calendar-line"></i>
+      <span class="pt-modal-title">Nova reunião</span>
+      <button class="pt-modal-close" onclick="closeModal('modal-nova')">&times;</button>
     </div>
-    <form action="/reunioes/nova" method="POST" class="flex flex-col gap-4 p-6">
-      <div>
-        <label class="block text-sm font-medium text-[#64748b] dark:text-white/70 mb-1.5">Data</label>
-        <input type="date" name="data" required
-               class="w-full rounded-[10px] px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c5cff] transition dark:bg-[#151b2e] dark:text-white/90"
-               style="border:1px solid #e6e7ee;" />
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-[#64748b] dark:text-white/70 mb-1.5">Tema <span class="text-[#64748b]/60 font-normal">(opcional)</span></label>
-        <input type="text" name="tema"
-               class="w-full rounded-[10px] px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c5cff] transition dark:bg-[#151b2e] dark:text-white/90"
-               style="border:1px solid #e6e7ee;" />
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-[#64748b] dark:text-white/70 mb-1.5">Descrição <span class="text-[#64748b]/60 font-normal">(opcional)</span></label>
-        <textarea name="descricao" rows="3"
-                  class="w-full rounded-[10px] px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c5cff] transition dark:bg-[#151b2e] dark:text-white/90 resize-none"
-                  style="border:1px solid #e6e7ee;"></textarea>
-      </div>
-      <div class="flex justify-end gap-3 pt-2">
-        <button type="button"
-                onclick="document.getElementById('modal-nova').classList.add('hidden')"
-                class="text-sm text-[#64748b] hover:text-[#0f172a] dark:hover:text-white/90 px-4 py-2.5 rounded-[10px] hover:bg-[#f6f6fa] dark:hover:bg-white/[0.04] transition">
-          Cancelar
-        </button>
-        <button type="submit"
-                class="flex items-center gap-2 text-white text-sm px-5 py-2.5 rounded-[10px] transition font-medium shadow-sm"
-                style="background:#7c5cff;"
-                onmouseover="this.style.background='#5b3df5';"
-                onmouseout="this.style.background='#7c5cff';">
-          <i class="ri-save-line"></i> Criar reunião
-        </button>
+    <form action="/reunioes/nova" method="POST">
+      <div class="pt-modal-body">
+        <div class="pt-field">
+          <label class="pt-label">Data</label>
+          <input type="date" name="data" required class="pt-input" />
+        </div>
+        <div class="pt-field">
+          <label class="pt-label">Tema <span class="pt-label-optional">(opcional)</span></label>
+          <input type="text" name="tema" class="pt-input" />
+        </div>
+        <div class="pt-field">
+          <label class="pt-label">Descrição <span class="pt-label-optional">(opcional)</span></label>
+          <textarea name="descricao" class="pt-textarea"></textarea>
+        </div>
+        <div class="pt-modal-actions">
+          <button type="button" class="pt-btn pt-btn-ghost" onclick="closeModal('modal-nova')">Cancelar</button>
+          <button type="submit" class="pt-btn pt-btn-primary">
+            <i class="ri-save-line"></i> Criar reunião
+          </button>
+        </div>
       </div>
     </form>
   </div>

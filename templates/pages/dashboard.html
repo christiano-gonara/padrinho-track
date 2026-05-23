@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Padrinho Track{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="flex items-center justify-between mb-8">
+  <div>
+    <h1 class="pt-page-title">Visão geral</h1>
+    <p class="pt-page-subtitle">Acompanhamento do programa de mentoria</p>
+  </div>
+  <div class="pt-page-actions">
+    {% if proxima_reuniao %}
+      <span class="pt-info-pill pt-info-pill-violet">
+        <i class="ri-video-chat-line"></i>
+        <div class="pt-info-pill-text">
+          <span class="pt-info-pill-label">Última reunião</span>
+          <span class="pt-info-pill-value">{{ proxima_reuniao["data"] | databr }} — {{ proxima_reuniao["tema"] or "sem tema" }}</span>
+        </div>
+      </span>
+    {% endif %}
+    {% if proximo_tema %}
+      <span class="pt-info-pill pt-info-pill-amber">
+        <i class="ri-time-line"></i>
+        <div class="pt-info-pill-text">
+          <span class="pt-info-pill-label">Próximo prazo</span>
+          <span class="pt-info-pill-value">{{ proximo_tema["titulo"] }} até {{ proximo_tema["data_limite"] | databr }}</span>
+        </div>
+      </span>
+    {% endif %}
+  </div>
+</div>
+
+{% set aptos       = dados | selectattr("status", "eq", "apto")            | list %}
+{% set alertas     = dados | selectattr("status", "eq", "alerta")          | list %}
+{% set inapto_am   = dados | selectattr("status", "eq", "inapto_amarelo")  | list %}
+{% set inapto_verm = dados | selectattr("status", "eq", "inapto_vermelho") | list %}
+{% set total_pizza = dados | length or 1 %}
+
+<!-- Metric Cards -->
+{% include "components/metric_cards.html" %}
+
+<!-- Charts -->
+<div class="pt-grid-charts mb-8" style="max-width:900px;margin:0 auto;">
+
+  <div class="pt-card">
+    <h2 class="pt-card-title mb-4">Distribuição de status</h2>
+    <div class="flex items-center gap-6">
+      <div id="graficoPizza" style="flex-shrink:0;"></div>
+      <div class="flex flex-col gap-2.5" style="font-size:12px;">
+        <div class="flex items-center gap-2">
+          <span style="width:10px;height:10px;border-radius:50%;background:#10b981;flex-shrink:0;"></span>
+          <span class="pt-muted-text">Aptos
+            <strong style="color:var(--pt-ink);">{{ aptos | length }}</strong>
+            <span style="color:var(--pt-faint);margin-left:3px;">{{ ((aptos | length / total_pizza) * 100) | round | int }}%</span>
+          </span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;flex-shrink:0;"></span>
+          <span class="pt-muted-text">Em alerta
+            <strong style="color:var(--pt-ink);">{{ alertas | length }}</strong>
+            <span style="color:var(--pt-faint);margin-left:3px;">{{ ((alertas | length / total_pizza) * 100) | round | int }}%</span>
+          </span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span style="width:10px;height:10px;border-radius:50%;background:#f97316;flex-shrink:0;"></span>
+          <span class="pt-muted-text">Inaptos
+            <strong style="color:var(--pt-ink);">{{ inapto_am | length }}</strong>
+            <span style="color:var(--pt-faint);margin-left:3px;">{{ ((inapto_am | length / total_pizza) * 100) | round | int }}%</span>
+          </span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span style="width:10px;height:10px;border-radius:50%;background:#dc2626;flex-shrink:0;"></span>
+          <span class="pt-muted-text">Inaptos Graves
+            <strong style="color:var(--pt-ink);">{{ inapto_verm | length }}</strong>
+            <span style="color:var(--pt-faint);margin-left:3px;">{{ ((inapto_verm | length / total_pizza) * 100) | round | int }}%</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pt-card">
+    <h2 class="pt-card-title mb-4">Presenças por reunião</h2>
+    <div id="graficoPresencas"></div>
+  </div>
+
+</div>
+
+<!-- Tabela -->
+<div class="pt-card pt-card-flat">
+  <div class="pt-card-header" style="padding:18px 22px 14px;">
+    <div class="pt-card-header-title">
+      <div class="pt-card-header-icon"><i class="ri-group-line"></i></div>
+      <span class="pt-card-title">Padrinhos</span>
+    </div>
+    <span class="pt-muted-text" style="font-size:12px;">{{ dados | length }} no total</span>
+  </div>
+  <table class="pt-table">
+    <thead>
+      <tr>
+        <th>Padrinho</th>
+        <th>Matrícula</th>
+        <th style="text-align:center;">Amarelos</th>
+        <th style="text-align:center;">Vermelhos</th>
+        <th style="text-align:center;">Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for d in dados %}
+      {% set parts = d.padrinho["nome"].split() %}
+      {% set ini = (parts[0][0] + (parts[-1][0] if parts|length > 1 else ''))|upper %}
+      <tr class="is-clickable">
+        <td>
+          <div class="pt-td-name">
+            <div class="pt-avatar">{{ ini }}</div>
+            <span>{{ d.padrinho["nome"] | abreviar }}</span>
+          </div>
+        </td>
+        <td class="pt-td-muted">{{ d.padrinho["matricula"] }}</td>
+        <td style="text-align:center;">
+          {% if d.amarelos > 0 %}
+            <span class="pt-count-badge pt-count-badge-amber">{{ d.amarelos }}</span>
+          {% else %}
+            <span class="pt-dash">—</span>
+          {% endif %}
+        </td>
+        <td style="text-align:center;">
+          {% if d.vermelhos > 0 %}
+            <span class="pt-count-badge pt-count-badge-red">{{ d.vermelhos }}</span>
+          {% else %}
+            <span class="pt-dash">—</span>
+          {% endif %}
+        </td>
+        <td style="text-align:center;">
+          {% if d.status == "apto" %}
+            <span class="pt-badge" data-status="apto"><i class="ri-checkbox-circle-line"></i> Apto</span>
+          {% elif d.status == "alerta" %}
+            <span class="pt-badge" data-status="alerta"><i class="ri-error-warning-line"></i> Alerta</span>
+          {% elif d.status == "inapto_amarelo" %}
+            <span class="pt-badge" data-status="inapto"><i class="ri-alert-line"></i> Inapto</span>
+          {% elif d.status == "inapto_vermelho" %}
+            <span class="pt-badge" data-status="grave"><i class="ri-close-circle-line"></i> Inapto Grave</span>
+          {% endif %}
+        </td>
+        <td class="pt-td-right">
+          <a href="/padrinhos/{{ d.padrinho['id'] }}" class="pt-link-btn">
+            <i class="ri-eye-line"></i> ver detalhes
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- ApexCharts -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+  const isDark = document.documentElement.classList.contains('dark') || document.documentElement.getAttribute('data-theme') === 'dark';
+  const textColor = isDark ? 'rgba(255,255,255,0.55)' : '#64748b';
+  const inkColor  = isDark ? '#e6e8ef' : '#0f172a';
+  const gridColor = isDark ? 'rgba(255,255,255,0.06)' : '#f1f5f9';
+  const borderColor = isDark ? '#151a2d' : '#ffffff';
+
+  const pizzaData = [{{ aptos | length }}, {{ alertas | length }}, {{ inapto_am | length }}, {{ inapto_verm | length }}];
+  const pizzaTotal = pizzaData.reduce((a, b) => a + b, 0);
+
+  new ApexCharts(document.getElementById('graficoPizza'), {
+    series: pizzaData,
+    chart: { type: 'donut', height: 200, toolbar: { show: false } },
+    labels: ['Aptos', 'Em alerta', 'Inaptos', 'Inaptos Graves'],
+    colors: ['#10b981', '#f59e0b', '#f97316', '#dc2626'],
+    legend: { show: false },
+    dataLabels: { enabled: false },
+    plotOptions: {
+      pie: {
+        donut: {
+          size: '70%',
+          labels: {
+            show: true,
+            total: {
+              show: true,
+              label: 'Total',
+              color: textColor,
+              fontSize: '12px',
+              fontWeight: 600,
+              formatter: () => pizzaTotal
+            },
+            value: {
+              color: inkColor,
+              fontSize: '22px',
+              fontWeight: 700
+            }
+          }
+        }
+      }
+    },
+    stroke: { width: 2, colors: [borderColor] },
+    tooltip: {
+      theme: isDark ? 'dark' : 'light',
+      y: { formatter: val => val + ' padrinho' + (val !== 1 ? 's' : '') }
+    }
+  }).render();
+
+  const reunioes = {{ presencas_por_reuniao | tojson }};
+  new ApexCharts(document.getElementById('graficoPresencas'), {
+    series: [
+      { name: 'Presentes', data: reunioes.map(r => r.presentes) },
+      { name: 'Ausentes',  data: reunioes.map(r => r.ausentes) }
+    ],
+    chart: { type: 'area', height: 220, toolbar: { show: false }, zoom: { enabled: false } },
+    colors: ['#7c5cff', '#dc2626'],
+    fill: { type: 'solid', opacity: [0.1, 0.1] },
+    stroke: { curve: 'smooth', width: 2 },
+    xaxis: {
+      categories: reunioes.map(r => r.label),
+      labels: { style: { colors: textColor, fontSize: '11px' } },
+      axisBorder: { show: false },
+      axisTicks: { show: false }
+    },
+    yaxis: {
+      min: 0,
+      labels: { style: { colors: textColor, fontSize: '11px' } }
+    },
+    grid: { borderColor: gridColor },
+    legend: { labels: { colors: textColor }, fontSize: '11px' },
+    tooltip: {
+      theme: isDark ? 'dark' : 'light',
+      y: { formatter: val => val + ' padrinho' + (val !== 1 ? 's' : '') }
+    },
+    dataLabels: { enabled: false }
+  }).render();
+</script>
+
+{% endblock %}

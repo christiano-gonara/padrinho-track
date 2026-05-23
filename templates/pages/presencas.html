@@ -9,7 +9,7 @@
     <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Reuniões</h1>
     <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Histórico e controle de presenças</p>
   </div>
-  <button onclick="document.getElementById('modal-nova').classList.remove('hidden')"
+  <button onclick="openModal('modal-nova')"
           class="flex items-center gap-2 bg-[#7c5cff] text-white text-sm px-4 py-2.5 rounded-xl hover:bg-[#5b3df5] transition shadow-sm font-medium">
     <i class="ri-add-line"></i> Nova reunião
   </button>
@@ -75,39 +75,37 @@
 </div>
 
 <!-- Modal nova reunião -->
-<div id="modal-nova" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-  <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-    <div class="bg-[#7c5cff] px-6 py-4 flex items-center justify-between">
-      <h2 class="text-base font-semibold text-white flex items-center gap-2">
-        <i class="ri-calendar-line"></i> Nova reunião
-      </h2>
-      <button onclick="document.getElementById('modal-nova').classList.add('hidden')"
-              class="text-white/70 hover:text-white text-xl leading-none transition">&times;</button>
+<div id="modal-nova" class="pt-modal-backdrop">
+  <div class="pt-modal">
+    <div class="pt-modal-header pt-tone-violet">
+      <i class="ri-calendar-line"></i>
+      <span class="pt-modal-title">Nova reunião</span>
+      <button class="pt-modal-close" onclick="closeModal('modal-nova')">&times;</button>
     </div>
-    <form action="/reunioes/nova" method="POST" class="flex flex-col gap-4 p-6">
+    <form action="/reunioes/nova" method="POST" class="pt-modal-body">
       <div>
         <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1.5">Data</label>
         <input type="date" name="data" required
-               class="w-full border border-slate-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c5cff] transition" />
+               class="pt-input" />
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1.5">Tema <span class="text-gray-400 font-normal">(opcional)</span></label>
         <input type="text" name="tema"
-               class="w-full border border-slate-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c5cff] transition" />
+               class="pt-input" />
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1.5">Descrição <span class="text-gray-400 font-normal">(opcional)</span></label>
         <textarea name="descricao" rows="3"
-                  class="w-full border border-slate-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c5cff] transition resize-none"></textarea>
+                  class="pt-textarea"></textarea>
       </div>
-      <div class="flex justify-end gap-3 pt-2">
+      <div class="pt-modal-actions">
         <button type="button"
-                onclick="document.getElementById('modal-nova').classList.add('hidden')"
-                class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 px-4 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-gray-800 transition">
+                onclick="closeModal('modal-nova')"
+                class="pt-btn pt-btn-ghost">
           Cancelar
         </button>
         <button type="submit"
-                class="flex items-center gap-2 bg-[#7c5cff] text-white text-sm px-5 py-2.5 rounded-xl hover:bg-[#5b3df5] transition font-medium shadow-sm">
+                class="pt-btn pt-btn-primary">
           <i class="ri-save-line"></i> Criar reunião
         </button>
       </div>

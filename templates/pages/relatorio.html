@@ -12,92 +12,30 @@
   <div class="flex items-center gap-2">
     <a href="/relatorio/exportar"
        class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm px-4 py-2.5 rounded-xl hover:from-emerald-600 hover:to-teal-700 transition shadow-sm font-medium">
-      <i class="ri-download-line"></i> Exportar CSV
+      <i class="ri-download-line"></i> CSV
     </a>
     <a href="/relatorio/pdf"
        class="flex items-center gap-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white text-sm px-4 py-2.5 rounded-xl hover:from-violet-600 hover:to-purple-700 transition shadow-sm font-medium">
-      <i class="ri-file-pdf-line"></i> Exportar PDF
+      <i class="ri-file-pdf-line"></i> PDF Aptidão
     </a>
-    <button onclick="window.print()"
-            class="flex items-center gap-2 bg-slate-700 dark:bg-slate-600 text-white text-sm px-4 py-2.5 rounded-xl hover:bg-slate-800 dark:hover:bg-slate-500 transition shadow-sm font-medium">
-      <i class="ri-printer-line"></i> Imprimir / PDF
-    </button>
+    <a href="/relatorio/pdf/semestre"
+       class="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm px-4 py-2.5 rounded-xl hover:from-blue-600 hover:to-indigo-700 transition shadow-sm font-medium">
+      <i class="ri-file-chart-line"></i> PDF Semestre
+    </a>
+    <a href="/relatorio/pdf/graves"
+       class="flex items-center gap-2 bg-gradient-to-r from-red-600 to-rose-700 text-white text-sm px-4 py-2.5 rounded-xl hover:from-red-700 hover:to-rose-800 transition shadow-sm font-medium">
+      <i class="ri-alert-line"></i> PDF Graves
+    </a>
   </div>
 </div>
+
+{% set aptos       = dados | selectattr("status", "eq", "apto")            | list %}
+{% set alertas     = dados | selectattr("status", "eq", "alerta")          | list %}
+{% set inapto_am   = dados | selectattr("status", "eq", "inapto_amarelo")  | list %}
+{% set inapto_verm = dados | selectattr("status", "eq", "inapto_vermelho") | list %}
 
 <!-- Cards -->
-<div class="grid grid-cols-4 gap-4 mb-8">
-  {% set aptos       = dados | selectattr("status", "eq", "apto")            | list %}
-  {% set alertas     = dados | selectattr("status", "eq", "alerta")          | list %}
-  {% set inapto_am   = dados | selectattr("status", "eq", "inapto_amarelo")  | list %}
-  {% set inapto_verm = dados | selectattr("status", "eq", "inapto_vermelho") | list %}
-
-  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 p-5 flex items-center gap-4 shadow-sm">
-    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-600 to-green-700 flex items-center justify-center shrink-0">
-      <i class="ri-checkbox-circle-line text-white text-xl"></i>
-    </div>
-    <div>
-      <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Aptos</p>
-      <p class="text-3xl font-bold text-gray-800 dark:text-gray-100">{{ aptos | length }}</p>
-    </div>
-  </div>
-
-  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 p-5 flex items-center gap-4 shadow-sm">
-    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shrink-0">
-      <i class="ri-error-warning-line text-white text-xl"></i>
-    </div>
-    <div>
-      <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Em alerta</p>
-      <p class="text-3xl font-bold text-gray-800 dark:text-gray-100">{{ alertas | length }}</p>
-    </div>
-  </div>
-
-  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 p-5 flex items-center gap-4 shadow-sm">
-    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shrink-0">
-      <i class="ri-alert-line text-white text-xl"></i>
-    </div>
-    <div>
-      <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Inaptos</p>
-      <p class="text-3xl font-bold text-gray-800 dark:text-gray-100">{{ inapto_am | length }}</p>
-    </div>
-  </div>
-
-  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 p-5 flex items-center gap-4 shadow-sm">
-    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-700 to-red-800 flex items-center justify-center shrink-0">
-      <i class="ri-close-circle-line text-white text-xl"></i>
-    </div>
-    <div>
-      <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Inaptos Graves</p>
-      <p class="text-3xl font-bold text-gray-800 dark:text-gray-100">{{ inapto_verm | length }}</p>
-    </div>
-  </div>
-</div>
-
-<!-- Acesso rápido aos relatórios separados -->
-<div class="grid grid-cols-2 gap-4 mb-8">
-  <a href="/relatorio/aptos"
-     class="bg-white dark:bg-gray-900 rounded-2xl border border-emerald-200 dark:border-emerald-900 p-5 flex items-center gap-4 shadow-sm hover:shadow-md transition">
-    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-600 to-green-700 flex items-center justify-center shrink-0">
-      <i class="ri-checkbox-circle-line text-white text-xl"></i>
-    </div>
-    <div>
-      <p class="text-sm font-semibold text-gray-800 dark:text-gray-100">Relatório de aptos</p>
-      <p class="text-xs text-gray-500 dark:text-gray-400">Lista completa para emissão de ACG</p>
-    </div>
-    <i class="ri-arrow-right-line text-gray-400 ml-auto"></i>
-  </a>
-  <a href="/relatorio/vermelhos"
-     class="bg-white dark:bg-gray-900 rounded-2xl border border-red-200 dark:border-red-900 p-5 flex items-center gap-4 shadow-sm hover:shadow-md transition">
-    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shrink-0">
-      <i class="ri-close-circle-line text-white text-xl"></i>
-    </div>
-    <div>
-      <p class="text-sm font-semibold text-gray-800 dark:text-gray-100">Relatório de vermelhos</p>
-      <p class="text-xs text-gray-500 dark:text-gray-400">Lista para reportar ao professor</p>
-    </div>
-    <i class="ri-arrow-right-line text-gray-400 ml-auto"></i>
-  </a>
-</div>
+{% include "components/metric_cards.html" %}
 
 <!-- Tabela -->
 <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 overflow-hidden shadow-sm">
@@ -131,7 +69,7 @@
         <td class="px-6 py-4 font-medium text-gray-800 dark:text-gray-200">
           <a href="/padrinhos/{{ d.padrinho['id'] }}"
              class="transition" onmouseover="this.style.color='#5b3df5';" onmouseout="this.style.color='';" >
-            {{ d.padrinho["nome"] }}
+            {{ d.padrinho["nome"] | abreviar }}
           </a>
         </td>
         <td class="px-6 py-4 text-[#64748b] mono text-[13px]">{{ d.padrinho["matricula"] }}</td>

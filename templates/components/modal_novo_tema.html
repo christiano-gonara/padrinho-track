@@ -1,60 +1,43 @@
-<div id="modal-novo" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-  <div class="bg-white dark:bg-[#151b2e] rounded-2xl shadow-xl w-full max-w-lg overflow-hidden"
-       style="border:1px solid #e6e7ee;">
-    <div class="px-6 py-4 flex items-center justify-between" style="background:#7c5cff;">
-      <h2 class="text-base font-semibold text-white flex items-center gap-2">
-        <i class="ri-book-open-line"></i> Novo tema
-      </h2>
-      <button onclick="document.getElementById('modal-novo').classList.add('hidden')"
-              class="text-white/70 hover:text-white text-xl leading-none transition">&times;</button>
+<div id="modal-novo" class="pt-modal-backdrop">
+  <div class="pt-modal pt-modal-lg">
+    <div class="pt-modal-header pt-tone-violet">
+      <i class="ri-book-open-line"></i>
+      <span class="pt-modal-title">Novo tema</span>
+      <button class="pt-modal-close" onclick="closeModal('modal-novo')">&times;</button>
     </div>
-    <form action="/temas/novo" method="POST" class="flex flex-col gap-4 p-6">
-      <div>
-        <label class="block text-sm font-medium text-[#64748b] dark:text-white/70 mb-1.5">Título do tema</label>
-        <input type="text" name="titulo" required
-               class="w-full rounded-[10px] px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c5cff] transition dark:bg-[#151b2e] dark:text-white/90"
-               style="border:1px solid #e6e7ee;" />
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block text-sm font-medium text-[#64748b] dark:text-white/70 mb-1.5">Data de aviso</label>
-          <input type="date" name="data_aviso"
-                 class="w-full rounded-[10px] px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c5cff] transition dark:bg-[#151b2e] dark:text-white/90"
-                 style="border:1px solid #e6e7ee;" />
+    <form action="/temas/novo" method="POST">
+      <div class="pt-modal-body">
+        <div class="pt-field">
+          <label class="pt-label">Título do tema</label>
+          <input type="text" name="titulo" required class="pt-input" />
         </div>
-        <div>
-          <label class="block text-sm font-medium text-[#64748b] dark:text-white/70 mb-1.5">Prazo de entrega</label>
-          <input type="date" name="data_limite" required
-                 class="w-full rounded-[10px] px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c5cff] transition dark:bg-[#151b2e] dark:text-white/90"
-                 style="border:1px solid #e6e7ee;" />
+        <div class="grid grid-cols-2 gap-3">
+          <div class="pt-field">
+            <label class="pt-label">Data de aviso</label>
+            <input type="date" name="data_aviso" class="pt-input" />
+          </div>
+          <div class="pt-field">
+            <label class="pt-label">Prazo de entrega</label>
+            <input type="date" name="data_limite" required class="pt-input" />
+          </div>
         </div>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-[#64748b] dark:text-white/70 mb-1.5">Responsáveis</label>
-        <select name="padrinho_ids" multiple required
-                class="w-full rounded-[10px] px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c5cff] transition dark:bg-[#151b2e] dark:text-white/90 h-36"
-                style="border:1px solid #e6e7ee;">
-          {% for p in padrinhos %}
-            <option value="{{ p['id'] }}">{{ p["nome"] }}</option>
-          {% endfor %}
-        </select>
-        <p class="text-xs text-[#64748b] mt-1.5 flex items-center gap-1">
-          <i class="ri-information-line"></i> Segura Ctrl para selecionar mais de um
-        </p>
-      </div>
-      <div class="flex justify-end gap-3 pt-2">
-        <button type="button"
-                onclick="document.getElementById('modal-novo').classList.add('hidden')"
-                class="text-sm text-[#64748b] hover:text-[#0f172a] dark:hover:text-white/90 px-4 py-2.5 rounded-[10px] hover:bg-[#f6f6fa] dark:hover:bg-white/[0.04] transition">
-          Cancelar
-        </button>
-        <button type="submit"
-                class="flex items-center gap-2 text-white text-sm px-5 py-2.5 rounded-[10px] transition font-medium shadow-sm"
-                style="background:#7c5cff;"
-                onmouseover="this.style.background='#5b3df5';"
-                onmouseout="this.style.background='#7c5cff';">
-          <i class="ri-save-line"></i> Registrar
-        </button>
+        <div class="pt-field">
+          <label class="pt-label">Responsáveis</label>
+          <select name="padrinho_ids" multiple required class="pt-select" style="height:144px;">
+            {% for p in padrinhos %}
+              <option value="{{ p['id'] }}">{{ p["nome"] }}</option>
+            {% endfor %}
+          </select>
+          <p class="pt-muted-text" style="font-size:12px;margin-top:6px;display:flex;align-items:center;gap:4px;">
+            <i class="ri-information-line"></i> Segura Ctrl para selecionar mais de um
+          </p>
+        </div>
+        <div class="pt-modal-actions">
+          <button type="button" class="pt-btn pt-btn-ghost" onclick="closeModal('modal-novo')">Cancelar</button>
+          <button type="submit" class="pt-btn pt-btn-primary">
+            <i class="ri-save-line"></i> Registrar
+          </button>
+        </div>
       </div>
     </form>
   </div>

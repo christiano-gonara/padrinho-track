@@ -9,7 +9,7 @@
     <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Advertências</h1>
     <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Registro de cartões amarelos e vermelhos</p>
   </div>
-  <button onclick="document.getElementById('modal-manual').classList.remove('hidden')"
+  <button onclick="openModal('modal-manual')"
           class="flex items-center gap-2 bg-gradient-to-r from-red-500 to-rose-600 text-white text-sm px-4 py-2.5 rounded-xl hover:from-red-600 hover:to-rose-700 transition shadow-sm font-medium">
     <i class="ri-alert-line"></i> Advertência manual
   </button>
@@ -37,7 +37,7 @@
         <td class="px-6 py-4 font-medium text-gray-800 dark:text-gray-200">
           <a href="/padrinhos/{{ a['padrinho_id'] }}"
              class="transition" onmouseover="this.style.color='#5b3df5';" onmouseout="this.style.color='';" >
-            {{ a["padrinho_nome"] }}
+            {{ a["padrinho_nome"] | abreviar }}
           </a>
         </td>
         <td class="px-6 py-4 text-center">

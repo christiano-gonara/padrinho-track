@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block title %}Configurações — Padrinho Track{% endblock %}
+{% block page_title %}Configurações{% endblock %}
+
+{% block content %}
+
+<div class="mb-8">
+  <h1 class="pt-page-title">Configurações</h1>
+  <p class="pt-page-subtitle">Parâmetros do programa de mentoria</p>
+</div>
+
+<div style="max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:24px;">
+
+  <!-- Regras de advertência -->
+  <div class="pt-card pt-card-flat">
+    <div class="pt-card-header" style="padding:18px 22px 14px;">
+      <div class="pt-card-header-title">
+        <div class="pt-card-header-icon"><i class="ri-error-warning-line"></i></div>
+        <span class="pt-card-title">Regras de advertência</span>
+      </div>
+    </div>
+    <form action="/config" method="POST" class="p-6" style="display:flex;flex-direction:column;gap:20px;">
+      <input type="hidden" name="action" value="amarelos" />
+
+      <div class="pt-field">
+        <label class="pt-label">Limite de cartões amarelos para inapto</label>
+        <p class="pt-muted-text" style="font-size:12px;margin-bottom:10px;">
+          Quando um padrinho atingir esse número de amarelos, será considerado inapto para o ACG.
+        </p>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <select name="limite_amarelos" class="pt-select" style="width:auto;">
+            {% for i in range(1, 6) %}
+              <option value="{{ i }}" {% if i == limite_amarelos | int %}selected{% endif %}>
+                {{ i }} amarelo{{ 's' if i > 1 }}
+              </option>
+            {% endfor %}
+          </select>
+          <span class="pt-muted-text" style="font-size:13px;">= inapto para ACG</span>
+        </div>
+      </div>
+
+      <div style="background:var(--pt-violet-tint);border:1px solid var(--pt-violet-tint-deep);border-radius:10px;padding:12px 14px;display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--pt-violet-deep);">
+        <i class="ri-information-line" style="flex-shrink:0;margin-top:1px;"></i>
+        <span>O alerta preventivo aparece quando o padrinho tem <strong>limite - 1</strong> amarelos. Com limite 2, o alerta aparece no primeiro amarelo.</span>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;">
+        <button type="submit" class="pt-btn pt-btn-primary">
+          <i class="ri-save-line"></i> Salvar configurações
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Configurações do semestre -->
+  <div class="pt-card pt-card-flat">
+    <div class="pt-card-header" style="padding:18px 22px 14px;">
+      <div class="pt-card-header-title">
+        <div class="pt-card-header-icon"><i class="ri-calendar-line"></i></div>
+        <span class="pt-card-title">Configurações do semestre</span>
+      </div>
+    </div>
+    <form action="/config" method="POST" class="p-6">
+      <input type="hidden" name="action" value="semestre" />
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="pt-field">
+          <label class="pt-label">Semestre</label>
+          <input type="text" name="semestre" value="{{ config_semestre.semestre }}" class="pt-input" />
+        </div>
+        <div class="pt-field">
+          <label class="pt-label">Instituição</label>
+          <input type="text" name="instituicao" value="{{ config_semestre.instituicao }}" class="pt-input" />
+        </div>
+      </div>
+
+      <div style="margin-top: 16px;">
+        <div class="pt-field">
+          <label class="pt-label">Professor coordenador</label>
+          <input type="text" name="professor_coordenador" value="{{ config_semestre.professor_coordenador }}" class="pt-input" />
+        </div>
+      </div>
+
+      <div style="margin-top: 16px;">
+        <div class="pt-field">
+          <label class="pt-label">Programa</label>
+          <input type="text" name="programa" value="{{ config_semestre.programa }}" class="pt-input" />
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 16px;">
+        <div class="pt-field">
+          <label class="pt-label">Total de reuniões</label>
+          <input type="number" name="total_reunioes" value="{{ config_semestre.total_reunioes }}" min="1" max="20" class="pt-input" />
+        </div>
+        <div class="pt-field">
+          <label class="pt-label">Data início</label>
+          <input type="date" name="data_inicio" value="{{ config_semestre.data_inicio }}" class="pt-input" />
+        </div>
+        <div class="pt-field">
+          <label class="pt-label">Data fim</label>
+          <input type="date" name="data_fim" value="{{ config_semestre.data_fim }}" class="pt-input" />
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;margin-top:20px;">
+        <button type="submit" class="pt-btn pt-btn-primary">
+          <i class="ri-save-line"></i> Salvar semestre
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Sobre o sistema -->
+  <div class="pt-card pt-card-flat">
+    <div class="pt-card-header" style="padding:18px 22px 14px;">
+      <div class="pt-card-header-title">
+        <div class="pt-card-header-icon"><i class="ri-information-line"></i></div>
+        <span class="pt-card-title">Sobre o sistema</span>
+      </div>
+    </div>
+    <div class="p-6" style="display:flex;flex-direction:column;gap:20px;">
+
+      <div style="display:flex;align-items:center;gap:16px;">
+        <span class="pt-knot-tile pt-knot-tile-lg">
+          <img src="{{ url_for('static', filename='padrinho-track-tile.svg') }}" style="width:65%;height:65%;" alt="" />
+        </span>
+        <div>
+          <p style="font-size:15px;font-weight:700;color:var(--pt-ink);">Padrinho Track</p>
+          <p class="pt-muted-text" style="font-size:12px;margin-top:2px;">Versão 1.0.0 &mdash; {{ config_semestre.semestre }}</p>
+        </div>
+      </div>
+
+      <p class="pt-muted-text" style="font-size:13px;line-height:1.6;">
+        Sistema de gestão do programa de mentoria da
+        <span style="font-weight:500;color:var(--pt-ink);">{{ config_semestre.instituicao }}</span> —
+        controla presenças, advertências e cronograma de temas dos padrinhos, facilitando o acompanhamento dos calouros ao longo do semestre.
+      </p>
+
+      <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;">
+        <div style="display:flex;align-items:center;gap:12px;color:var(--pt-muted);">
+          <i class="ri-user-line" style="color:var(--pt-violet);width:16px;text-align:center;flex-shrink:0;"></i>
+          <span>Desenvolvido por <span style="font-weight:500;color:var(--pt-ink);">Christiano Gonara</span></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;color:var(--pt-muted);">
+          <i class="ri-building-line" style="color:var(--pt-violet);width:16px;text-align:center;flex-shrink:0;"></i>
+          <span>{{ config_semestre.programa }}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;color:var(--pt-muted);">
+          <i class="ri-user-star-line" style="color:var(--pt-violet);width:16px;text-align:center;flex-shrink:0;"></i>
+          <span>{{ config_semestre.professor_coordenador }}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;color:var(--pt-muted);">
+          <i class="ri-calendar-line" style="color:var(--pt-violet);width:16px;text-align:center;flex-shrink:0;"></i>
+          <span>Semestre <span style="font-weight:500;color:var(--pt-ink);">{{ config_semestre.semestre }}</span></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <i class="ri-github-line" style="color:var(--pt-violet);width:16px;text-align:center;flex-shrink:0;"></i>
+          <a href="https://github.com/christiano-gonara/padrinho-track"
+             target="_blank" rel="noopener" class="pt-link-btn" style="padding:0;">
+            github.com/christiano-gonara/padrinho-track
+            <i class="ri-external-link-line" style="font-size:11px;"></i>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

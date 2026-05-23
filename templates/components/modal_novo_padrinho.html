@@ -1,63 +1,44 @@
-<div id="modal-novo" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-  <div class="bg-white dark:bg-[#151b2e] rounded-2xl shadow-xl w-full max-w-md overflow-hidden"
-       style="border:1px solid #e6e7ee;">
-    <div class="px-6 py-4 flex items-center justify-between" style="background:#7c5cff;">
-      <h2 class="text-base font-semibold text-white flex items-center gap-2">
-        <i class="ri-user-add-line"></i> Novo padrinho
-      </h2>
-      <button onclick="document.getElementById('modal-novo').classList.add('hidden')"
-              class="text-white/70 hover:text-white text-xl leading-none transition">&times;</button>
+<div id="modal-novo" class="pt-modal-backdrop">
+  <div class="pt-modal">
+    <div class="pt-modal-header pt-tone-violet">
+      <i class="ri-user-add-line"></i>
+      <span class="pt-modal-title">Novo padrinho</span>
+      <button class="pt-modal-close" onclick="closeModal('modal-novo')">&times;</button>
     </div>
-    <form action="/padrinhos/novo" method="POST" class="flex flex-col gap-4 p-6">
-      <div>
-        <label class="block text-sm font-medium text-[#64748b] dark:text-white/70 mb-1.5">Nome completo</label>
-        <input type="text" name="nome" required
-               class="w-full rounded-[10px] px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c5cff] transition dark:bg-[#151b2e] dark:text-white/90"
-               style="border:1px solid #e6e7ee;" />
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block text-sm font-medium text-[#64748b] dark:text-white/70 mb-1.5">Matrícula</label>
-          <input type="text" name="matricula" required
-                 class="w-full rounded-[10px] px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c5cff] transition dark:bg-[#151b2e] dark:text-white/90"
-                 style="border:1px solid #e6e7ee;" />
+    <form action="/padrinhos/novo" method="POST">
+      <div class="pt-modal-body">
+        <div class="pt-field">
+          <label class="pt-label">Nome completo</label>
+          <input type="text" name="nome" required class="pt-input" />
         </div>
-        <div>
-          <label class="block text-sm font-medium text-[#64748b] dark:text-white/70 mb-1.5">Turno</label>
-          <select name="turno"
-                  class="w-full rounded-[10px] px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c5cff] transition dark:bg-[#151b2e] dark:text-white/90"
-                  style="border:1px solid #e6e7ee;">
-            <option value="">Selecione...</option>
-            <option value="Manhã">Manhã</option>
-            <option value="Noite">Noite</option>
-          </select>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="pt-field">
+            <label class="pt-label">Matrícula</label>
+            <input type="text" name="matricula" required class="pt-input" />
+          </div>
+          <div class="pt-field">
+            <label class="pt-label">Turno</label>
+            <select name="turno" class="pt-select">
+              <option value="">Selecione...</option>
+              <option value="Manhã">Manhã</option>
+              <option value="Noite">Noite</option>
+            </select>
+          </div>
         </div>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-[#64748b] dark:text-white/70 mb-1.5">Email <span class="text-[#64748b]/60 font-normal">(opcional)</span></label>
-        <input type="email" name="email"
-               class="w-full rounded-[10px] px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c5cff] transition dark:bg-[#151b2e] dark:text-white/90"
-               style="border:1px solid #e6e7ee;" />
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-[#64748b] dark:text-white/70 mb-1.5">Telefone <span class="text-[#64748b]/60 font-normal">(opcional)</span></label>
-        <input type="text" name="telefone"
-               class="w-full rounded-[10px] px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c5cff] transition dark:bg-[#151b2e] dark:text-white/90"
-               style="border:1px solid #e6e7ee;" />
-      </div>
-      <div class="flex justify-end gap-3 pt-2">
-        <button type="button"
-                onclick="document.getElementById('modal-novo').classList.add('hidden')"
-                class="text-sm text-[#64748b] hover:text-[#0f172a] dark:hover:text-white/90 px-4 py-2.5 rounded-[10px] hover:bg-[#f6f6fa] dark:hover:bg-white/[0.04] transition">
-          Cancelar
-        </button>
-        <button type="submit"
-                class="flex items-center gap-2 text-white text-sm px-5 py-2.5 rounded-[10px] transition font-medium shadow-sm"
-                style="background:#7c5cff;"
-                onmouseover="this.style.background='#5b3df5';"
-                onmouseout="this.style.background='#7c5cff';">
-          <i class="ri-save-line"></i> Cadastrar
-        </button>
+        <div class="pt-field">
+          <label class="pt-label">Email <span class="pt-label-optional">(opcional)</span></label>
+          <input type="email" name="email" class="pt-input" />
+        </div>
+        <div class="pt-field">
+          <label class="pt-label">Telefone <span class="pt-label-optional">(opcional)</span></label>
+          <input type="text" name="telefone" class="pt-input" />
+        </div>
+        <div class="pt-modal-actions">
+          <button type="button" class="pt-btn pt-btn-ghost" onclick="closeModal('modal-novo')">Cancelar</button>
+          <button type="submit" class="pt-btn pt-btn-primary">
+            <i class="ri-save-line"></i> Cadastrar
+          </button>
+        </div>
       </div>
     </form>
   </div>

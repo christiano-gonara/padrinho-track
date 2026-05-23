@@ -7,3 +7,4 @@ __pycache__/
 *.xlsx
 seed.py
 seed_calouros.py
+config_semestre.json
