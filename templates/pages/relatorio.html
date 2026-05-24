@@ -37,6 +37,53 @@
 <!-- Cards -->
 {% include "components/metric_cards.html" %}
 
+<!-- Estatísticas demográficas -->
+<div class="grid grid-cols-2 gap-6 mb-8">
+
+  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 p-6 shadow-sm">
+    <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
+      <i class="ri-bar-chart-2-line text-[#7c5cff]"></i> Por turno
+    </h3>
+    {% for turno, qtd in stats.por_turno.items() %}
+    <div class="flex items-center gap-3 mb-3">
+      <span class="text-sm text-gray-600 dark:text-gray-400 w-20 shrink-0">{{ turno }}</span>
+      <div class="flex-1 bg-slate-100 dark:bg-gray-800 rounded-full h-2 overflow-hidden">
+        <div class="bg-[#7c5cff] h-2 rounded-full" style="width:{{ (qtd / stats.total * 100)|round|int }}%"></div>
+      </div>
+      <span class="text-sm font-semibold text-gray-700 dark:text-gray-200 w-6 text-right">{{ qtd }}</span>
+    </div>
+    {% else %}
+    <p class="text-sm text-gray-400 dark:text-gray-600">Nenhum dado disponível.</p>
+    {% endfor %}
+  </div>
+
+  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 p-6 shadow-sm">
+    <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
+      <i class="ri-user-heart-line text-[#7c5cff]"></i> Perfil demográfico
+    </h3>
+    <div class="grid grid-cols-2 gap-3">
+      {% set items = [
+        ("Mulheres", stats.pct_feminino, "bg-pink-500"),
+        ("Homens",   stats.pct_masculino, "bg-blue-500"),
+        ("Prouni",   stats.pct_prouni,   "bg-amber-500"),
+        ("Mora em BH", stats.pct_bh,     "bg-emerald-500"),
+        ("Trabalha", stats.pct_trabalha, "bg-violet-500"),
+      ] %}
+      {% for label, pct, cor in items %}
+      <div class="flex items-center gap-2">
+        <div class="w-2 h-2 rounded-full {{ cor }} shrink-0"></div>
+        <span class="text-xs text-gray-500 dark:text-gray-400">{{ label }}</span>
+        <span class="ml-auto text-xs font-semibold text-gray-700 dark:text-gray-200">{{ pct }}%</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% if stats.pct_feminino == 0 and stats.pct_masculino == 0 %}
+    <p class="text-xs text-gray-400 dark:text-gray-600 mt-3 italic">Dados demográficos não cadastrados ainda.</p>
+    {% endif %}
+  </div>
+
+</div>
+
 <!-- Tabela -->
 <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 overflow-hidden shadow-sm">
   <div class="px-6 py-4 border-b border-slate-200 dark:border-gray-800 flex items-center justify-between">

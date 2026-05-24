@@ -441,6 +441,99 @@ def excluir_tema(tema_id):
     conn.commit()
     conn.close()
 
+def editar_reuniao(reuniao_id, data, tema, descricao):
+    conn = get_conn()
+    conn.execute(
+        "UPDATE reunioes SET data=?, tema=?, descricao=? WHERE id=?",
+        (data, tema, descricao, reuniao_id)
+    )
+    conn.commit()
+    conn.close()
+
+def editar_tema(tema_id, titulo, data_aviso, data_limite, padrinho_ids):
+    conn = get_conn()
+    conn.execute(
+        "UPDATE temas SET titulo=?, data_aviso=?, data_limite=? WHERE id=?",
+        (titulo, data_aviso, data_limite, tema_id)
+    )
+    conn.execute("DELETE FROM tema_padrinhos WHERE tema_id=?", (tema_id,))
+    for pid in padrinho_ids:
+        conn.execute(
+            "INSERT INTO tema_padrinhos (tema_id, padrinho_id) VALUES (?, ?)",
+            (tema_id, pid)
+        )
+    conn.commit()
+    conn.close()
+
+def rodar_match(max_calouros=3, score_minimo=0):
+    conn = get_conn()
+    padrinhos = [dict(p) for p in conn.execute(
+        "SELECT * FROM padrinhos WHERE ativo=1 ORDER BY nome"
+    ).fetchall()]
+    calouros = [dict(c) for c in conn.execute(
+        "SELECT * FROM calouros ORDER BY nome"
+    ).fetchall()]
+    conn.close()
+
+    def _score(p, c):
+        s = 0
+        if p.get("turno") and c.get("turno") and p["turno"] == c["turno"]:
+            s += 200
+        if p.get("genero") and c.get("genero") and p["genero"] == c["genero"]:
+            s += 80
+        if p.get("cidade_bh") and c.get("cidade_bh"):
+            s += 4
+        if p.get("prouni") and c.get("prouni"):
+            s += 2
+        if p.get("trabalha") and c.get("trabalha"):
+            s += 1
+        pi, ci = p.get("idade"), c.get("idade")
+        if pi and ci:
+            diff = abs(int(pi) - int(ci))
+            if diff <= 2:
+                s += 8
+            elif diff <= 5:
+                s += 4
+        return s
+
+    atribuicoes = {p["id"]: [] for p in padrinhos}
+    sem_match = []
+
+    for c in calouros:
+        candidatos = []
+        for p in padrinhos:
+            n = len(atribuicoes[p["id"]])
+            if n >= max_calouros:
+                continue
+            s = _score(p, c) - n * 10  # penalidade progressiva
+            candidatos.append((s, p))
+
+        if not candidatos:
+            sem_match.append({"calouro": c, "motivo": "Sem vagas disponíveis"})
+            continue
+
+        candidatos.sort(key=lambda x: -x[0])
+        melhor_score, melhor_p = candidatos[0]
+
+        if melhor_score < score_minimo:
+            sem_match.append({"calouro": c, "motivo": f"Score {melhor_score} abaixo do mínimo configurado"})
+            continue
+
+        atribuicoes[melhor_p["id"]].append({"calouro": c, "score": melhor_score})
+
+    resultado = [
+        {
+            "padrinho": p,
+            "calouros": atribuicoes[p["id"]],
+            "total": len(atribuicoes[p["id"]]),
+            "score_medio": round(
+                sum(x["score"] for x in atribuicoes[p["id"]]) / len(atribuicoes[p["id"]])
+            ) if atribuicoes[p["id"]] else 0,
+        }
+        for p in padrinhos
+    ]
+    return {"resultado": resultado, "sem_match": sem_match}
+
 
 def _pdf_helpers(W):
     """Retorna funções auxiliares compartilhadas pelos PDFs."""

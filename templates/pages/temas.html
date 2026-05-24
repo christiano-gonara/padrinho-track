@@ -77,6 +77,7 @@
         </td>
 
         <td class="px-6 py-4 text-right">
+  {% set ids_padrinhos = item.padrinhos | map(attribute='id') | list %}
   {% if item.tema["situacao"] == "pendente" %}
     <div class="flex justify-end items-center gap-2">
       <form action="/temas/{{ item.tema['id'] }}/entregue" method="POST" class="flex items-center gap-1.5">
@@ -94,6 +95,11 @@
           <i class="ri-close-line"></i> Não entregue
         </button>
       </form>
+      <button
+        onclick="abrirEditarTema('{{ item.tema['id'] }}', {{ item.tema['titulo']|tojson }}, '{{ item.tema['data_aviso'] or '' }}', '{{ item.tema['data_limite'] }}', {{ ids_padrinhos|tojson }})"
+        class="inline-flex items-center gap-1.5 bg-slate-50 dark:bg-gray-800 text-slate-500 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-700 px-3 py-1.5 rounded-lg text-xs font-medium transition">
+        <i class="ri-pencil-line"></i>
+      </button>
       <form action="/temas/{{ item.tema['id'] }}/excluir" method="POST"
             onsubmit="return confirm('Excluir este tema?')">
         <button type="submit"
@@ -108,6 +114,11 @@
         <i class="ri-calendar-check-line"></i>
         {{ item.tema["data_entrega"] | databr }}
       </span>
+      <button
+        onclick="abrirEditarTema('{{ item.tema['id'] }}', {{ item.tema['titulo']|tojson }}, '{{ item.tema['data_aviso'] or '' }}', '{{ item.tema['data_limite'] }}', {{ ids_padrinhos|tojson }})"
+        class="inline-flex items-center gap-1.5 bg-slate-50 dark:bg-gray-800 text-slate-500 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-700 px-3 py-1.5 rounded-lg text-xs font-medium transition">
+        <i class="ri-pencil-line"></i>
+      </button>
       <form action="/temas/{{ item.tema['id'] }}/excluir" method="POST"
             onsubmit="return confirm('Excluir este tema?')">
         <button type="submit"
@@ -132,5 +143,64 @@
 </div>
 
 {% include "components/modal_novo_tema.html" %}
+
+<!-- Modal: editar tema -->
+<div id="modal-editar-tema" class="pt-modal-backdrop">
+  <div class="pt-modal pt-modal-lg">
+    <div class="pt-modal-header pt-tone-violet">
+      <i class="ri-pencil-line"></i>
+      <span class="pt-modal-title">Editar tema</span>
+      <button class="pt-modal-close" onclick="closeModal('modal-editar-tema')">&times;</button>
+    </div>
+    <form id="form-editar-tema" method="POST">
+      <div class="pt-modal-body">
+        <div class="pt-field">
+          <label class="pt-label">Título do tema</label>
+          <input type="text" name="titulo" id="edit-tema-titulo" required class="pt-input" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="pt-field">
+            <label class="pt-label">Data de aviso</label>
+            <input type="date" name="data_aviso" id="edit-tema-data-aviso" class="pt-input" />
+          </div>
+          <div class="pt-field">
+            <label class="pt-label">Prazo de entrega</label>
+            <input type="date" name="data_limite" id="edit-tema-data-limite" required class="pt-input" />
+          </div>
+        </div>
+        <div class="pt-field">
+          <label class="pt-label">Responsáveis</label>
+          <select name="padrinho_ids" id="edit-tema-padrinhos" multiple required class="pt-select" style="height:144px;">
+            {% for p in padrinhos %}
+              <option value="{{ p['id'] }}">{{ p["nome"] }}</option>
+            {% endfor %}
+          </select>
+          <p class="pt-muted-text" style="font-size:12px;margin-top:6px;display:flex;align-items:center;gap:4px;">
+            <i class="ri-information-line"></i> Segura Ctrl para selecionar mais de um
+          </p>
+        </div>
+        <div class="pt-modal-actions">
+          <button type="button" class="pt-btn pt-btn-ghost" onclick="closeModal('modal-editar-tema')">Cancelar</button>
+          <button type="submit" class="pt-btn pt-btn-primary">
+            <i class="ri-save-line"></i> Salvar
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+function abrirEditarTema(id, titulo, dataAviso, dataLimite, padrinhoIds) {
+  document.getElementById('form-editar-tema').action = '/temas/' + id + '/editar';
+  document.getElementById('edit-tema-titulo').value = titulo;
+  document.getElementById('edit-tema-data-aviso').value = dataAviso;
+  document.getElementById('edit-tema-data-limite').value = dataLimite;
+  var sel = document.getElementById('edit-tema-padrinhos');
+  for (var i = 0; i < sel.options.length; i++) {
+    sel.options[i].selected = padrinhoIds.indexOf(parseInt(sel.options[i].value)) !== -1;
+  }
+  openModal('modal-editar-tema');
+}
+</script>
 
 {% endblock %}

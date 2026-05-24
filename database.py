@@ -104,4 +104,25 @@ def init_db():
     CREATE INDEX IF NOT EXISTS idx_tema_padrinhos_padrinho ON tema_padrinhos(padrinho_id);
     """)
     conn.commit()
+
+    # Migrações incrementais — colunas adicionadas depois da criação inicial
+    _migracoes = [
+        "ALTER TABLE padrinhos ADD COLUMN genero TEXT",
+        "ALTER TABLE padrinhos ADD COLUMN idade INTEGER",
+        "ALTER TABLE padrinhos ADD COLUMN cidade_bh INTEGER DEFAULT 0",
+        "ALTER TABLE padrinhos ADD COLUMN prouni INTEGER DEFAULT 0",
+        "ALTER TABLE padrinhos ADD COLUMN trabalha INTEGER DEFAULT 0",
+        "ALTER TABLE calouros ADD COLUMN turno TEXT",
+        "ALTER TABLE calouros ADD COLUMN genero TEXT",
+        "ALTER TABLE calouros ADD COLUMN idade INTEGER",
+        "ALTER TABLE calouros ADD COLUMN cidade_bh INTEGER DEFAULT 0",
+        "ALTER TABLE calouros ADD COLUMN prouni INTEGER DEFAULT 0",
+        "ALTER TABLE calouros ADD COLUMN trabalha INTEGER DEFAULT 0",
+    ]
+    for sql in _migracoes:
+        try:
+            conn.execute(sql)
+        except sqlite3.OperationalError:
+            pass  # coluna já existe
+    conn.commit()
     conn.close()

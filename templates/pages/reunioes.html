@@ -52,6 +52,11 @@
                class="inline-flex items-center gap-1.5 bg-violet-50 dark:bg-violet-900/50 text-violet-600 dark:text-violet-400 hover:bg-violet-100 dark:hover:bg-violet-900 px-3 py-1.5 rounded-lg text-xs font-medium transition">
               <i class="ri-upload-line"></i> importar CSV
             </a>
+            <button
+              onclick="abrirEditarReuniao('{{ r['id'] }}', '{{ r['data'] }}', {{ r['tema']|tojson }}, {{ r['descricao']|tojson }})"
+              class="inline-flex items-center gap-1.5 bg-slate-50 dark:bg-gray-800 text-slate-500 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-700 px-3 py-1.5 rounded-lg text-xs font-medium transition">
+              <i class="ri-pencil-line"></i> Editar
+            </button>
             <form action="/reunioes/{{ r['id'] }}/excluir" method="POST"
                   onsubmit="return confirm('Excluir esta reunião e todas as presenças registradas?')">
               <button type="submit"
@@ -75,5 +80,47 @@
 </div>
 
 {% include "components/modal_nova_reuniao.html" %}
+
+<!-- Modal: editar reunião -->
+<div id="modal-editar-reuniao" class="pt-modal-backdrop">
+  <div class="pt-modal">
+    <div class="pt-modal-header pt-tone-violet">
+      <i class="ri-pencil-line"></i>
+      <span class="pt-modal-title">Editar reunião</span>
+      <button class="pt-modal-close" onclick="closeModal('modal-editar-reuniao')">&times;</button>
+    </div>
+    <form id="form-editar-reuniao" method="POST">
+      <div class="pt-modal-body">
+        <div class="pt-field">
+          <label class="pt-label">Data</label>
+          <input type="date" name="data" id="edit-reuniao-data" required class="pt-input" />
+        </div>
+        <div class="pt-field">
+          <label class="pt-label">Tema <span class="pt-label-optional">(opcional)</span></label>
+          <input type="text" name="tema" id="edit-reuniao-tema" class="pt-input" />
+        </div>
+        <div class="pt-field">
+          <label class="pt-label">Descrição <span class="pt-label-optional">(opcional)</span></label>
+          <textarea name="descricao" id="edit-reuniao-descricao" class="pt-textarea"></textarea>
+        </div>
+        <div class="pt-modal-actions">
+          <button type="button" class="pt-btn pt-btn-ghost" onclick="closeModal('modal-editar-reuniao')">Cancelar</button>
+          <button type="submit" class="pt-btn pt-btn-primary">
+            <i class="ri-save-line"></i> Salvar
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+function abrirEditarReuniao(id, data, tema, descricao) {
+  document.getElementById('form-editar-reuniao').action = '/reunioes/' + id + '/editar';
+  document.getElementById('edit-reuniao-data').value = data;
+  document.getElementById('edit-reuniao-tema').value = tema || '';
+  document.getElementById('edit-reuniao-descricao').value = descricao || '';
+  openModal('modal-editar-reuniao');
+}
+</script>
 
 {% endblock %}

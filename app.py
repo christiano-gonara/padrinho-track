@@ -267,7 +267,33 @@ def advertencia_manual():
 @app.route("/relatorio")
 def relatorio():
     dados = get_relatorio_geral()
-    return render_template("pages/relatorio.html", dados=dados)
+    padrinhos_raw = get_todos_padrinhos()
+    total = len(padrinhos_raw) or 1
+    por_turno = {}
+    n_fem = n_masc = n_prouni = n_bh = n_trabalha = 0
+    for p in padrinhos_raw:
+        turno = p["turno"] or "—"
+        por_turno[turno] = por_turno.get(turno, 0) + 1
+        if p["genero"] == "F":
+            n_fem += 1
+        elif p["genero"] == "M":
+            n_masc += 1
+        if p["prouni"]:
+            n_prouni += 1
+        if p["cidade_bh"]:
+            n_bh += 1
+        if p["trabalha"]:
+            n_trabalha += 1
+    stats = {
+        "por_turno": por_turno,
+        "pct_feminino": round(n_fem / total * 100),
+        "pct_masculino": round(n_masc / total * 100),
+        "pct_prouni": round(n_prouni / total * 100),
+        "pct_bh": round(n_bh / total * 100),
+        "pct_trabalha": round(n_trabalha / total * 100),
+        "total": total,
+    }
+    return render_template("pages/relatorio.html", dados=dados, stats=stats)
 
 
 @app.route("/relatorio/pdf")
@@ -409,6 +435,19 @@ def excluir_reuniao(reuniao_id):
     flash("Reunião removida.", "success")
     return redirect(url_for("reunioes"))
 
+@app.route("/reunioes/<int:reuniao_id>/editar", methods=["POST"])
+def editar_reuniao(reuniao_id):
+    from models import editar_reuniao as _editar
+    _editar(
+        reuniao_id,
+        request.form["data"],
+        request.form.get("tema", "").strip(),
+        request.form.get("descricao", "").strip(),
+    )
+    registrar_log("EDICAO_REUNIAO", f"Reunião ID {reuniao_id} atualizada.")
+    flash("Reunião atualizada.", "success")
+    return redirect(url_for("reunioes"))
+
 # ── CRUD Temas ─────────────────────────────────────────────────────────────
 
 @app.route("/temas/<int:tema_id>/excluir", methods=["POST"])
@@ -417,6 +456,108 @@ def excluir_tema(tema_id):
     _excluir(tema_id)
     flash("Tema removido.", "success")
     return redirect(url_for("temas"))
+
+@app.route("/temas/<int:tema_id>/editar", methods=["POST"])
+def editar_tema(tema_id):
+    from models import editar_tema as _editar
+    _editar(
+        tema_id,
+        request.form["titulo"].strip(),
+        request.form.get("data_aviso", ""),
+        request.form["data_limite"],
+        request.form.getlist("padrinho_ids"),
+    )
+    registrar_log("EDICAO_TEMA", f"Tema ID {tema_id} atualizado.")
+    flash("Tema atualizado.", "success")
+    return redirect(url_for("temas"))
+
+# ── Match ─────────────────────────────────────────────────────────────────
+
+@app.route("/match")
+def match():
+    from models import rodar_match as _rodar, get_calouros_match_completo
+    proposto = None
+    max_calouros = 3
+    score_minimo = 0
+    if request.args.get("proposto") == "1":
+        max_calouros = int(request.args.get("max_calouros", 3))
+        score_minimo = int(request.args.get("score_minimo", 0))
+        proposto = _rodar(max_calouros=max_calouros, score_minimo=score_minimo)
+    dados = get_calouros_match_completo()
+    conn = get_conn()
+    total_matches = conn.execute("SELECT COUNT(*) FROM matches").fetchone()[0]
+    total_calouros = conn.execute("SELECT COUNT(*) FROM calouros").fetchone()[0]
+    conn.close()
+    return render_template("pages/match.html",
+        dados=dados,
+        proposto=proposto,
+        total_matches=total_matches,
+        total_calouros=total_calouros,
+        max_calouros=max_calouros,
+        score_minimo=score_minimo,
+    )
+
+@app.route("/match/rodar", methods=["POST"])
+def match_rodar():
+    max_calouros = request.form.get("max_calouros", "3")
+    score_minimo = request.form.get("score_minimo", "0")
+    return redirect(url_for("match") + f"?proposto=1&max_calouros={max_calouros}&score_minimo={score_minimo}")
+
+@app.route("/match/confirmar", methods=["POST"])
+def match_confirmar():
+    from models import rodar_match as _rodar
+    max_calouros = int(request.form.get("max_calouros", 3))
+    score_minimo = int(request.form.get("score_minimo", 0))
+    resultado = _rodar(max_calouros=max_calouros, score_minimo=score_minimo)
+    conn = get_conn()
+    conn.execute("DELETE FROM matches")
+    for grupo in resultado["resultado"]:
+        for item in grupo["calouros"]:
+            conn.execute(
+                "INSERT OR IGNORE INTO matches (padrinho_id, calouro_id) VALUES (?, ?)",
+                (grupo["padrinho"]["id"], item["calouro"]["id"])
+            )
+    conn.commit()
+    conn.close()
+    total = sum(len(g["calouros"]) for g in resultado["resultado"])
+    registrar_log("MATCH_CONFIRMADO", f"{total} matches confirmados.")
+    flash(f"{total} matches confirmados e salvos.", "success")
+    return redirect(url_for("match"))
+
+@app.route("/match/resetar", methods=["POST"])
+def match_resetar():
+    conn = get_conn()
+    conn.execute("DELETE FROM matches")
+    conn.commit()
+    conn.close()
+    registrar_log("MATCH_RESETADO", "Todos os matches foram removidos.")
+    flash("Matches resetados.", "success")
+    return redirect(url_for("match"))
+
+@app.route("/match/exportar")
+def match_exportar():
+    from models import rodar_match as _rodar
+    import csv, io
+    from flask import Response
+    max_calouros = int(request.args.get("max_calouros", 3))
+    score_minimo = int(request.args.get("score_minimo", 0))
+    resultado = _rodar(max_calouros=max_calouros, score_minimo=score_minimo)
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(["Padrinho", "Turno", "Calouro", "Score"])
+    for grupo in resultado["resultado"]:
+        for item in grupo["calouros"]:
+            writer.writerow([
+                grupo["padrinho"]["nome"],
+                grupo["padrinho"].get("turno") or "—",
+                item["calouro"]["nome"],
+                item["score"],
+            ])
+    return Response(
+        buf.getvalue().encode("utf-8-sig"),
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=proposta_match.csv"},
+    )
 
 # ── Logs de auditoria ─────────────────────────────────────────────────────
 
