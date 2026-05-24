@@ -9,7 +9,7 @@
 <style>
   @page { size: A4 portrait; margin: 0; }
   html, body { margin: 0; padding: 0; background: #e6e7ee; font-family: "Inter", system-ui, sans-serif; }
-  @media print { html, body { background: #fff; } .pt-print-bar { display: none !important; } body { padding-top: 0 !important; } }
+  @media print { html, body { background: #fff; } .pt-print-bar { display: none !important; } body { padding-top: 0 !important; } * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }
   .pt-print-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: #0f172a; color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 10px 24px; font-size: 13px; gap: 12px; }
   .pt-print-bar a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 12px; }
   .pt-print-bar a:hover { color: #fff; }
