@@ -5,6 +5,6 @@ __pycache__/
 *.db
 *.csv
 *.xlsx
-seed.py
-seed_calouros.py
+scripts/seed.py
+scripts/seed_calouros.py
 config_semestre.json

@@ -30,11 +30,18 @@ padrinho-track/
 │   ├── css/app.css         — design system completo com classes pt-
 │   └── *.svg               — logo e favicon
 ├── tests/                  — pytest
-├── seed_exemplo.py         — dados fictícios para demo
+├── scripts/
+│   ├── match.py            — script standalone de match via CSV
+│   ├── seed_exemplo.py     — dados fictícios para demo
+│   ├── seed.py             — seed com dados reais (gitignore)
+│   └── seed_calouros.py    — seed de calouros reais (gitignore)
+├── docs/
+│   ├── CLAUDE.md           — este arquivo
+│   ├── tarefas.md          — tarefas pendentes
+│   ├── APRENDIZADOS.md     — lições aprendidas
+│   └── images/             — screenshots para o README
 ├── config_semestre.json    — configurações do semestre (gitignore)
-├── CLAUDE.md               — este arquivo
-├── tarefas.md              — tarefas pendentes
-└── APRENDIZADOS.md         — lições aprendidas
+└── README.md
 ```
 
 ## Banco de dados — tabelas
@@ -112,12 +119,12 @@ Rotas: /relatorio/aptidao · /relatorio/resumo · /relatorio/reportados
 - Sidebar sempre escura (#0f1424) independente do tema
 - Credenciais via .env (APP_USERNAME, APP_PASSWORD, SECRET_KEY)
 - Login está comentado temporariamente no before_request — descomentar antes do deploy
-- seed.py e seed_calouros.py estão no .gitignore (dados reais)
+- scripts/seed.py e scripts/seed_calouros.py estão no .gitignore (dados reais)
 - config_semestre.json está no .gitignore (dados reais)
 - Tailwind CDN convive com app.css — Tailwind para layout, app.css para componentes visuais
 
 ## Modo de operação — autonomia
-Ao receber uma tarefa do tarefas.md:
+Ao receber uma tarefa do docs/tarefas.md:
 
 1. Leia o CLAUDE.md e o tarefas.md antes de começar
 2. Execute a tarefa completa sem pedir confirmação no meio

@@ -182,7 +182,7 @@ SECRET_KEY=chave_secreta_longa_e_aleatoria
 
 **4. Popule o banco com dados de exemplo**
 ```bash
-python seed_exemplo.py
+python scripts/seed_exemplo.py
 ```
 
 **5. Rode o servidor**

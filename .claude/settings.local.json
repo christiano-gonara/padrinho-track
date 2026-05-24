@@ -11,7 +11,8 @@
       "Bash(del \"C:\\\\Users\\\\Pexy0\\\\padrinho-track\\\\Procfile\")",
       "Bash(del \"C:\\\\Users\\\\Pexy0\\\\padrinho-track\\\\runtime.txt\")",
       "PowerShell(Copy-Item *)",
-      "Bash(Test-Path *)"
+      "Bash(Test-Path *)",
+      "Bash(git mv *)"
     ]
   }
 }
