@@ -12,7 +12,9 @@
       "Bash(del \"C:\\\\Users\\\\Pexy0\\\\padrinho-track\\\\runtime.txt\")",
       "PowerShell(Copy-Item *)",
       "Bash(Test-Path *)",
-      "Bash(git mv *)"
+      "Bash(git mv *)",
+      "Bash(Get-ChildItem -Path \"templates\" -Filter \"*.html\" -File)",
+      "Bash(Select-Object Name, FullName)"
     ]
   }
 }

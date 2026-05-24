@@ -17,6 +17,7 @@ from models import (
 )
 
 app = Flask(__name__)
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 CONFIG = get_config_semestre()
 
