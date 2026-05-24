@@ -96,6 +96,12 @@ def init_db():
     );
 
     INSERT OR IGNORE INTO config (chave, valor) VALUES ('limite_amarelos', '2');
+
+    CREATE INDEX IF NOT EXISTS idx_advertencias_padrinho ON advertencias(padrinho_id);
+    CREATE INDEX IF NOT EXISTS idx_presencas_padrinho ON presencas(padrinho_id);
+    CREATE INDEX IF NOT EXISTS idx_presencas_reuniao ON presencas(reuniao_id);
+    CREATE INDEX IF NOT EXISTS idx_tema_padrinhos_tema ON tema_padrinhos(tema_id);
+    CREATE INDEX IF NOT EXISTS idx_tema_padrinhos_padrinho ON tema_padrinhos(padrinho_id);
     """)
     conn.commit()
     conn.close()

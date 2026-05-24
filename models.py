@@ -130,21 +130,22 @@ def get_presencas_reuniao(reuniao_id):
     return presencas
 
 def get_todos_temas():
+    from collections import defaultdict
     conn = get_conn()
     temas = conn.execute(
         "SELECT * FROM temas ORDER BY data_limite ASC"
     ).fetchall()
-    resultado = []
-    for t in temas:
-        padrinhos = conn.execute("""
-            SELECT p.id, p.nome FROM padrinhos p
-            JOIN tema_padrinhos tp ON tp.padrinho_id = p.id
-            WHERE tp.tema_id = ?
-            ORDER BY p.nome
-        """, (t["id"],)).fetchall()
-        resultado.append({"tema": t, "padrinhos": padrinhos})
+    rows = conn.execute("""
+        SELECT tp.tema_id, p.id, p.nome
+        FROM tema_padrinhos tp
+        JOIN padrinhos p ON p.id = tp.padrinho_id
+        ORDER BY p.nome
+    """).fetchall()
     conn.close()
-    return resultado
+    padrinhos_por_tema = defaultdict(list)
+    for row in rows:
+        padrinhos_por_tema[row["tema_id"]].append({"id": row["id"], "nome": row["nome"]})
+    return [{"tema": t, "padrinhos": padrinhos_por_tema[t["id"]]} for t in temas]
 
 def registrar_tema(titulo, data_aviso, data_limite, padrinho_ids):
     conn = get_conn()
@@ -160,6 +161,17 @@ def registrar_tema(titulo, data_aviso, data_limite, padrinho_ids):
         )
     conn.commit()
     conn.close()
+
+def _emitir_advertencias_tema(conn, tema_id, tipo, origem, motivo):
+    padrinhos = conn.execute(
+        "SELECT padrinho_id FROM tema_padrinhos WHERE tema_id = ?", (tema_id,)
+    ).fetchall()
+    for p in padrinhos:
+        conn.execute("""
+            INSERT INTO advertencias (padrinho_id, tipo, origem, motivo, data)
+            VALUES (?, ?, ?, ?, ?)
+        """, (p["padrinho_id"], tipo, origem, motivo, date.today().isoformat()))
+
 
 def registrar_entrega_tema(tema_id, data_entrega_str):
     conn = get_conn()
@@ -186,24 +198,11 @@ def registrar_entrega_tema(tema_id, data_entrega_str):
     )
 
     if situacao == "atraso":
-        padrinhos = conn.execute(
-            "SELECT padrinho_id FROM tema_padrinhos WHERE tema_id = ?", (tema_id,)
-        ).fetchall()
-        for p in padrinhos:
-            conn.execute("""
-                INSERT INTO advertencias (padrinho_id, tipo, origem, motivo, data)
-                VALUES (?, 'amarelo', 'atraso_tema', ?, ?)
-            """, (p["padrinho_id"], f"Entrega com atraso: {tema['titulo']}", date.today().isoformat()))
-
+        _emitir_advertencias_tema(conn, tema_id, "amarelo", "atraso_tema",
+                                  f"Entrega com atraso: {tema['titulo']}")
     elif situacao == "nao_entregue":
-        padrinhos = conn.execute(
-            "SELECT padrinho_id FROM tema_padrinhos WHERE tema_id = ?", (tema_id,)
-        ).fetchall()
-        for p in padrinhos:
-            conn.execute("""
-                INSERT INTO advertencias (padrinho_id, tipo, origem, motivo, data)
-                VALUES (?, 'vermelho', 'nao_entrega', ?, ?)
-            """, (p["padrinho_id"], f"Não entregou: {tema['titulo']}", date.today().isoformat()))
+        _emitir_advertencias_tema(conn, tema_id, "vermelho", "nao_entrega",
+                                  f"Não entregou: {tema['titulo']}")
 
     conn.commit()
     conn.close()
@@ -220,14 +219,8 @@ def marcar_tema_nao_entregue(tema_id):
     conn.execute(
         "UPDATE temas SET situacao = 'nao_entregue' WHERE id = ?", (tema_id,)
     )
-    padrinhos = conn.execute(
-        "SELECT padrinho_id FROM tema_padrinhos WHERE tema_id = ?", (tema_id,)
-    ).fetchall()
-    for p in padrinhos:
-        conn.execute("""
-            INSERT INTO advertencias (padrinho_id, tipo, origem, motivo, data)
-            VALUES (?, 'vermelho', 'nao_entrega', ?, ?)
-        """, (p["padrinho_id"], f"Não entregou: {tema['titulo']}", date.today().isoformat()))
+    _emitir_advertencias_tema(conn, tema_id, "vermelho", "nao_entrega",
+                              f"Não entregou: {tema['titulo']}")
     conn.commit()
     conn.close()
 
@@ -277,15 +270,14 @@ def get_config(chave, padrao=None):
 
 def calcular_status(padrinho_id, limite=None):
     conn = get_conn()
-    amarelos = conn.execute(
-        "SELECT COUNT(*) FROM advertencias WHERE padrinho_id = ? AND tipo = 'amarelo'",
+    rows = conn.execute(
+        "SELECT tipo, COUNT(*) AS cnt FROM advertencias WHERE padrinho_id = ? GROUP BY tipo",
         (padrinho_id,)
-    ).fetchone()[0]
-    vermelhos = conn.execute(
-        "SELECT COUNT(*) FROM advertencias WHERE padrinho_id = ? AND tipo = 'vermelho'",
-        (padrinho_id,)
-    ).fetchone()[0]
+    ).fetchall()
     conn.close()
+    counts = {r["tipo"]: r["cnt"] for r in rows}
+    amarelos = counts.get("amarelo", 0)
+    vermelhos = counts.get("vermelho", 0)
 
     if limite is None:
         limite = int(get_config("limite_amarelos", "2"))
@@ -386,22 +378,24 @@ def get_todos_matches():
     return resultado
 
 def get_calouros_match_completo():
+    from collections import defaultdict
     conn = get_conn()
     padrinhos = conn.execute(
         "SELECT * FROM padrinhos WHERE ativo = 1 ORDER BY nome"
     ).fetchall()
-    resultado = []
-    for p in padrinhos:
-        calouros = conn.execute("""
-            SELECT c.id, c.nome, c.telefone
-            FROM calouros c
-            JOIN matches m ON m.calouro_id = c.id
-            WHERE m.padrinho_id = ?
-            ORDER BY c.nome
-        """, (p["id"],)).fetchall()
-        resultado.append({"padrinho": p, "calouros": calouros})
+    rows = conn.execute("""
+        SELECT m.padrinho_id, c.id, c.nome, c.telefone
+        FROM matches m
+        JOIN calouros c ON c.id = m.calouro_id
+        ORDER BY c.nome
+    """).fetchall()
     conn.close()
-    return resultado
+    calouros_por_padrinho = defaultdict(list)
+    for row in rows:
+        calouros_por_padrinho[row["padrinho_id"]].append(
+            {"id": row["id"], "nome": row["nome"], "telefone": row["telefone"]}
+        )
+    return [{"padrinho": p, "calouros": calouros_por_padrinho[p["id"]]} for p in padrinhos]
 
 def editar_padrinho(padrinho_id, nome, matricula, email, telefone, turno):
     conn = get_conn()
@@ -446,40 +440,6 @@ def excluir_tema(tema_id):
     conn.execute("DELETE FROM temas WHERE id=?", (tema_id,))
     conn.commit()
     conn.close()
-
-def get_relatorio_aptos():
-    padrinhos = get_todos_padrinhos()
-    limite = int(get_config("limite_amarelos", "2"))
-    resultado = []
-    for p in padrinhos:
-        status = calcular_status(p["id"], limite)
-        if status["status"] == "apto":
-            historico = get_historico_padrinho(p["id"])
-            resultado.append({
-                "padrinho": p,
-                "total_reunioes": len(historico["presencas"]),
-                "total_presentes": sum(1 for pr in historico["presencas"] if pr["presente"]),
-                "amarelos": status["amarelos"],
-                "vermelhos": status["vermelhos"],
-            })
-    return resultado
-
-def get_relatorio_vermelhos():
-    padrinhos = get_todos_padrinhos()
-    limite = int(get_config("limite_amarelos", "2"))
-    resultado = []
-    for p in padrinhos:
-        status = calcular_status(p["id"], limite)
-        if status["status"] == "inapto_vermelho":
-            advertencias = get_advertencias_padrinho(p["id"])
-            vermelhos = [a for a in advertencias if a["tipo"] == "vermelho"]
-            resultado.append({
-                "padrinho": p,
-                "vermelhos": vermelhos,
-                "amarelos": status["amarelos"],
-                "total_vermelhos": status["vermelhos"],
-            })
-    return resultado
 
 
 def _pdf_helpers(W):
@@ -955,13 +915,16 @@ def importar_presencas_csv(caminho_csv, reuniao_id):
     processados = 0
     nao_encontrados = []
 
+    todos_padrinhos = conn.execute(
+        "SELECT id, matricula FROM padrinhos WHERE ativo=1"
+    ).fetchall()
+    matricula_para_id = {p["matricula"]: p["id"] for p in todos_padrinhos}
+
     for row in rows_data:
         matricula = str(row.get(col_matricula, "")).strip().replace(".0", "")
-        padrinho = conn.execute(
-            "SELECT id FROM padrinhos WHERE matricula = ?", (matricula,)
-        ).fetchone()
+        padrinho_id_val = matricula_para_id.get(matricula)
 
-        if not padrinho:
+        if padrinho_id_val is None:
             nao_encontrados.append(matricula)
             continue
 
@@ -979,14 +942,11 @@ def importar_presencas_csv(caminho_csv, reuniao_id):
             VALUES (?, ?, ?, ?)
             ON CONFLICT(reuniao_id, padrinho_id)
             DO UPDATE SET presente=excluded.presente, justificada=excluded.justificada
-        """, (reuniao_id, padrinho["id"], presente, justificada))
+        """, (reuniao_id, padrinho_id_val, presente, justificada))
         processados += 1
 
-    # Emite amarelos para quem não apareceu no CSV e não tem presença registrada
-    todos = conn.execute(
-        "SELECT id FROM padrinhos WHERE ativo=1"
-    ).fetchall()
-    for p in todos:
+    # Registra ausência para quem não apareceu no CSV e ainda não tem presença
+    for p in todos_padrinhos:
         registro = conn.execute(
             "SELECT id FROM presencas WHERE reuniao_id=? AND padrinho_id=?",
             (reuniao_id, p["id"])

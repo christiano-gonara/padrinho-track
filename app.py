@@ -1,4 +1,5 @@
 import os
+import sqlite3
 from dotenv import load_dotenv
 load_dotenv(override=True)
 from flask import Flask, render_template, request, redirect, url_for, flash, session
@@ -18,7 +19,15 @@ from models import (
 app = Flask(__name__)
 
 CONFIG = get_config_semestre()
-app.secret_key = os.environ.get("SECRET_KEY", "padrinho-track-secret")
+
+_SECRET_KEY = os.environ.get("SECRET_KEY", "")
+_APP_PASS = os.environ.get("APP_PASSWORD", "")
+if not _SECRET_KEY or not _APP_PASS:
+    raise RuntimeError(
+        "Defina SECRET_KEY e APP_PASSWORD no arquivo .env antes de iniciar o servidor."
+    )
+app.secret_key = _SECRET_KEY
+
 app.jinja_env.filters['abreviar'] = abreviar_nome
 
 @app.template_filter('databr')
@@ -31,11 +40,6 @@ def databr(value):
         return value
 
 _APP_USER = os.environ.get("APP_USERNAME", "admin")
-_APP_PASS = os.environ.get("APP_PASSWORD", "")
-
-@app.before_request
-def setup():
-    init_db()
 
 # @app.before_request
 # def require_login():
@@ -55,7 +59,9 @@ def login():
         password = request.form.get("password", "")
         if username == _APP_USER and password == _APP_PASS:
             session["logged_in"] = True
-            next_url = request.args.get("next") or url_for("dashboard")
+            next_url = request.args.get("next", "")
+            if not next_url.startswith("/"):
+                next_url = url_for("dashboard")
             return redirect(next_url)
         error = "Usuário ou senha inválidos."
     return render_template("pages/login.html", error=error)
@@ -87,20 +93,24 @@ def dashboard():
         "SELECT * FROM reunioes ORDER BY data ASC"
     ).fetchall()
 
+    ppr_rows = conn.execute("""
+        SELECT reuniao_id,
+               SUM(CASE WHEN presente = 1 THEN 1 ELSE 0 END) AS presentes,
+               COUNT(*) AS total
+        FROM presencas GROUP BY reuniao_id
+    """).fetchall()
+    conn.close()
+    ppr_map = {r["reuniao_id"]: r for r in ppr_rows}
     presencas_por_reuniao = []
     for r in reunioes:
-        total = conn.execute(
-            "SELECT COUNT(*) FROM presencas WHERE reuniao_id=?", (r["id"],)
-        ).fetchone()[0]
-        presentes = conn.execute(
-            "SELECT COUNT(*) FROM presencas WHERE reuniao_id=? AND presente=1", (r["id"],)
-        ).fetchone()[0]
+        ppr = ppr_map.get(r["id"])
+        presentes = ppr["presentes"] if ppr else 0
+        total = ppr["total"] if ppr else 0
         presencas_por_reuniao.append({
             "label": f"{r['data'][5:]}",
             "presentes": presentes,
             "ausentes": total - presentes,
         })
-    conn.close()
 
     return render_template("pages/dashboard.html",
         dados=dados,
@@ -129,7 +139,7 @@ def novo_padrinho():
             registrar_log("CADASTRO_PADRINHO", f"Padrinho '{nome}' (matrícula {matricula}) cadastrado.")
             flash("Padrinho cadastrado com sucesso.", "success")
             return redirect(url_for("padrinhos"))
-        except Exception:
+        except sqlite3.IntegrityError:
             flash("Matrícula já cadastrada.", "error")
     return render_template("pages/padrinhos.html", padrinhos=get_todos_padrinhos())
 
@@ -168,11 +178,21 @@ def nova_reuniao():
 def presencas(reuniao_id):
     if request.method == "POST":
         padrinhos = get_todos_padrinhos()
+        presentes_ids = set(request.form.getlist("presentes"))
+        justificadas_ids = set(request.form.getlist("justificadas"))
+        conn = get_conn()
         for p in padrinhos:
-            pid         = str(p["id"])
-            presente    = 1 if pid in request.form.getlist("presentes") else 0
-            justificada = 1 if pid in request.form.getlist("justificadas") else 0
-            lancar_presenca(reuniao_id, p["id"], presente, justificada)
+            pid = str(p["id"])
+            presente    = 1 if pid in presentes_ids else 0
+            justificada = 1 if pid in justificadas_ids else 0
+            conn.execute("""
+                INSERT INTO presencas (reuniao_id, padrinho_id, presente, justificada)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(reuniao_id, padrinho_id)
+                DO UPDATE SET presente = excluded.presente, justificada = excluded.justificada
+            """, (reuniao_id, p["id"], presente, justificada))
+        conn.commit()
+        conn.close()
         emitir_advertencias_falta(reuniao_id)
         registrar_log("LANCAMENTO_PRESENCA", f"Presenças lançadas para a reunião ID {reuniao_id}.")
         flash("Presenças registradas. Advertências automáticas emitidas.", "success")
@@ -584,4 +604,5 @@ def relatorio_reportados():
 # ── Inicialização ──────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    init_db()
+    app.run(debug=os.environ.get("FLASK_DEBUG", "0") == "1")
