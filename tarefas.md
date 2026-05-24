@@ -1,131 +1,173 @@
 # Tarefas
 
-## Tarefa 0 — Desativar login temporariamente
-No app.py comenta o bloco do before_request que verifica login:
-# @app.before_request
-# def require_login():
-#     ...
-Não apaga — só comenta. Quando for hospedar é só descomentar.
+> Antes de começar qualquer tarefa, leia o CLAUDE.md.
+> O modo de operação e as regras do projeto estão lá.
 
-## Tarefa 1 — Ajustar convivência entre Tailwind e app.css
-Tailwind fica responsável por layout e espaçamento. app.css fica responsável por componentes visuais. Onde houver conflito, app.css tem prioridade.
+---
 
-1. Nos componentes pt- do app.css que estiverem sendo sobrescritos pelo Tailwind, adiciona especificidade maior (ex: .pt-btn.pt-btn-primary em vez de .pt-btn-primary)
-2. Garante que pt-metric-card, pt-card, pt-modal, pt-badge, pt-table, pt-nav-item estão com visual correto sem interferência do Tailwind
-3. Não remove classes Tailwind de layout (flex, grid, gap, p-, m-, w-)
-4. Testa visualmente: dashboard, padrinhos, relatório e configurações
+## Tarefa 1 — Corrigir bugs críticos
 
-## Tarefa 2 — Trocar Chart.js por ApexCharts no dashboard
-1. Remove o script do Chart.js do dashboard.html
-2. Adiciona ApexCharts via CDN: https://cdn.jsdelivr.net/npm/apexcharts
-3. Recria o gráfico de pizza (donut):
-   - Height: 200px
-   - Total no centro do donut
-   - Cores: #10b981, #f59e0b, #f97316, #dc2626
-   - Labels: Aptos, Em alerta, Inaptos, Inaptos Graves
-   - Legenda com número e percentual ao lado de cada item
-4. Recria o gráfico de linha:
-   - Height: 220px
-   - Duas séries: Presentes (#7c5cff) e Ausentes (#dc2626)
-   - Área preenchida com opacidade 0.1
-   - Tooltips em português
-5. Container dos gráficos com max-width: 900px
+### C1 — calcular_status retorna amarelos: 0 fixo
+Arquivo: models.py linha ~278
+Trocar:
+  return {"status": "apto", "amarelos": 0, "vermelhos": 0}
+Por:
+  return {"status": "apto", "amarelos": amarelos, "vermelhos": vermelhos}
 
-## Tarefa 3 — Corrigir layout do config.html
-1. Campos do semestre em grid lado a lado:
-   - Semestre + Instituição: 2 colunas
-   - Professor Coordenador: largura total
-   - Programa: largura total
-   - Total de reuniões + Data início + Data fim: 3 colunas
-2. Todas as 3 seções com max-width: 720px e margin: 0 auto
-3. Inputs com class="pt-input", labels com class="pt-label", botões com class="pt-btn pt-btn-primary"
+### C2 — emitir_advertencias_falta gera duplicatas
+Arquivo: models.py:220-232
+Verificar se já existe registro para (padrinho_id, reuniao_id, origem='falta')
+antes de inserir. Duplo submit ou F5 corrompe dados.
 
-## Tarefa 4 — Padronizar largura das páginas
-No app.css atualiza pt-content-padded para:
-  .pt-content-padded {
-    max-width: 1440px;
-    margin: 0 auto;
-    padding: 0 40px;
-  }
-E aplica essa classe no container principal de todos os templates.
+### C3 — registrar_entrega_tema e marcar_tema_nao_entregue geram duplicatas
+Arquivo: models.py:159-218
+Verificar se já existe advertência para (padrinho_id, tema_id) antes de inserir.
 
-## Tarefa 5 — Truncar nomes longos
-1. No models.py adiciona função abreviar_nome(nome):
-   "Maria Luiza Aparecida Trindade de Meneses" → "Maria L. A. T. Meneses"
-   Lógica: primeiro nome + iniciais dos nomes do meio + último sobrenome
-2. Registra como filtro Jinja no app.py: app.jinja_env.filters['abreviar'] = abreviar_nome
-3. Nos templates onde o nome aparece em espaço pequeno usa: {{ p.nome | abreviar }}
-4. No detalhe do padrinho e em títulos mantém o nome completo
+### C4 — get_config abre conexão extra dentro do loop de calcular_status
+Arquivo: models.py:258-278
+Receber limite_amarelos como parâmetro ou ler uma vez fora do loop.
+Com 50 padrinhos → 150 conexões desnecessárias no dashboard.
 
-## Tarefa 6 — Corrigir gráfico de pizza
-1. Legenda com número E percentual ao lado de cada item
-2. Número do total no centro legível no dark mode — cor adaptativa
-3. Cards de métricas: número sempre abaixo do label, tamanho consistente nos 4 cards
+### C5 — Funções mortas com import pandas
+Arquivo: models.py:460-484
+Remover exportar_aptos_csv e exportar_vermelhos_csv.
 
-## Tarefa 7 — Corrigir dark mode nas tabelas
-Garante que todas as tabelas têm texto legível no dark mode:
-- Texto principal: rgba(255,255,255,0.9)
-- Texto secundário: rgba(255,255,255,0.55)
-- Bordas: rgba(255,255,255,0.08)
-- Fundo hover: rgba(255,255,255,0.04)
+Roda os 18 testes após cada correção.
 
-## Tarefa 8 — Simplificar relatórios
-1. Remove páginas relatorio_aptos.html e relatorio_vermelhos.html
-2. Transforma as rotas em endpoints que retornam PDF direto
-3. No relatorio.html adiciona 3 botões:
-   - [PDF Aptidão ACG]
-   - [PDF Resumo do semestre]
-   - [PDF Inaptos Graves]
-4. Remove links do menu lateral que apontavam pras páginas removidas
+---
 
-## Tarefa 9 — Relatório 1: PDF Aptidão ACG
-Refatora o PDF existente para incluir:
-1. Logo padrinho-track-lockup no cabeçalho
-2. Dados do config_semestre.json: programa, semestre, professor coordenador
-3. Resumo: total inscritos, aptos, inaptos
-4. Tabela de aptos: nome completo, matrícula, turno, presenças/total reuniões
-5. Visual com cores do design system
-6. Rodapé com campo de assinatura e "Gerado pelo Padrinho Track · PUC Minas"
+## Tarefa 2 — Migrar relatórios para HTML/Jinja
 
-## Tarefa 10 — Relatório 2: PDF Resumo do semestre
-Cria novo PDF com:
-1. Cabeçalho com logo e dados do config_semestre.json
-2. Resumo geral: total padrinhos, calouros, reuniões realizadas
-3. Cronograma de temas: título, data, responsáveis, situação de entrega
-4. Resultado final: aptos X / inaptos Y / inaptos graves Z
-5. Mesmo visual do design system
+1. Mover os 3 templates para templates/pages/:
+   - relatorio_aptidao_acg.html
+   - relatorio_resumo_semestre.html
+   - relatorio_reportados.html
+2. Substituir rotas atuais pelas 3 novas (ver rotas_relatorios.py)
+3. Carregar config_semestre.json uma vez no topo do app.py como CONFIG
+4. Adaptar chamadas de funções para os nomes reais de models.py
+5. No relatorio.html adicionar 3 botões que abrem as rotas em nova aba:
+   - [Ver Aptidão ACG]
+   - [Ver Resumo do Semestre]
+   - [Ver Reportados]
+6. Usuário imprime via Ctrl+P → Salvar como PDF
+7. Roda os 18 testes — nenhum pode quebrar
 
-## Tarefa 11 — Relatório 3: PDF Inaptos graves
-Cria novo PDF com:
-1. Cabeçalho formal com logo e dados do config_semestre.json
-2. Tabela: nome completo, matrícula, email, motivo, data da advertência
-3. Total de casos
-4. Campo para assinatura do coordenador
-5. Visual em vermelho escuro #991b1b
+---
 
-## Tarefa 12 — Reorganizar templates em pastas
-1. Cria templates/pages/ e move todos os HTMLs principais:
-   - dashboard.html → templates/pages/dashboard.html
-   - padrinhos.html → templates/pages/padrinhos.html
-   - padrinho_detalhe.html → templates/pages/padrinho_detalhe.html
-   - reunioes.html → templates/pages/reunioes.html
-   - presencas.html → templates/pages/presencas.html
-   - temas.html → templates/pages/temas.html
-   - calouros.html → templates/pages/calouros.html
-   - advertencias.html → templates/pages/advertencias.html
-   - relatorio.html → templates/pages/relatorio.html
-   - importar_presencas.html → templates/pages/importar_presencas.html
-   - logs.html → templates/pages/logs.html
-   - config.html → templates/pages/config.html
-   - login.html → templates/pages/login.html
-2. base.html e components/ ficam em templates/ mesmo
-3. Atualiza todos os render_template no app.py para "pages/nome.html"
+## Tarefa 3 — Atualizar config_semestre.json com equipe
 
-## Tarefa 13 — Bot do Telegram (futuro)
+Adicionar ao JSON:
+  "coordenadora_geral": "Ana Santos",
+  "coordenadores": ["Christiano Gonçalves", "Perciliana", "Giovanna", "Zaine", "Luiz"]
+
+Garantir que get_config_semestre usa .get() com defaults para os campos
+novos — evita UndefinedError se o JSON estiver em versão antiga.
+
+---
+
+## Tarefa 4 — Corrigir bugs médios de performance
+
+### M1 — N+1 em get_todos_temas
+1 query por tema para buscar responsáveis. Resolver com JOIN em query única.
+
+### M2 — N+1 no dashboard e rotas de relatório
+Passar limite_amarelos uma vez fora do loop de calcular_status.
+
+### M3 — presencas_por_reuniao faz 2 queries por reunião
+Trocar por SUM(CASE WHEN presente=1 THEN 1 ELSE 0 END) com GROUP BY.
+
+### M4 — POST de presenças abre uma conexão por padrinho
+Refatorar para inserção em lote numa transação única.
+
+### M5 — importar_presencas_csv faz SELECT de matrícula linha a linha
+Buscar todos os padrinhos de uma vez, criar dict {matricula: id} antes do loop.
+
+### M6 — init_db() chamado em toda requisição
+Mover para antes do app.run ou with app.app_context().
+
+### M7 — N+1 em get_calouros_match_completo
+Resolver com LEFT JOIN matches JOIN calouros.
+
+### M8 — get_relatorio_aptos e get_relatorio_vermelhos são código morto
+Remover ou simplificar para filtros sobre get_relatorio_geral().
+
+### M9 — Bloco de emissão de advertências duplicado
+Extrair _emitir_advertencias_tema(conn, tema_id, tipo, motivo).
+
+### M10 — calcular_status faz 2 queries que poderiam ser 1
+Trocar por GROUP BY tipo em query única.
+
+---
+
+## Tarefa 5 — Corrigir bugs baixos (antes do deploy)
+
+### B1 — Open redirect no login
+Validar next_url.startswith("/") antes de redirecionar.
+
+### B2 — debug=True em produção
+Trocar por debug=os.environ.get("FLASK_DEBUG", "0") == "1"
+
+### B3 — SECRET_KEY e APP_PASSWORD com fallbacks inseguros
+Garantir que sem .env o app não sobe em produção.
+
+### B4 — except Exception silencia erros reais
+Trocar por except sqlite3.IntegrityError no cadastro de padrinhos.
+
+### B5 — Falta de índices nas colunas mais usadas
+Adicionar em database.py:
+  CREATE INDEX IF NOT EXISTS idx_advertencias_padrinho ON advertencias(padrinho_id);
+  CREATE INDEX IF NOT EXISTS idx_presencas_padrinho ON presencas(padrinho_id);
+  CREATE INDEX IF NOT EXISTS idx_presencas_reuniao ON presencas(reuniao_id);
+  CREATE INDEX IF NOT EXISTS idx_tema_padrinhos_tema ON tema_padrinhos(tema_id);
+  CREATE INDEX IF NOT EXISTS idx_tema_padrinhos_padrinho ON tema_padrinhos(padrinho_id);
+
+### B6 — config_semestre.json sem fallback para campos novos
+Já coberto pela Tarefa 3.
+
+---
+
+## Tarefa 6 — Revisar e atualizar testes
+
+### Passo 1 — Análise (não mexe em nada ainda)
+Analisa os 18 testes em tests/ e responde:
+
+1. Algum teste está testando comportamento que
+   não bate mais com a lógica atual do sistema?
+2. Quais funcionalidades importantes de models.py
+   e app.py não têm nenhum teste cobrindo?
+3. A calcular_status() está sendo testada para
+   todos os cenários possíveis?
+   (apto, alerta, inapto_amarelo, inapto_vermelho)
+4. O limite_amarelos configurável está sendo
+   testado ou está hardcoded nos testes?
+
+Apresenta o relatório e aguarda aprovação antes de continuar.
+
+### Passo 2 — Execução (após aprovação do relatório)
+- Corrige os testes desatualizados
+- Escreve os testes que estão faltando
+- Roda pytest até todos passarem
+- Mostra o resultado final
+
+---
+
+## Tarefa 7 — Atualizar README.md
+
+Substituir o README.md atual pelo novo (arquivo README.md em anexo).
+Mudanças principais:
+- Equipe completa: coordenadora geral Ana Santos + todos os coordenadores
+- PDFs substituídos por "Relatórios HTML para impressão via browser"
+- Pandas removido da stack
+- Passo do .env adicionado no "Como rodar"
+- Roadmap corrigido — logs e match já estão feitos, marcar como concluídos
+
+---
+
+## Tarefa 8 — Bot do Telegram (futuro)
 Cria bot.py com python-telegram-bot integrado ao banco SQLite:
 - /status — resumo de aptos/alertas/inaptos
 - /faltas — lista de faltas da última reunião
 - /alerta — padrinhos com 1 amarelo + telefone
-- /pdf — gera e envia PDF de aptidão no chat
+- /pdf — abre link do relatório no sistema
 
-Mantém os 18 testes passando. Confirme cada tarefa antes de prosseguir.
+Mantém os 18 testes passando.

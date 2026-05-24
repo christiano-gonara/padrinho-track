@@ -47,34 +47,30 @@
     <h2 class="pt-card-title mb-4">Distribuição de status</h2>
     <div class="flex items-center gap-6">
       <div id="graficoPizza" style="flex-shrink:0;"></div>
-      <div class="flex flex-col gap-2.5" style="font-size:12px;">
+      <div class="flex flex-col gap-2.5" style="font-size:12px;min-width:160px;">
         <div class="flex items-center gap-2">
           <span style="width:10px;height:10px;border-radius:50%;background:#10b981;flex-shrink:0;"></span>
-          <span class="pt-muted-text">Aptos
-            <strong style="color:var(--pt-ink);">{{ aptos | length }}</strong>
-            <span style="color:var(--pt-faint);margin-left:3px;">{{ ((aptos | length / total_pizza) * 100) | round | int }}%</span>
-          </span>
+          <span class="pt-muted-text" style="flex:1;">Aptos</span>
+          <strong style="color:var(--pt-ink);">{{ aptos | length }}</strong>
+          <span style="color:var(--pt-faint);min-width:30px;text-align:right;">{{ ((aptos | length / total_pizza) * 100) | round | int }}%</span>
         </div>
         <div class="flex items-center gap-2">
           <span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;flex-shrink:0;"></span>
-          <span class="pt-muted-text">Em alerta
-            <strong style="color:var(--pt-ink);">{{ alertas | length }}</strong>
-            <span style="color:var(--pt-faint);margin-left:3px;">{{ ((alertas | length / total_pizza) * 100) | round | int }}%</span>
-          </span>
+          <span class="pt-muted-text" style="flex:1;">Em alerta</span>
+          <strong style="color:var(--pt-ink);">{{ alertas | length }}</strong>
+          <span style="color:var(--pt-faint);min-width:30px;text-align:right;">{{ ((alertas | length / total_pizza) * 100) | round | int }}%</span>
         </div>
         <div class="flex items-center gap-2">
           <span style="width:10px;height:10px;border-radius:50%;background:#f97316;flex-shrink:0;"></span>
-          <span class="pt-muted-text">Inaptos
-            <strong style="color:var(--pt-ink);">{{ inapto_am | length }}</strong>
-            <span style="color:var(--pt-faint);margin-left:3px;">{{ ((inapto_am | length / total_pizza) * 100) | round | int }}%</span>
-          </span>
+          <span class="pt-muted-text" style="flex:1;">Reprovados</span>
+          <strong style="color:var(--pt-ink);">{{ inapto_am | length }}</strong>
+          <span style="color:var(--pt-faint);min-width:30px;text-align:right;">{{ ((inapto_am | length / total_pizza) * 100) | round | int }}%</span>
         </div>
         <div class="flex items-center gap-2">
           <span style="width:10px;height:10px;border-radius:50%;background:#dc2626;flex-shrink:0;"></span>
-          <span class="pt-muted-text">Inaptos Graves
-            <strong style="color:var(--pt-ink);">{{ inapto_verm | length }}</strong>
-            <span style="color:var(--pt-faint);margin-left:3px;">{{ ((inapto_verm | length / total_pizza) * 100) | round | int }}%</span>
-          </span>
+          <span class="pt-muted-text" style="flex:1;">Reportados</span>
+          <strong style="color:var(--pt-ink);">{{ inapto_verm | length }}</strong>
+          <span style="color:var(--pt-faint);min-width:30px;text-align:right;">{{ ((inapto_verm | length / total_pizza) * 100) | round | int }}%</span>
         </div>
       </div>
     </div>
@@ -139,9 +135,9 @@
           {% elif d.status == "alerta" %}
             <span class="pt-badge" data-status="alerta"><i class="ri-error-warning-line"></i> Alerta</span>
           {% elif d.status == "inapto_amarelo" %}
-            <span class="pt-badge" data-status="inapto"><i class="ri-alert-line"></i> Inapto</span>
+            <span class="pt-badge" data-status="inapto"><i class="ri-alert-line"></i> Reprovado</span>
           {% elif d.status == "inapto_vermelho" %}
-            <span class="pt-badge" data-status="grave"><i class="ri-close-circle-line"></i> Inapto Grave</span>
+            <span class="pt-badge" data-status="grave"><i class="ri-close-circle-line"></i> Reportado</span>
           {% endif %}
         </td>
         <td class="pt-td-right">
@@ -170,7 +166,7 @@
   new ApexCharts(document.getElementById('graficoPizza'), {
     series: pizzaData,
     chart: { type: 'donut', height: 200, toolbar: { show: false } },
-    labels: ['Aptos', 'Em alerta', 'Inaptos', 'Inaptos Graves'],
+    labels: ['Aptos', 'Em alerta', 'Reprovados', 'Reportados'],
     colors: ['#10b981', '#f59e0b', '#f97316', '#dc2626'],
     legend: { show: false },
     dataLabels: { enabled: false },

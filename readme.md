@@ -44,9 +44,9 @@ PUC Minas · Semestre 2026/1
 - Dashboard com visão geral — aprovados, em alerta, reprovados, reportados
 - Gráficos de distribuição de status e presenças por reunião
 - Relatório geral exportável em CSV
-- PDF de Aptidão ACG para emissão de horas
-- PDF de Resumo do Semestre para arquivo
-- PDF de Reportados para entrega ao professor coordenador
+- Relatório de Aptidão ACG — HTML para impressão via browser (Ctrl+P → Salvar como PDF)
+- Resumo do Semestre — HTML para impressão via browser
+- Reportados ao Professor Coordenador — HTML para impressão via browser
 - Limite de advertências configurável pela coordenação
 
 **Interface**
@@ -123,9 +123,9 @@ PUC Minas · Semestre 2026/1
 - **Frontend:** HTML + Tailwind CSS + design system próprio (app.css)
 - **Ícones:** Remix Icon
 - **Gráficos:** ApexCharts
-- **Testes:** pytest — 18 testes cobrindo regras de advertência e aptidão ACG
-- **Dados:** Pandas — importação de CSV e exportação de relatórios
-- **PDF:** reportlab
+- **Testes:** pytest — 29 testes cobrindo regras de advertência, aptidão e idempotência
+- **Relatórios:** páginas HTML/Jinja impressas via browser (sem dependência externa)
+- **PDF:** reportlab (mantido para uso interno, não exposto na interface)
 
 ---
 
@@ -169,17 +169,28 @@ cd padrinho-track
 pip install -r requirements.txt
 ```
 
-**3. Popule o banco com dados de exemplo**
+**3. Configure as variáveis de ambiente**
+```bash
+cp .env.example .env
+```
+Edite `.env` com suas credenciais:
+```env
+APP_USERNAME=admin
+APP_PASSWORD=sua_senha_aqui
+SECRET_KEY=chave_secreta_longa_e_aleatoria
+```
+
+**4. Popule o banco com dados de exemplo**
 ```bash
 python seed_exemplo.py
 ```
 
-**4. Rode o servidor**
+**5. Rode o servidor**
 ```bash
 python app.py
 ```
 
-**5. Acesse no navegador**
+**6. Acesse no navegador**
 ```
 http://127.0.0.1:5000
 ```
@@ -197,12 +208,12 @@ python -m pytest tests/ -v
 
 - [x] Sistema de advertências automáticas
 - [x] Importação de presenças via CSV do Google Forms
-- [x] Geração de PDFs de aptidão ACG
+- [x] Relatórios HTML para impressão/PDF via browser
 - [x] Login com autenticação
 - [x] Design system com identidade visual própria
+- [x] Logs de auditoria
+- [x] Interface de match padrinho-calouro
 - [ ] Deploy em nuvem
-- [ ] Logs de auditoria
-- [ ] Interface de match padrinho-calouro
 - [ ] Bot do Telegram para a coordenação
 - [ ] Integração com Google Sheets API
 

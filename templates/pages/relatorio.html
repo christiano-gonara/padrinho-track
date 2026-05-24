@@ -14,17 +14,17 @@
        class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm px-4 py-2.5 rounded-xl hover:from-emerald-600 hover:to-teal-700 transition shadow-sm font-medium">
       <i class="ri-download-line"></i> CSV
     </a>
-    <a href="/relatorio/pdf"
+    <a href="/relatorio/aptidao" target="_blank"
        class="flex items-center gap-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white text-sm px-4 py-2.5 rounded-xl hover:from-violet-600 hover:to-purple-700 transition shadow-sm font-medium">
-      <i class="ri-file-pdf-line"></i> PDF Aptidão
+      <i class="ri-printer-line"></i> Aptidão ACG
     </a>
-    <a href="/relatorio/pdf/semestre"
+    <a href="/relatorio/resumo" target="_blank"
        class="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm px-4 py-2.5 rounded-xl hover:from-blue-600 hover:to-indigo-700 transition shadow-sm font-medium">
-      <i class="ri-file-chart-line"></i> PDF Semestre
+      <i class="ri-printer-line"></i> Resumo do semestre
     </a>
-    <a href="/relatorio/pdf/graves"
+    <a href="/relatorio/reportados" target="_blank"
        class="flex items-center gap-2 bg-gradient-to-r from-red-600 to-rose-700 text-white text-sm px-4 py-2.5 rounded-xl hover:from-red-700 hover:to-rose-800 transition shadow-sm font-medium">
-      <i class="ri-alert-line"></i> PDF Graves
+      <i class="ri-printer-line"></i> Reportados
     </a>
   </div>
 </div>
@@ -104,11 +104,11 @@
             </span>
           {% elif d.status == "inapto_amarelo" %}
             <span class="inline-flex items-center gap-1.5 bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 px-3 py-1 rounded-full text-xs font-semibold">
-              <i class="ri-alert-line"></i> Inapto
+              <i class="ri-alert-line"></i> Reprovado
             </span>
           {% elif d.status == "inapto_vermelho" %}
             <span class="inline-flex items-center gap-1.5 bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300 px-3 py-1 rounded-full text-xs font-semibold">
-              <i class="ri-close-circle-line"></i> Inapto Grave — reportar prof.
+              <i class="ri-close-circle-line"></i> Reportado
             </span>
           {% endif %}
         </td>

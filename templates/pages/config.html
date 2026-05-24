@@ -103,6 +103,17 @@
         </div>
       </div>
 
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+        <div class="pt-field">
+          <label class="pt-label">Coordenadora geral do semestre</label>
+          <input type="text" name="coordenadora_geral" value="{{ config_semestre.coordenadora_geral or '' }}" class="pt-input" placeholder="Nome da coordenadora geral" />
+        </div>
+        <div class="pt-field">
+          <label class="pt-label">Coordenadores da monitoria <span class="pt-label-optional">(um por linha)</span></label>
+          <textarea name="coordenadores" class="pt-textarea" rows="4" placeholder="Um nome por linha">{{ (config_semestre.coordenadores or []) | join('\n') }}</textarea>
+        </div>
+      </div>
+
       <div style="display:flex;justify-content:flex-end;margin-top:20px;">
         <button type="submit" class="pt-btn pt-btn-primary">
           <i class="ri-save-line"></i> Salvar semestre
@@ -140,7 +151,7 @@
       <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;">
         <div style="display:flex;align-items:center;gap:12px;color:var(--pt-muted);">
           <i class="ri-user-line" style="color:var(--pt-violet);width:16px;text-align:center;flex-shrink:0;"></i>
-          <span>Desenvolvido por <span style="font-weight:500;color:var(--pt-ink);">Christiano Gonara</span></span>
+          <span>Desenvolvido por <span style="font-weight:500;color:var(--pt-ink);">Christiano Gonçalves</span></span>
         </div>
         <div style="display:flex;align-items:center;gap:12px;color:var(--pt-muted);">
           <i class="ri-building-line" style="color:var(--pt-violet);width:16px;text-align:center;flex-shrink:0;"></i>

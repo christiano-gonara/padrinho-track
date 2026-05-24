@@ -9,7 +9,9 @@
       "Bash(git commit *)",
       "Bash(git push *)",
       "Bash(del \"C:\\\\Users\\\\Pexy0\\\\padrinho-track\\\\Procfile\")",
-      "Bash(del \"C:\\\\Users\\\\Pexy0\\\\padrinho-track\\\\runtime.txt\")"
+      "Bash(del \"C:\\\\Users\\\\Pexy0\\\\padrinho-track\\\\runtime.txt\")",
+      "PowerShell(Copy-Item *)",
+      "Bash(Test-Path *)"
     ]
   }
 }

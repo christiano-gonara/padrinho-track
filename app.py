@@ -12,10 +12,12 @@ from models import (
     emitir_advertencia_manual, get_advertencias_padrinho,
     calcular_status, get_historico_padrinho, get_relatorio_geral,
     get_todos_temas, get_calouros_match_completo, registrar_log,
-    abreviar_nome
+    abreviar_nome, get_config_semestre, get_config
 )
 
 app = Flask(__name__)
+
+CONFIG = get_config_semestre()
 app.secret_key = os.environ.get("SECRET_KEY", "padrinho-track-secret")
 app.jinja_env.filters['abreviar'] = abreviar_nome
 
@@ -68,9 +70,10 @@ def logout():
 @app.route("/")
 def dashboard():
     padrinhos = get_todos_padrinhos()
+    limite = int(get_config("limite_amarelos", "2"))
     dados = []
     for p in padrinhos:
-        status = calcular_status(p["id"])
+        status = calcular_status(p["id"], limite)
         dados.append({"padrinho": p, **status})
 
     conn = get_conn()
@@ -298,10 +301,13 @@ def calouros():
 
 @app.route("/config", methods=["GET", "POST"])
 def configuracoes():
-    from models import get_config, get_config_semestre, salvar_config_semestre
+    global CONFIG
+    from models import salvar_config_semestre
     if request.method == "POST":
         action = request.form.get("action", "amarelos")
         if action == "semestre":
+            coordenadores_raw = request.form.get("coordenadores", "")
+            coordenadores = [n.strip() for n in coordenadores_raw.splitlines() if n.strip()]
             cfg = {
                 "semestre": request.form.get("semestre", "2026/1").strip(),
                 "professor_coordenador": request.form.get("professor_coordenador", "").strip(),
@@ -310,8 +316,11 @@ def configuracoes():
                 "total_reunioes": int(request.form.get("total_reunioes", 3)),
                 "data_inicio": request.form.get("data_inicio", "").strip(),
                 "data_fim": request.form.get("data_fim", "").strip(),
+                "coordenadora_geral": request.form.get("coordenadora_geral", "").strip(),
+                "coordenadores": coordenadores,
             }
             salvar_config_semestre(cfg)
+            CONFIG = get_config_semestre()
             registrar_log("ALTERACAO_CONFIG", f"Configurações do semestre {cfg['semestre']} atualizadas.")
         else:
             limite = request.form.get("limite_amarelos", "2")
@@ -326,8 +335,7 @@ def configuracoes():
         flash("Configurações salvas.", "success")
         return redirect(url_for("configuracoes"))
     limite_atual = get_config("limite_amarelos", "2")
-    config_semestre = get_config_semestre()
-    return render_template("pages/config.html", limite_amarelos=limite_atual, config_semestre=config_semestre)
+    return render_template("pages/config.html", limite_amarelos=limite_atual, config_semestre=CONFIG)
 
 # ── CRUD Padrinhos ─────────────────────────────────────────────────────────
 
@@ -435,6 +443,143 @@ def importar_presencas(reuniao_id):
         return redirect(url_for("reunioes"))
 
     return render_template("pages/importar_presencas.html", reuniao=reuniao)
+
+# ── Relatórios HTML ───────────────────────────────────────────────────────
+
+@app.route("/relatorio/aptidao")
+def relatorio_aptidao():
+    padrinhos = get_todos_padrinhos()
+    limite = int(get_config("limite_amarelos", "2"))
+
+    aprovados, reprovados, reportados = [], [], []
+    conn = get_conn()
+
+    for p in padrinhos:
+        status_dict = calcular_status(p["id"], limite)
+        status = status_dict["status"]
+        historico = get_historico_padrinho(p["id"])
+        presencas = sum(1 for pr in historico["presencas"] if pr["presente"])
+
+        row = {
+            "nome": p["nome"], "matricula": p["matricula"],
+            "turno": p["turno"] or "—",
+            "presencas": presencas,
+            "num_amarelos": status_dict["amarelos"],
+        }
+
+        if status == "inapto_vermelho":
+            adv = conn.execute(
+                "SELECT motivo FROM advertencias WHERE padrinho_id=? AND tipo='vermelho' ORDER BY data DESC LIMIT 1",
+                (p["id"],)
+            ).fetchone()
+            row["motivo_vermelho"] = adv["motivo"] if adv else "—"
+            reportados.append(row)
+        elif status == "inapto_amarelo":
+            reprovados.append(row)
+        else:
+            aprovados.append(row)
+
+    conn.close()
+
+    return render_template("pages/relatorio_aptidao_acg.html",
+        config=CONFIG,
+        hoje=date.today(),
+        total=len(padrinhos) or 1,
+        aprovados=aprovados,
+        reprovados=reprovados,
+        reportados=reportados,
+    )
+
+
+@app.route("/relatorio/resumo")
+def relatorio_resumo():
+    padrinhos = get_todos_padrinhos()
+    reunioes = get_todas_reunioes()
+    temas_raw = get_todos_temas()
+    limite = int(get_config("limite_amarelos", "2"))
+
+    conn = get_conn()
+    total_calouros = conn.execute("SELECT COUNT(*) FROM calouros").fetchone()[0]
+    conn.close()
+
+    contadores = {"aprovados": 0, "alerta": 0, "reprovados": 0, "reportados": 0}
+    for p in padrinhos:
+        status = calcular_status(p["id"], limite)["status"]
+        if status == "apto":
+            contadores["aprovados"] += 1
+        elif status == "alerta":
+            contadores["alerta"] += 1
+        elif status == "inapto_amarelo":
+            contadores["reprovados"] += 1
+        elif status == "inapto_vermelho":
+            contadores["reportados"] += 1
+
+    temas = []
+    for item in temas_raw:
+        t = item["tema"]
+        resp = ", ".join(p["nome"].split()[0] for p in item["padrinhos"]) or "—"
+        data_limite = None
+        if t["data_limite"]:
+            try:
+                data_limite = datetime.strptime(t["data_limite"], "%Y-%m-%d").date()
+            except Exception:
+                pass
+        temas.append({
+            "titulo": t["titulo"],
+            "data_limite": data_limite,
+            "responsaveis": resp,
+            "situacao": t["situacao"] or "pendente",
+        })
+
+    return render_template("pages/relatorio_resumo_semestre.html",
+        config=CONFIG,
+        hoje=date.today(),
+        total_padrinhos=len(padrinhos),
+        total_calouros=total_calouros,
+        total_reunioes=len(reunioes),
+        temas=temas,
+        n_aprovados=contadores["aprovados"],
+        n_alerta=contadores["alerta"],
+        n_reprovados=contadores["reprovados"],
+        n_reportados=contadores["reportados"],
+        limite_amarelos=limite,
+    )
+
+
+@app.route("/relatorio/reportados")
+def relatorio_reportados():
+    padrinhos = get_todos_padrinhos()
+    limite = int(get_config("limite_amarelos", "2"))
+    reportados = []
+
+    conn = get_conn()
+    for p in padrinhos:
+        if calcular_status(p["id"], limite)["status"] == "inapto_vermelho":
+            adv = conn.execute(
+                "SELECT motivo, data FROM advertencias WHERE padrinho_id=? AND tipo='vermelho' ORDER BY data DESC LIMIT 1",
+                (p["id"],)
+            ).fetchone()
+            data_adv = None
+            if adv and adv["data"]:
+                try:
+                    data_adv = datetime.strptime(adv["data"], "%Y-%m-%d").date()
+                except Exception:
+                    pass
+            reportados.append({
+                "nome": p["nome"],
+                "matricula": p["matricula"],
+                "email": p["email"] or "—",
+                "motivo_vermelho": adv["motivo"] if adv else "—",
+                "data_advertencia_grave": data_adv,
+            })
+    conn.close()
+
+    return render_template("pages/relatorio_reportados.html",
+        config=CONFIG,
+        hoje=date.today(),
+        reportados=reportados,
+    )
+
 
 # ── Inicialização ──────────────────────────────────────────────────────────
 

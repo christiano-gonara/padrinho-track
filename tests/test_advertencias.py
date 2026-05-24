@@ -12,6 +12,7 @@ from models import (
     calcular_status,
     emitir_advertencias_falta,
     registrar_entrega_tema,
+    marcar_tema_nao_entregue,
     emitir_advertencia_manual,
     cadastrar_padrinho,
     criar_reuniao,
@@ -222,3 +223,137 @@ class TestAdvertenciaManual:
         assert status["status"] == "inapto_vermelho"
         assert status["amarelos"] == 1
         assert status["vermelhos"] == 1
+
+
+# ── calcular_status com limite configurável ───────────────────────────────────
+
+class TestCalcularStatusLimiteCustom:
+
+    def test_apto_com_amarelo_retorna_contagem_real(self):
+        """Com limite=3, 1 amarelo ainda é apto — count deve ser 1, não 0 (fix C1)."""
+        pid = _padrinho()
+        _inserir_advertencia(pid, "amarelo")
+        status = calcular_status(pid, limite=3)
+        assert status["status"] == "apto"
+        assert status["amarelos"] == 1
+
+    def test_alerta_com_limite_custom(self):
+        pid = _padrinho()
+        _inserir_advertencia(pid, "amarelo")
+        _inserir_advertencia(pid, "amarelo")
+        status = calcular_status(pid, limite=3)
+        assert status["status"] == "alerta"
+        assert status["amarelos"] == 2
+
+    def test_inapto_amarelo_com_limite_custom(self):
+        pid = _padrinho()
+        for _ in range(3):
+            _inserir_advertencia(pid, "amarelo")
+        status = calcular_status(pid, limite=3)
+        assert status["status"] == "inapto_amarelo"
+        assert status["amarelos"] == 3
+
+    def test_vermelho_sobrepoe_independente_do_limite(self):
+        pid = _padrinho()
+        _inserir_advertencia(pid, "vermelho")
+        status = calcular_status(pid, limite=10)
+        assert status["status"] == "inapto_vermelho"
+
+
+# ── idempotência ───────────────────────────────────────────────────────────────
+
+class TestIdempotencia:
+
+    def _setup_reuniao(self, pid):
+        criar_reuniao("2026-05-01", "Teste", "")
+        conn = get_conn()
+        rid = conn.execute("SELECT id FROM reunioes ORDER BY id DESC LIMIT 1").fetchone()["id"]
+        conn.close()
+        return rid
+
+    def _setup_tema(self, pid, data_limite="2026-05-10"):
+        registrar_tema("Tema Idempotente", "2026-01-01", data_limite, [pid])
+        conn = get_conn()
+        tid = conn.execute("SELECT id FROM temas ORDER BY id DESC LIMIT 1").fetchone()["id"]
+        conn.close()
+        return tid
+
+    def test_emitir_advertencias_falta_idempotente(self):
+        """Chamar emitir_advertencias_falta duas vezes para a mesma reunião não duplica amarelos."""
+        pid = _padrinho()
+        rid = self._setup_reuniao(pid)
+        lancar_presenca(rid, pid, presente=0, justificada=0)
+        emitir_advertencias_falta(rid)
+        emitir_advertencias_falta(rid)
+        assert calcular_status(pid)["amarelos"] == 1
+
+    def test_emitir_advertencias_falta_duas_reunioes_distintas(self):
+        """Faltas em duas reuniões diferentes geram dois amarelos mesmo sendo chamado em sequência."""
+        pid = _padrinho()
+        criar_reuniao("2026-05-01", "R1", "")
+        criar_reuniao("2026-05-08", "R2", "")
+        conn = get_conn()
+        r1, r2 = conn.execute("SELECT id FROM reunioes ORDER BY id ASC LIMIT 2").fetchall()
+        conn.close()
+        lancar_presenca(r1["id"], pid, presente=0, justificada=0)
+        emitir_advertencias_falta(r1["id"])
+        lancar_presenca(r2["id"], pid, presente=0, justificada=0)
+        emitir_advertencias_falta(r2["id"])
+        assert calcular_status(pid)["amarelos"] == 2
+
+    def test_registrar_entrega_tema_idempotente(self):
+        """Registrar entrega do mesmo tema duas vezes não duplica advertências."""
+        pid = _padrinho()
+        tid = self._setup_tema(pid)
+        registrar_entrega_tema(tid, "2026-05-11")  # 1 dia de atraso → amarelo
+        registrar_entrega_tema(tid, "2026-05-11")  # segunda chamada deve ser ignorada
+        assert calcular_status(pid)["amarelos"] == 1
+
+    def test_marcar_tema_nao_entregue_idempotente(self):
+        """Marcar tema não entregue duas vezes não duplica vermelho."""
+        pid = _padrinho()
+        tid = self._setup_tema(pid)
+        marcar_tema_nao_entregue(tid)
+        marcar_tema_nao_entregue(tid)
+        assert calcular_status(pid)["vermelhos"] == 1
+
+
+# ── marcar_tema_nao_entregue ──────────────────────────────────────────────────
+
+class TestMarcarTemaNaoEntregue:
+
+    def _setup_tema(self, pid, data_limite="2026-05-10"):
+        registrar_tema("Tema Não Entregue", "2026-01-01", data_limite, [pid])
+        conn = get_conn()
+        tid = conn.execute("SELECT id FROM temas ORDER BY id DESC LIMIT 1").fetchone()["id"]
+        conn.close()
+        return tid
+
+    def test_nao_entregue_gera_vermelho(self):
+        pid = _padrinho()
+        tid = self._setup_tema(pid)
+        marcar_tema_nao_entregue(tid)
+        status = calcular_status(pid)
+        assert status["status"] == "inapto_vermelho"
+        assert status["vermelhos"] == 1
+
+    def test_nao_entregue_afeta_todos_do_grupo(self):
+        pid1 = _padrinho("Padrinho A", "999001")
+        pid2 = _padrinho("Padrinho B", "999002")
+        registrar_tema("Tema Grupo NE", "2026-01-01", "2026-05-10", [pid1, pid2])
+        conn = get_conn()
+        tid = conn.execute("SELECT id FROM temas ORDER BY id DESC LIMIT 1").fetchone()["id"]
+        conn.close()
+        marcar_tema_nao_entregue(tid)
+        assert calcular_status(pid1)["vermelhos"] == 1
+        assert calcular_status(pid2)["vermelhos"] == 1
+
+    def test_nao_entregue_nao_afeta_padrinho_sem_tema(self):
+        pid1 = _padrinho("Padrinho A", "999001")
+        pid2 = _padrinho("Padrinho B", "999002")
+        registrar_tema("Tema Só A", "2026-01-01", "2026-05-10", [pid1])
+        conn = get_conn()
+        tid = conn.execute("SELECT id FROM temas ORDER BY id DESC LIMIT 1").fetchone()["id"]
+        conn.close()
+        marcar_tema_nao_entregue(tid)
+        assert calcular_status(pid2)["vermelhos"] == 0

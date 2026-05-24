@@ -5,20 +5,25 @@ from datetime import date, datetime
 
 _CONFIG_PATH = os.path.join(os.path.dirname(__file__), "config_semestre.json")
 
+_CONFIG_DEFAULTS = {
+    "semestre": "2026/1",
+    "professor_coordenador": "Prof. Laerte Xavier",
+    "programa": "Mentoria Acadêmica — Engenharia de Software",
+    "instituicao": "PUC Minas",
+    "total_reunioes": 3,
+    "data_inicio": "2026-03-01",
+    "data_fim": "2026-07-15",
+    "coordenadora_geral": "",
+    "coordenadores": [],
+}
+
 def get_config_semestre():
     try:
         with open(_CONFIG_PATH, encoding="utf-8") as f:
-            return json.load(f)
+            loaded = json.load(f)
+        return {**_CONFIG_DEFAULTS, **loaded}
     except (FileNotFoundError, json.JSONDecodeError):
-        return {
-            "semestre": "2026/1",
-            "professor_coordenador": "Prof. Laerte",
-            "programa": "Mentoria Acadêmica — Engenharia de Software",
-            "instituicao": "PUC Minas",
-            "total_reunioes": 3,
-            "data_inicio": "2026-03-01",
-            "data_fim": "2026-07-15",
-        }
+        return dict(_CONFIG_DEFAULTS)
 
 def salvar_config_semestre(dados):
     with open(_CONFIG_PATH, "w", encoding="utf-8") as f:
@@ -160,6 +165,10 @@ def registrar_entrega_tema(tema_id, data_entrega_str):
     conn = get_conn()
     tema = conn.execute("SELECT * FROM temas WHERE id = ?", (tema_id,)).fetchone()
 
+    if tema["situacao"] not in (None, "pendente"):
+        conn.close()
+        return tema["situacao"]
+
     data_limite  = datetime.strptime(tema["data_limite"], "%Y-%m-%d").date()
     data_entrega = datetime.strptime(data_entrega_str, "%Y-%m-%d").date()
     diff = (data_entrega - data_limite).days
@@ -203,6 +212,11 @@ def registrar_entrega_tema(tema_id, data_entrega_str):
 def marcar_tema_nao_entregue(tema_id):
     conn = get_conn()
     tema = conn.execute("SELECT * FROM temas WHERE id = ?", (tema_id,)).fetchone()
+
+    if tema["situacao"] not in (None, "pendente"):
+        conn.close()
+        return
+
     conn.execute(
         "UPDATE temas SET situacao = 'nao_entregue' WHERE id = ?", (tema_id,)
     )
@@ -223,11 +237,17 @@ def emitir_advertencias_falta(reuniao_id):
         SELECT padrinho_id FROM presencas
         WHERE reuniao_id = ? AND presente = 0 AND justificada = 0
     """, (reuniao_id,)).fetchall()
+    motivo = f"Falta sem justificativa — reunião {reuniao_id}"
     for row in ausentes:
-        conn.execute("""
-            INSERT INTO advertencias (padrinho_id, tipo, origem, motivo, data)
-            VALUES (?, 'amarelo', 'falta', 'Falta sem justificativa', ?)
-        """, (row["padrinho_id"], date.today().isoformat()))
+        existente = conn.execute(
+            "SELECT id FROM advertencias WHERE padrinho_id=? AND motivo=?",
+            (row["padrinho_id"], motivo)
+        ).fetchone()
+        if not existente:
+            conn.execute("""
+                INSERT INTO advertencias (padrinho_id, tipo, origem, motivo, data)
+                VALUES (?, 'amarelo', 'falta', ?, ?)
+            """, (row["padrinho_id"], motivo, date.today().isoformat()))
     conn.commit()
     conn.close()
 
@@ -255,7 +275,7 @@ def get_config(chave, padrao=None):
     conn.close()
     return row["valor"] if row else padrao
 
-def calcular_status(padrinho_id):
+def calcular_status(padrinho_id, limite=None):
     conn = get_conn()
     amarelos = conn.execute(
         "SELECT COUNT(*) FROM advertencias WHERE padrinho_id = ? AND tipo = 'amarelo'",
@@ -267,7 +287,8 @@ def calcular_status(padrinho_id):
     ).fetchone()[0]
     conn.close()
 
-    limite = int(get_config("limite_amarelos", "2"))
+    if limite is None:
+        limite = int(get_config("limite_amarelos", "2"))
 
     if vermelhos >= 1:
         return {"status": "inapto_vermelho", "amarelos": amarelos, "vermelhos": vermelhos}
@@ -275,7 +296,7 @@ def calcular_status(padrinho_id):
         return {"status": "inapto_amarelo", "amarelos": amarelos, "vermelhos": vermelhos}
     if amarelos == limite - 1:
         return {"status": "alerta", "amarelos": amarelos, "vermelhos": vermelhos}
-    return {"status": "apto", "amarelos": 0, "vermelhos": 0}
+    return {"status": "apto", "amarelos": amarelos, "vermelhos": vermelhos}
 
 def get_historico_padrinho(padrinho_id):
     conn = get_conn()
@@ -298,9 +319,10 @@ def get_historico_padrinho(padrinho_id):
 
 def get_relatorio_geral():
     padrinhos = get_todos_padrinhos()
+    limite = int(get_config("limite_amarelos", "2"))
     relatorio = []
     for p in padrinhos:
-        status   = calcular_status(p["id"])
+        status   = calcular_status(p["id"], limite)
         historico = get_historico_padrinho(p["id"])
         total_reunioes  = len(historico["presencas"])
         total_presentes = sum(1 for pr in historico["presencas"] if pr["presente"])
@@ -315,24 +337,26 @@ def get_relatorio_geral():
     return relatorio
 
 def exportar_relatorio_csv(caminho="relatorio_acg.csv"):
-    import pandas as pd
+    import csv
     dados = get_relatorio_geral()
-    rows = []
-    for d in dados:
-        rows.append({
-            "Nome":            d["padrinho"]["nome"],
-            "Matricula":       d["padrinho"]["matricula"],
-            "Email":           d["padrinho"]["email"] or "",
-            "Telefone":        d["padrinho"]["telefone"] or "",
-            "Turno":           d["padrinho"]["turno"] or "",
-            "Reunioes":        d["total_reunioes"],
-            "Presencas":       d["total_presentes"],
-            "Amarelos":        d["amarelos"],
-            "Vermelhos":       d["vermelhos"],
-            "Status":          d["status"],
-        })
-    df = pd.DataFrame(rows)
-    df.to_csv(caminho, index=False, encoding="utf-8-sig")
+    headers = ["Nome", "Matricula", "Email", "Telefone", "Turno",
+               "Reunioes", "Presencas", "Amarelos", "Vermelhos", "Status"]
+    with open(caminho, "w", newline="", encoding="utf-8-sig") as f:
+        w = csv.writer(f)
+        w.writerow(headers)
+        for d in dados:
+            w.writerow([
+                d["padrinho"]["nome"],
+                d["padrinho"]["matricula"],
+                d["padrinho"]["email"] or "",
+                d["padrinho"]["telefone"] or "",
+                d["padrinho"]["turno"] or "",
+                d["total_reunioes"],
+                d["total_presentes"],
+                d["amarelos"],
+                d["vermelhos"],
+                d["status"],
+            ])
     return caminho
 
 def get_calouros_por_padrinho(padrinho_id):
@@ -425,9 +449,10 @@ def excluir_tema(tema_id):
 
 def get_relatorio_aptos():
     padrinhos = get_todos_padrinhos()
+    limite = int(get_config("limite_amarelos", "2"))
     resultado = []
     for p in padrinhos:
-        status = calcular_status(p["id"])
+        status = calcular_status(p["id"], limite)
         if status["status"] == "apto":
             historico = get_historico_padrinho(p["id"])
             resultado.append({
@@ -441,9 +466,10 @@ def get_relatorio_aptos():
 
 def get_relatorio_vermelhos():
     padrinhos = get_todos_padrinhos()
+    limite = int(get_config("limite_amarelos", "2"))
     resultado = []
     for p in padrinhos:
-        status = calcular_status(p["id"])
+        status = calcular_status(p["id"], limite)
         if status["status"] == "inapto_vermelho":
             advertencias = get_advertencias_padrinho(p["id"])
             vermelhos = [a for a in advertencias if a["tipo"] == "vermelho"]
@@ -455,31 +481,6 @@ def get_relatorio_vermelhos():
             })
     return resultado
 
-def exportar_aptos_csv(caminho="instance/relatorio_aptos.csv"):
-    import pandas as pd
-    dados = get_relatorio_aptos()
-    rows = [{"Nome": d["padrinho"]["nome"], "Matricula": d["padrinho"]["matricula"],
-             "Email": d["padrinho"]["email"] or "", "Turno": d["padrinho"]["turno"] or "",
-             "Reunioes": d["total_reunioes"], "Presencas": d["total_presentes"]} for d in dados]
-    pd.DataFrame(rows).to_csv(caminho, index=False, encoding="utf-8-sig")
-    return caminho
-
-def exportar_vermelhos_csv(caminho="instance/relatorio_vermelhos.csv"):
-    import pandas as pd
-    dados = get_relatorio_vermelhos()
-    rows = []
-    for d in dados:
-        for a in d["vermelhos"]:
-            rows.append({
-                "Nome": d["padrinho"]["nome"],
-                "Matricula": d["padrinho"]["matricula"],
-                "Email": d["padrinho"]["email"] or "",
-                "Origem": a["origem"],
-                "Motivo": a["motivo"] or "",
-                "Data": a["data"],
-            })
-    pd.DataFrame(rows).to_csv(caminho, index=False, encoding="utf-8-sig")
-    return caminho
 
 def _pdf_helpers(W):
     """Retorna funções auxiliares compartilhadas pelos PDFs."""
@@ -930,30 +931,32 @@ def gerar_pdf_inaptos_graves():
 
 
 def importar_presencas_csv(caminho_csv, reuniao_id):
-    import pandas as pd
+    import csv
 
-    df = pd.read_csv(caminho_csv)
-    df.columns = df.columns.str.strip()
-
-    # Detecta as colunas automaticamente
     col_matricula = None
     col_situacao = None
-    for col in df.columns:
-        col_lower = col.lower()
-        if "matrícula" in col_lower or "matricula" in col_lower:
-            col_matricula = col
-        if "situação" in col_lower or "situacao" in col_lower or "situac" in col_lower:
-            col_situacao = col
+    rows_data = []
 
-    if not col_matricula:
-        return {"erro": "Coluna de matrícula não encontrada no CSV."}
+    with open(caminho_csv, encoding="utf-8-sig", newline="") as f:
+        reader = csv.DictReader(f)
+        fieldnames = [c.strip() for c in (reader.fieldnames or [])]
+        for col in fieldnames:
+            col_lower = col.lower()
+            if "matrícula" in col_lower or "matricula" in col_lower:
+                col_matricula = col
+            if "situação" in col_lower or "situacao" in col_lower or "situac" in col_lower:
+                col_situacao = col
+        if not col_matricula:
+            return {"erro": "Coluna de matrícula não encontrada no CSV."}
+        for raw in reader:
+            rows_data.append({k.strip(): v for k, v in raw.items()})
 
     conn = get_conn()
     processados = 0
     nao_encontrados = []
 
-    for _, row in df.iterrows():
-        matricula = str(row[col_matricula]).strip().replace(".0", "")
+    for row in rows_data:
+        matricula = str(row.get(col_matricula, "")).strip().replace(".0", "")
         padrinho = conn.execute(
             "SELECT id FROM padrinhos WHERE matricula = ?", (matricula,)
         ).fetchone()
@@ -966,7 +969,7 @@ def importar_presencas_csv(caminho_csv, reuniao_id):
         justificada = 0
 
         if col_situacao:
-            situacao = str(row[col_situacao]).strip().lower()
+            situacao = str(row.get(col_situacao, "")).strip().lower()
             if "justificativa" in situacao or "ausente" in situacao:
                 presente = 0
                 justificada = 1

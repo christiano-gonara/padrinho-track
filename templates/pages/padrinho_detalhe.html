@@ -49,11 +49,11 @@
       </span>
     {% elif status.status == "inapto_amarelo" %}
       <span class="inline-flex items-center gap-2 bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 px-4 py-2 rounded-xl text-sm font-semibold border border-orange-200 dark:border-orange-800">
-        <i class="ri-alert-line"></i> Inapto — 2 amarelos
+        <i class="ri-alert-line"></i> Reprovado — {{ status.amarelos }} amarelo{{ 's' if status.amarelos != 1 }}
       </span>
     {% elif status.status == "inapto_vermelho" %}
       <span class="inline-flex items-center gap-2 bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300 px-4 py-2 rounded-xl text-sm font-semibold border border-red-200 dark:border-red-800">
-        <i class="ri-close-circle-line"></i> Inapto Grave — reportar professor
+        <i class="ri-close-circle-line"></i> Reportado ao coordenador
       </span>
     {% endif %}
     <button onclick="openModal('modal-editar')" class="pt-btn pt-btn-ghost">
