@@ -14,8 +14,8 @@ from models import (
     emitir_advertencia_manual, get_advertencias_padrinho,
     calcular_status, get_historico_padrinho, get_relatorio_geral,
     get_todos_temas, get_calouros_match_completo, registrar_log,
-    abreviar_nome, get_config_semestre, get_config,
-    redistribuir_calouros,
+    abreviar_nome, get_config_semestre, get_config, set_config,
+    redistribuir_calouros, sincronizar_presencas_sheets,
 )
 
 app = Flask(__name__)
@@ -190,7 +190,22 @@ def padrinho_redistribuir(padrinho_id):
 @app.route("/reunioes")
 def reunioes():
     lista = get_todas_reunioes()
-    return render_template("pages/reunioes.html", reunioes=lista)
+    sheets_url = get_config("sheets_presenca_url", "")
+    return render_template("pages/reunioes.html", reunioes=lista, sheets_presenca_url=sheets_url)
+
+@app.route("/reunioes/<int:reuniao_id>/sincronizar", methods=["POST"])
+def reuniao_sincronizar(reuniao_id):
+    try:
+        resultado = sincronizar_presencas_sheets(reuniao_id)
+        msg = f"{resultado['registradas']} presença(s) registrada(s)."
+        if resultado["nao_reconhecidas"]:
+            nomes = ", ".join(resultado["nao_reconhecidas"][:5])
+            msg += f" {len(resultado['nao_reconhecidas'])} não reconhecida(s): {nomes}"
+        registrar_log("SINCRONIZAR_PRESENCAS", msg)
+        flash(msg, "success")
+    except Exception as e:
+        flash(f"Erro ao sincronizar: {e}", "error")
+    return redirect(url_for("reunioes"))
 
 @app.route("/reunioes/nova", methods=["POST"])
 def nova_reuniao():
@@ -397,6 +412,10 @@ def configuracoes():
             salvar_config_semestre(cfg)
             CONFIG = get_config_semestre()
             registrar_log("ALTERACAO_CONFIG", f"Configurações do semestre {cfg['semestre']} atualizadas.")
+        elif action == "sheets_presenca":
+            url = request.form.get("sheets_presenca_url", "").strip()
+            set_config("sheets_presenca_url", url)
+            registrar_log("ALTERACAO_CONFIG", "URL da planilha de presença atualizada.")
         else:
             limite = request.form.get("limite_amarelos", "2")
             conn = get_conn()
@@ -410,7 +429,12 @@ def configuracoes():
         flash("Configurações salvas.", "success")
         return redirect(url_for("configuracoes"))
     limite_atual = get_config("limite_amarelos", "2")
-    return render_template("pages/config.html", limite_amarelos=limite_atual, config_semestre=CONFIG)
+    sheets_url = get_config("sheets_presenca_url", "")
+    return render_template("pages/config.html",
+        limite_amarelos=limite_atual,
+        config_semestre=CONFIG,
+        sheets_presenca_url=sheets_url,
+    )
 
 # ── CRUD Padrinhos ─────────────────────────────────────────────────────────
 

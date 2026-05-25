@@ -268,6 +268,81 @@ def get_config(chave, padrao=None):
     conn.close()
     return row["valor"] if row else padrao
 
+def set_config(chave, valor):
+    conn = get_conn()
+    conn.execute("INSERT OR REPLACE INTO config (chave, valor) VALUES (?, ?)", (chave, valor))
+    conn.commit()
+    conn.close()
+
+def sincronizar_presencas_sheets(reuniao_id):
+    import gspread
+    import unicodedata
+    from pathlib import Path
+
+    def _norm(texto):
+        nfkd = unicodedata.normalize("NFKD", str(texto or ""))
+        return "".join(c for c in nfkd if not unicodedata.combining(c)).lower().strip()
+
+    def _find_field(keys_dict, *keywords):
+        for k, v in keys_dict.items():
+            for kw in keywords:
+                if kw in k:
+                    return str(v).strip()
+        return ""
+
+    url = get_config("sheets_presenca_url")
+    if not url:
+        raise ValueError("URL da planilha não configurada. Vá em Configurações → Google Forms.")
+
+    credentials_path = Path(__file__).parent / "credentials.json"
+    gc = gspread.service_account(filename=str(credentials_path))
+    sh = gc.open_by_url(url)
+    ws = sh.sheet1
+    records = ws.get_all_records()
+
+    conn = get_conn()
+    padrinhos = conn.execute(
+        "SELECT id, nome, matricula, email FROM padrinhos WHERE ativo=1"
+    ).fetchall()
+
+    por_matricula = {str(p["matricula"] or "").strip(): p["id"] for p in padrinhos if p["matricula"]}
+    por_email = {(p["email"] or "").lower().strip(): p["id"] for p in padrinhos if p["email"]}
+    por_nome = {_norm(p["nome"]): p["id"] for p in padrinhos}
+
+    registradas = 0
+    nao_reconhecidas = []
+
+    for record in records:
+        keys = {_norm(k): str(v).strip() for k, v in record.items()}
+
+        matricula = _find_field(keys, "matricula")
+        email = _find_field(keys, "email", "mail").lower()
+        nome = _find_field(keys, "nome")
+
+        padrinho_id = None
+
+        if matricula and matricula in por_matricula:
+            padrinho_id = por_matricula[matricula]
+        elif email and email in por_email:
+            padrinho_id = por_email[email]
+        elif nome and _norm(nome) in por_nome:
+            padrinho_id = por_nome[_norm(nome)]
+
+        if padrinho_id:
+            conn.execute("""
+                INSERT INTO presencas (reuniao_id, padrinho_id, presente, justificada)
+                VALUES (?, ?, 1, 0)
+                ON CONFLICT(reuniao_id, padrinho_id) DO UPDATE SET presente=1
+            """, (reuniao_id, padrinho_id))
+            registradas += 1
+        else:
+            identificador = matricula or email or nome or "?"
+            nao_reconhecidas.append(f"{nome} {identificador}".strip())
+
+    conn.commit()
+    conn.close()
+    return {"registradas": registradas, "nao_reconhecidas": nao_reconhecidas}
+
 def calcular_status(padrinho_id, limite=None):
     conn = get_conn()
     rows = conn.execute(

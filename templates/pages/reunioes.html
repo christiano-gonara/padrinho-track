@@ -53,6 +53,14 @@
                class="inline-flex items-center gap-1.5 bg-violet-50 dark:bg-violet-900/50 text-violet-600 dark:text-violet-400 hover:bg-violet-100 dark:hover:bg-violet-900 px-3 py-1.5 rounded-lg text-xs font-medium transition">
               <i class="ri-upload-line"></i> importar CSV
             </a>
+            {% if sheets_presenca_url %}
+            <form action="/reunioes/{{ r['id'] }}/sincronizar" method="POST" class="inline">
+              <button type="submit"
+                      class="inline-flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 px-3 py-1.5 rounded-lg text-xs font-medium transition">
+                <i class="ri-loop-right-line"></i> Sincronizar Forms
+              </button>
+            </form>
+            {% endif %}
             <button
               data-id="{{ r['id'] }}"
               data-data="{{ r['data'] }}"
