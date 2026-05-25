@@ -5,12 +5,12 @@
 # Todos os nomes, matrículas, emails e telefones são fictícios
 # e foram criados apenas para fins de teste e portfólio.
 #
-# Para rodar:
-#   python seed_exemplo.py
-#
-# Os dados reais do programa ficam fora do repositório,
-# protegidos pelo .gitignore.
+# Para rodar (da raiz do projeto):
+#   python scripts/seed_exemplo.py
 # =============================================================
+
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from database import init_db, get_conn
 from datetime import date
@@ -75,7 +75,7 @@ def seed():
         except Exception:
             row = conn.execute("SELECT id FROM padrinhos WHERE matricula=?", (matricula,)).fetchone()
             padrinho_ids.append(row["id"])
-    print(f"✅ {len(padrinho_ids)} padrinhos inseridos.")
+    print(f"[OK] {len(padrinho_ids)} padrinhos inseridos.")
 
     # Calouros e matches
     for i, (nome, telefone) in enumerate(CALOUROS):
@@ -89,7 +89,7 @@ def seed():
             "INSERT OR IGNORE INTO matches (padrinho_id, calouro_id) VALUES (?,?)",
             (padrinho_id, calouro_id)
         )
-    print(f"✅ {len(CALOUROS)} calouros e matches inseridos.")
+    print(f"[OK] {len(CALOUROS)} calouros e matches inseridos.")
 
     # Reuniões
     reuniao_ids = []
@@ -104,7 +104,7 @@ def seed():
             (data, tema, descricao)
         )
         reuniao_ids.append(cur.lastrowid)
-    print(f"✅ {len(reuniao_ids)} reuniões inseridas.")
+    print(f"[OK] {len(reuniao_ids)} reuniões inseridas.")
 
     # Presenças — simula ausências variadas
     ausencias = {
@@ -127,14 +127,14 @@ def seed():
                 INSERT INTO advertencias (padrinho_id, tipo, origem, motivo, data)
                 VALUES (?, 'amarelo', 'falta', 'Falta sem justificativa', ?)
             """, (pid, date.today().isoformat()))
-    print("✅ Presenças e advertências por falta inseridas.")
+    print("[OK] Presenças e advertências por falta inseridas.")
 
     # Advertência manual — vermelho exemplo
     conn.execute("""
         INSERT INTO advertencias (padrinho_id, tipo, origem, motivo, data)
         VALUES (?, 'vermelho', 'manual', 'Comportamento inadequado — exemplo', ?)
     """, (padrinho_ids[9], date.today().isoformat()))
-    print("✅ Advertência manual inserida.")
+    print("[OK] Advertência manual inserida.")
 
     # Temas
     for titulo, data_aviso, data_limite, indices in TEMAS:
@@ -148,11 +148,11 @@ def seed():
                 "INSERT OR IGNORE INTO tema_padrinhos (tema_id, padrinho_id) VALUES (?,?)",
                 (tema_id, padrinho_ids[i])
             )
-    print(f"✅ {len(TEMAS)} temas inseridos.")
+    print(f"[OK] {len(TEMAS)} temas inseridos.")
 
     conn.commit()
     conn.close()
-    print("\n✅ Seed de exemplo concluído!")
+    print("\n[OK] Seed de exemplo concluído!")
     print("   Acesse http://127.0.0.1:5000 para ver o sistema populado.")
 
 if __name__ == "__main__":
