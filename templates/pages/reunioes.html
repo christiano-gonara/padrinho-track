@@ -54,7 +54,11 @@
               <i class="ri-upload-line"></i> importar CSV
             </a>
             <button
-              onclick="abrirEditarReuniao('{{ r['id'] }}', '{{ r['data'] }}', {{ r['tema']|tojson }}, {{ r['descricao']|tojson }})"
+              data-id="{{ r['id'] }}"
+              data-data="{{ r['data'] }}"
+              data-tema="{{ r['tema'] or '' }}"
+              data-descricao="{{ r['descricao'] or '' }}"
+              onclick="abrirEditarReuniao(this.dataset.id, this.dataset.data, this.dataset.tema, this.dataset.descricao)"
               class="inline-flex items-center gap-1.5 bg-slate-50 dark:bg-gray-800 text-slate-500 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-700 px-3 py-1.5 rounded-lg text-xs font-medium transition">
               <i class="ri-pencil-line"></i> Editar
             </button>

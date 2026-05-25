@@ -97,7 +97,12 @@
         </button>
       </form>
       <button
-        onclick="abrirEditarTema('{{ item.tema['id'] }}', {{ item.tema['titulo']|tojson }}, '{{ item.tema['data_aviso'] or '' }}', '{{ item.tema['data_limite'] }}', {{ ids_padrinhos|tojson }})"
+        data-id="{{ item.tema['id'] }}"
+        data-titulo="{{ item.tema['titulo'] or '' }}"
+        data-aviso="{{ item.tema['data_aviso'] or '' }}"
+        data-limite="{{ item.tema['data_limite'] }}"
+        data-padrinhos="{{ ids_padrinhos|join(',') }}"
+        onclick="abrirEditarTema(this.dataset.id, this.dataset.titulo, this.dataset.aviso, this.dataset.limite, this.dataset.padrinhos ? this.dataset.padrinhos.split(',').map(Number) : [])"
         class="inline-flex items-center gap-1.5 bg-slate-50 dark:bg-gray-800 text-slate-500 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-700 px-3 py-1.5 rounded-lg text-xs font-medium transition">
         <i class="ri-pencil-line"></i>
       </button>
@@ -116,7 +121,12 @@
         {{ item.tema["data_entrega"] | databr }}
       </span>
       <button
-        onclick="abrirEditarTema('{{ item.tema['id'] }}', {{ item.tema['titulo']|tojson }}, '{{ item.tema['data_aviso'] or '' }}', '{{ item.tema['data_limite'] }}', {{ ids_padrinhos|tojson }})"
+        data-id="{{ item.tema['id'] }}"
+        data-titulo="{{ item.tema['titulo'] or '' }}"
+        data-aviso="{{ item.tema['data_aviso'] or '' }}"
+        data-limite="{{ item.tema['data_limite'] }}"
+        data-padrinhos="{{ ids_padrinhos|join(',') }}"
+        onclick="abrirEditarTema(this.dataset.id, this.dataset.titulo, this.dataset.aviso, this.dataset.limite, this.dataset.padrinhos ? this.dataset.padrinhos.split(',').map(Number) : [])"
         class="inline-flex items-center gap-1.5 bg-slate-50 dark:bg-gray-800 text-slate-500 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-700 px-3 py-1.5 rounded-lg text-xs font-medium transition">
         <i class="ri-pencil-line"></i>
       </button>
