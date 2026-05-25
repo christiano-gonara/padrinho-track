@@ -1096,6 +1096,7 @@ def gerar_planilha_temas():
     gc = gspread.service_account(filename=str(credentials_path))
 
     sh = gc.create("Inscrição em Temas — Padrinho Track")
+    sh.share('christiano.gonara@gmail.com', perm_type='user', role='writer')
     sh.share('', perm_type='anyone', role='writer')
 
     ws = sh.sheet1
