@@ -14,7 +14,13 @@
       "Bash(Test-Path *)",
       "Bash(git mv *)",
       "Bash(Get-ChildItem -Path \"templates\" -Filter \"*.html\" -File)",
-      "Bash(Select-Object Name, FullName)"
+      "Bash(Select-Object Name, FullName)",
+      "Bash(PYTHONPATH=. python *)",
+      "Bash(PYTHONUTF8=1 PYTHONPATH=. python *)",
+      "Bash(PYTHONUTF8=1 python *)",
+      "PowerShell(taskkill *)",
+      "Bash(curl -s http://127.0.0.1:5000/)",
+      "PowerShell(netstat *)"
     ]
   }
 }
