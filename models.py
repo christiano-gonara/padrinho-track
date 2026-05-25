@@ -1076,6 +1076,105 @@ def gerar_pdf_inaptos_graves():
     return buf.getvalue()
 
 
+def gerar_planilha_temas():
+    import gspread
+    import math
+    from pathlib import Path
+
+    conn = get_conn()
+    temas = conn.execute("SELECT id, titulo FROM temas ORDER BY data_limite ASC").fetchall()
+    total_padrinhos = conn.execute("SELECT COUNT(*) FROM padrinhos WHERE ativo=1").fetchone()[0]
+    conn.close()
+
+    if not temas:
+        raise ValueError("Nenhum tema cadastrado para gerar a planilha.")
+
+    total_temas = len(temas)
+    limite = max(1, math.ceil(total_padrinhos / total_temas))
+
+    credentials_path = Path(__file__).parent / "credentials.json"
+    gc = gspread.service_account(filename=str(credentials_path))
+
+    sh = gc.create("Inscrição em Temas — Padrinho Track")
+    sh.share('', perm_type='anyone', role='writer')
+
+    ws = sh.sheet1
+    ws.update_title("Inscrições")
+
+    headers = ["Tema"] + [f"Vaga {i + 1}" for i in range(limite)]
+    data = [headers] + [[tema["titulo"]] + [""] * limite for tema in temas]
+    ws.update(data)
+
+    link = sh.url
+    set_config("sheets_temas_url", link)
+    return link
+
+
+def sincronizar_responsaveis_temas():
+    import gspread
+    import unicodedata
+    from pathlib import Path
+
+    def _norm(texto):
+        nfkd = unicodedata.normalize("NFKD", str(texto or ""))
+        return "".join(c for c in nfkd if not unicodedata.combining(c)).lower().strip()
+
+    url = get_config("sheets_temas_url")
+    if not url:
+        raise ValueError("Planilha não gerada. Clique em 'Gerar planilha de inscrições' primeiro.")
+
+    credentials_path = Path(__file__).parent / "credentials.json"
+    gc = gspread.service_account(filename=str(credentials_path))
+    sh = gc.open_by_url(url)
+    ws = sh.sheet1
+    rows = ws.get_all_values()
+
+    if len(rows) < 2:
+        return {"atualizados": 0, "nao_reconhecidos": []}
+
+    conn = get_conn()
+    padrinhos = conn.execute("SELECT id, nome FROM padrinhos WHERE ativo=1").fetchall()
+    por_nome = {_norm(p["nome"]): p["id"] for p in padrinhos}
+
+    temas_list = conn.execute("SELECT id, titulo FROM temas").fetchall()
+    temas_por_titulo = {_norm(t["titulo"]): t["id"] for t in temas_list}
+
+    atualizados = 0
+    nao_reconhecidos = []
+
+    for row in rows[1:]:
+        if not row or not row[0].strip():
+            continue
+
+        tema_id = temas_por_titulo.get(_norm(row[0].strip()))
+        if not tema_id:
+            continue
+
+        novos_ids = []
+        for cell in row[1:]:
+            nome = cell.strip()
+            if not nome:
+                continue
+            pid = por_nome.get(_norm(nome))
+            if pid:
+                if pid not in novos_ids:
+                    novos_ids.append(pid)
+                atualizados += 1
+            else:
+                nao_reconhecidos.append(nome)
+
+        conn.execute("DELETE FROM tema_padrinhos WHERE tema_id=?", (tema_id,))
+        for pid in novos_ids:
+            conn.execute(
+                "INSERT OR IGNORE INTO tema_padrinhos (tema_id, padrinho_id) VALUES (?, ?)",
+                (tema_id, pid)
+            )
+
+    conn.commit()
+    conn.close()
+    return {"atualizados": atualizados, "nao_reconhecidos": list(dict.fromkeys(nao_reconhecidos))}
+
+
 def importar_presencas_csv(caminho_csv, reuniao_id):
     import csv
 

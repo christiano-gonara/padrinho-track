@@ -16,6 +16,7 @@ from models import (
     get_todos_temas, get_calouros_match_completo, registrar_log,
     abreviar_nome, get_config_semestre, get_config, set_config,
     redistribuir_calouros, sincronizar_presencas_sheets,
+    gerar_planilha_temas, sincronizar_responsaveis_temas,
 )
 
 app = Flask(__name__)
@@ -251,7 +252,33 @@ def presencas(reuniao_id):
 def temas():
     lista     = get_todos_temas()
     padrinhos = get_todos_padrinhos()
-    return render_template("pages/temas.html", temas=lista, padrinhos=padrinhos, today=date.today().isoformat())
+    sheets_url = get_config("sheets_temas_url", "")
+    return render_template("pages/temas.html", temas=lista, padrinhos=padrinhos,
+                           today=date.today().isoformat(), sheets_temas_url=sheets_url)
+
+@app.route("/temas/gerar-planilha", methods=["POST"])
+def temas_gerar_planilha():
+    try:
+        link = gerar_planilha_temas()
+        registrar_log("PLANILHA_TEMAS_GERADA", f"Planilha de inscrições em temas gerada: {link}")
+        flash(f"Planilha criada! Acesse o link no topo da página.", "success")
+    except Exception as e:
+        flash(f"Erro ao gerar planilha: {e}", "error")
+    return redirect(url_for("temas"))
+
+@app.route("/temas/sincronizar", methods=["POST"])
+def temas_sincronizar():
+    try:
+        resultado = sincronizar_responsaveis_temas()
+        msg = f"{resultado['atualizados']} responsável(eis) atualizado(s)."
+        if resultado["nao_reconhecidos"]:
+            nomes = ", ".join(resultado["nao_reconhecidos"][:5])
+            msg += f" {len(resultado['nao_reconhecidos'])} não reconhecido(s): {nomes}"
+        registrar_log("SINCRONIZAR_TEMAS", msg)
+        flash(msg, "success")
+    except Exception as e:
+        flash(f"Erro ao sincronizar: {e}", "error")
+    return redirect(url_for("temas"))
 
 @app.route("/temas/novo", methods=["POST"])
 def novo_tema():

@@ -9,11 +9,40 @@
     <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Temas</h1>
     <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Controle de entregas do cronograma</p>
   </div>
-  <button onclick="openModal('modal-novo')"
-          class="flex items-center gap-2 bg-[#7c5cff] text-white text-sm px-4 py-2.5 rounded-xl hover:bg-[#5b3df5] transition shadow-sm font-medium">
-    <i class="ri-add-line"></i> Novo tema
-  </button>
+  <div class="flex items-center gap-2">
+    <form action="/temas/gerar-planilha" method="POST">
+      <button type="submit"
+              class="flex items-center gap-2 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm px-4 py-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-gray-800 transition shadow-sm font-medium">
+        <i class="ri-table-line"></i> Gerar planilha de inscrições
+      </button>
+    </form>
+    {% if sheets_temas_url %}
+    <form action="/temas/sincronizar" method="POST">
+      <button type="submit"
+              class="flex items-center gap-2 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 text-emerald-600 dark:text-emerald-400 text-sm px-4 py-2.5 rounded-xl hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition shadow-sm font-medium">
+        <i class="ri-loop-right-line"></i> Sincronizar inscrições
+      </button>
+    </form>
+    {% endif %}
+    <button onclick="openModal('modal-novo')"
+            class="flex items-center gap-2 bg-[#7c5cff] text-white text-sm px-4 py-2.5 rounded-xl hover:bg-[#5b3df5] transition shadow-sm font-medium">
+      <i class="ri-add-line"></i> Novo tema
+    </button>
+  </div>
 </div>
+
+{% if sheets_temas_url %}
+<div class="mb-6 flex items-center gap-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl px-5 py-3">
+  <i class="ri-table-line text-emerald-600 dark:text-emerald-400 text-lg shrink-0"></i>
+  <div class="flex-1 min-w-0">
+    <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-300 mb-0.5">Planilha de inscrições</p>
+    <a href="{{ sheets_temas_url }}" target="_blank" rel="noopener"
+       class="text-xs text-emerald-600 dark:text-emerald-400 hover:underline break-all">
+      {{ sheets_temas_url }}
+    </a>
+  </div>
+</div>
+{% endif %}
 
 <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 overflow-hidden shadow-sm">
   <div class="px-6 py-4 border-b border-slate-200 dark:border-gray-800 flex items-center justify-between">
