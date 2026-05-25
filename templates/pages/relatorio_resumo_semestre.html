@@ -100,6 +100,19 @@
       </div>
     </div>
 
+    <!-- Distribuição por turno -->
+    {% if turno_data %}
+    <div style="margin-bottom:20px;padding:12px 18px;border:1px solid #e6e7ee;border-radius:8px;background:#fafafd;display:flex;align-items:center;gap:16px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#64748b;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;white-space:nowrap;">Padrinhos por turno</div>
+      <div style="font-size:13px;color:#0f172a;">
+        {% for item in turno_data %}
+          {% if not loop.first %}<span style="color:#94a3b8;margin:0 6px;">·</span>{% endif %}
+          <strong>{{ item.turno }}</strong>: {{ item.qtd }} <span style="color:#64748b;">({{ item.pct }}%)</span>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
     <!-- Cronograma de temas -->
     <div style="margin-bottom:28px;">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">

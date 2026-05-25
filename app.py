@@ -708,6 +708,14 @@ def relatorio_resumo():
             "situacao": t["situacao"] or "pendente",
         })
 
+    from collections import Counter
+    turno_counter = Counter(p["turno"] for p in padrinhos if p["turno"])
+    total_com_turno = sum(turno_counter.values())
+    turno_data = [
+        {"turno": t, "qtd": q, "pct": round(q / total_com_turno * 100) if total_com_turno else 0}
+        for t, q in sorted(turno_counter.items())
+    ]
+
     return render_template("pages/relatorio_resumo_semestre.html",
         config=CONFIG,
         hoje=date.today(),
@@ -720,6 +728,7 @@ def relatorio_resumo():
         n_reprovados=contadores["reprovados"],
         n_reportados=contadores["reportados"],
         limite_amarelos=limite,
+        turno_data=turno_data,
     )
 
 
