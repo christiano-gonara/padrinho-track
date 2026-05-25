@@ -412,6 +412,24 @@ def excluir_padrinho(padrinho_id):
     conn.commit()
     conn.close()
 
+def redistribuir_calouros(padrinho_id, redistribuicao):
+    """Reassigns calouros and marks padrinho inactive. redistribuicao: {calouro_id: novo_padrinho_id}"""
+    conn = get_conn()
+    for calouro_id, novo_padrinho_id in redistribuicao.items():
+        if novo_padrinho_id:
+            conn.execute(
+                "UPDATE matches SET padrinho_id=? WHERE calouro_id=? AND padrinho_id=?",
+                (int(novo_padrinho_id), int(calouro_id), padrinho_id)
+            )
+        else:
+            conn.execute(
+                "DELETE FROM matches WHERE calouro_id=? AND padrinho_id=?",
+                (int(calouro_id), padrinho_id)
+            )
+    conn.execute("UPDATE padrinhos SET ativo=0 WHERE id=?", (padrinho_id,))
+    conn.commit()
+    conn.close()
+
 def excluir_advertencia(advertencia_id):
     conn = get_conn()
     conn.execute("DELETE FROM advertencias WHERE id=?", (advertencia_id,))

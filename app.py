@@ -5,6 +5,7 @@ load_dotenv(override=True)
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from datetime import date, datetime
 from database import init_db, get_conn
+import math
 from models import (
     get_todos_padrinhos, get_padrinho, cadastrar_padrinho,
     get_todas_reunioes, criar_reuniao,
@@ -13,7 +14,8 @@ from models import (
     emitir_advertencia_manual, get_advertencias_padrinho,
     calcular_status, get_historico_padrinho, get_relatorio_geral,
     get_todos_temas, get_calouros_match_completo, registrar_log,
-    abreviar_nome, get_config_semestre, get_config
+    abreviar_nome, get_config_semestre, get_config,
+    redistribuir_calouros,
 )
 
 app = Flask(__name__)
@@ -150,12 +152,38 @@ def padrinho_detalhe(padrinho_id):
     status       = calcular_status(padrinho_id)
     historico    = get_historico_padrinho(padrinho_id)
     advertencias = get_advertencias_padrinho(padrinho_id)
+    conn = get_conn()
+    calouros_match = conn.execute("""
+        SELECT c.id, c.nome, c.telefone
+        FROM matches m JOIN calouros c ON c.id = m.calouro_id
+        WHERE m.padrinho_id = ?
+        ORDER BY c.nome
+    """, (padrinho_id,)).fetchall()
+    todos_padrinhos = conn.execute(
+        "SELECT id, nome FROM padrinhos WHERE ativo=1 AND id != ? ORDER BY nome",
+        (padrinho_id,)
+    ).fetchall()
+    conn.close()
     return render_template("pages/padrinho_detalhe.html",
         padrinho=padrinho,
         status=status,
         historico=historico,
-        advertencias=advertencias
+        advertencias=advertencias,
+        calouros_match=calouros_match,
+        todos_padrinhos=todos_padrinhos,
     )
+
+@app.route("/padrinhos/<int:padrinho_id>/redistribuir", methods=["POST"])
+def padrinho_redistribuir(padrinho_id):
+    redistribuicao = {}
+    for key, value in request.form.items():
+        if key.startswith("calouro_"):
+            calouro_id = int(key.split("_")[1])
+            redistribuicao[calouro_id] = int(value) if value else None
+    redistribuir_calouros(padrinho_id, redistribuicao)
+    registrar_log("REMOCAO_PADRINHO", f"Padrinho ID {padrinho_id} removido do programa. Calouros redistribuídos.")
+    flash("Padrinho removido do programa. Calouros redistribuídos.", "success")
+    return redirect(url_for("padrinhos"))
 
 # ── Reuniões ───────────────────────────────────────────────────────────────
 
@@ -476,40 +504,28 @@ def editar_tema(tema_id):
 
 @app.route("/match")
 def match():
-    from models import rodar_match as _rodar, get_calouros_match_completo
-    proposto = None
-    max_calouros = 3
-    score_minimo = 0
-    if request.args.get("proposto") == "1":
-        max_calouros = int(request.args.get("max_calouros", 3))
-        score_minimo = int(request.args.get("score_minimo", 0))
-        proposto = _rodar(max_calouros=max_calouros, score_minimo=score_minimo)
     dados = get_calouros_match_completo()
     conn = get_conn()
     total_matches = conn.execute("SELECT COUNT(*) FROM matches").fetchone()[0]
     total_calouros = conn.execute("SELECT COUNT(*) FROM calouros").fetchone()[0]
+    total_padrinhos = conn.execute("SELECT COUNT(*) FROM padrinhos WHERE ativo=1").fetchone()[0]
     conn.close()
     return render_template("pages/match.html",
         dados=dados,
-        proposto=proposto,
         total_matches=total_matches,
         total_calouros=total_calouros,
-        max_calouros=max_calouros,
-        score_minimo=score_minimo,
+        total_padrinhos=total_padrinhos,
     )
 
 @app.route("/match/rodar", methods=["POST"])
 def match_rodar():
-    max_calouros = request.form.get("max_calouros", "3")
-    score_minimo = request.form.get("score_minimo", "0")
-    return redirect(url_for("match") + f"?proposto=1&max_calouros={max_calouros}&score_minimo={score_minimo}")
-
-@app.route("/match/confirmar", methods=["POST"])
-def match_confirmar():
     from models import rodar_match as _rodar
-    max_calouros = int(request.form.get("max_calouros", 3))
-    score_minimo = int(request.form.get("score_minimo", 0))
-    resultado = _rodar(max_calouros=max_calouros, score_minimo=score_minimo)
+    conn = get_conn()
+    total_calouros = conn.execute("SELECT COUNT(*) FROM calouros").fetchone()[0]
+    total_padrinhos = conn.execute("SELECT COUNT(*) FROM padrinhos WHERE ativo=1").fetchone()[0]
+    conn.close()
+    max_calouros = math.ceil(total_calouros / max(total_padrinhos, 1))
+    resultado = _rodar(max_calouros=max_calouros, score_minimo=0)
     conn = get_conn()
     conn.execute("DELETE FROM matches")
     for grupo in resultado["resultado"]:
@@ -521,8 +537,8 @@ def match_confirmar():
     conn.commit()
     conn.close()
     total = sum(len(g["calouros"]) for g in resultado["resultado"])
-    registrar_log("MATCH_CONFIRMADO", f"{total} matches confirmados.")
-    flash(f"{total} matches confirmados e salvos.", "success")
+    registrar_log("MATCH_GERADO", f"{total} matches gerados automaticamente.")
+    flash(f"{total} matches gerados e confirmados.", "success")
     return redirect(url_for("match"))
 
 @app.route("/match/resetar", methods=["POST"])
@@ -537,27 +553,26 @@ def match_resetar():
 
 @app.route("/match/exportar")
 def match_exportar():
-    from models import rodar_match as _rodar
     import csv, io
     from flask import Response
-    max_calouros = int(request.args.get("max_calouros", 3))
-    score_minimo = int(request.args.get("score_minimo", 0))
-    resultado = _rodar(max_calouros=max_calouros, score_minimo=score_minimo)
+    conn = get_conn()
+    rows = conn.execute("""
+        SELECT p.nome as padrinho_nome, p.turno, c.nome as calouro_nome, c.telefone
+        FROM matches m
+        JOIN padrinhos p ON p.id = m.padrinho_id
+        JOIN calouros c ON c.id = m.calouro_id
+        ORDER BY p.nome, c.nome
+    """).fetchall()
+    conn.close()
     buf = io.StringIO()
     writer = csv.writer(buf)
-    writer.writerow(["Padrinho", "Turno", "Calouro", "Score"])
-    for grupo in resultado["resultado"]:
-        for item in grupo["calouros"]:
-            writer.writerow([
-                grupo["padrinho"]["nome"],
-                grupo["padrinho"].get("turno") or "—",
-                item["calouro"]["nome"],
-                item["score"],
-            ])
+    writer.writerow(["Padrinho", "Turno", "Calouro", "Telefone do Calouro"])
+    for row in rows:
+        writer.writerow([row["padrinho_nome"], row["turno"] or "—", row["calouro_nome"], row["telefone"] or "—"])
     return Response(
         buf.getvalue().encode("utf-8-sig"),
         mimetype="text/csv",
-        headers={"Content-Disposition": "attachment; filename=proposta_match.csv"},
+        headers={"Content-Disposition": "attachment; filename=lista_contatos_match.csv"},
     )
 
 # ── Logs de auditoria ─────────────────────────────────────────────────────

@@ -59,12 +59,60 @@
     <button onclick="openModal('modal-editar')" class="pt-btn pt-btn-ghost">
       <i class="ri-edit-line"></i> Editar
     </button>
-    <form action="/padrinhos/{{ padrinho['id'] }}/excluir" method="POST"
-        onsubmit="return confirm('Remover este padrinho do programa?')">
-      <button type="submit"
-              class="flex items-center gap-2 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm px-3 py-2 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/50 transition font-medium">
-        <i class="ri-delete-bin-line"></i> Excluir
-      </button>
+    <button onclick="openModal('modal-remover')"
+            class="flex items-center gap-2 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm px-3 py-2 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/50 transition font-medium">
+      <i class="ri-user-unfollow-line"></i> Remover do programa
+    </button>
+  </div>
+</div>
+
+<!-- Modal: remover do programa / redistribuir calouros -->
+<div id="modal-remover" class="pt-modal-backdrop">
+  <div class="pt-modal pt-modal-lg">
+    <div class="pt-modal-header" style="background:#fee2e2;color:#991b1b;border-bottom:1px solid #fca5a5;">
+      <i class="ri-user-unfollow-line"></i>
+      <span class="pt-modal-title">Remover do programa</span>
+      <button class="pt-modal-close" onclick="closeModal('modal-remover')" style="color:#991b1b;">&times;</button>
+    </div>
+    <form action="/padrinhos/{{ padrinho['id'] }}/redistribuir" method="POST">
+      <div class="pt-modal-body">
+        {% if calouros_match %}
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Este padrinho tem <strong>{{ calouros_match | length }} calouro(s)</strong> vinculado(s).
+          Escolha um novo padrinho para cada um antes de remover.
+        </p>
+        <div class="space-y-3">
+          {% for c in calouros_match %}
+          <div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-gray-800 rounded-xl">
+            <div class="flex-1">
+              <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ c["nome"] }}</p>
+              {% if c["telefone"] %}
+              <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{{ c["telefone"] }}</p>
+              {% endif %}
+            </div>
+            <select name="calouro_{{ c['id'] }}" required class="pt-select text-sm" style="min-width:180px;height:auto;padding:6px 10px;">
+              <option value="">— Escolher padrinho —</option>
+              {% for p in todos_padrinhos %}
+              <option value="{{ p['id'] }}">{{ p["nome"] }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          Este padrinho não tem calouros vinculados. Confirme para removê-lo do programa.
+        </p>
+        {% endif %}
+        <div class="pt-modal-actions mt-5">
+          <button type="button" class="pt-btn pt-btn-ghost" onclick="closeModal('modal-remover')">Cancelar</button>
+          <button type="submit"
+                  class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-xl transition font-semibold">
+            <i class="ri-user-unfollow-line"></i>
+            {% if calouros_match %}Confirmar redistribuição{% else %}Confirmar remoção{% endif %}
+          </button>
+        </div>
+      </div>
     </form>
   </div>
 </div>
@@ -238,6 +286,28 @@
   </div>
 
 </div>
+
+<!-- Calouros vinculados -->
+{% if calouros_match %}
+<div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 overflow-hidden shadow-sm mb-6">
+  <div class="px-6 py-4 border-b border-slate-200 dark:border-gray-800 flex items-center gap-2">
+    <i class="ri-user-smile-line text-[#7c5cff]"></i>
+    <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Calouros vinculados</h2>
+    <span class="ml-auto text-xs text-gray-400">{{ calouros_match | length }} calouro(s)</span>
+  </div>
+  <div class="flex flex-wrap gap-3 px-6 py-4">
+    {% for c in calouros_match %}
+    <div class="inline-flex items-center gap-2 bg-[#7c5cff]/8 dark:bg-[#7c5cff]/15 border border-[#7c5cff]/20 text-gray-700 dark:text-gray-200 px-3 py-2 rounded-xl text-sm">
+      <i class="ri-user-smile-line text-[#7c5cff] text-xs"></i>
+      <span class="font-medium">{{ c["nome"] }}</span>
+      {% if c["telefone"] %}
+      <span class="text-gray-400 dark:text-gray-500 text-xs">· {{ c["telefone"] }}</span>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
 
 <!-- Advertências -->
 <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 overflow-hidden shadow-sm">
