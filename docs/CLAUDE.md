@@ -113,6 +113,25 @@ Rotas: /relatorio/aptidao · /relatorio/resumo · /relatorio/reportados
 2. Resumo do semestre — cronograma de temas + resultado geral
 3. Reportados — lista para entrega ao Prof. Laerte Xavier
 
+## Integração Google Sheets — autenticação
+
+### Leitura (sincronizar_presencas_sheets)
+Usa **service account** (`credentials.json`). A conta de serviço só precisa de acesso de leitura à planilha compartilhada; não cria arquivos e portanto não consome cota de Drive.
+
+### Criação de planilhas (gerar_planilha_temas e futura exportar_lista_contatos_sheets)
+Usa **OAuth2** (`client_secrets.json`). Arquivos são criados no Drive do usuário autorizado (`pexy0000@gmail.com`), eliminando o erro 403 de cota da service account.
+
+#### Como gerar o client_secrets.json
+1. Acesse [Google Cloud Console](https://console.cloud.google.com/) → projeto `padrinho-track`
+2. Menu → **APIs e serviços → Credenciais → Criar credenciais → ID do cliente OAuth**
+3. Tipo de aplicativo: **App para computador** (Desktop app)
+4. Baixe o JSON gerado e salve como `client_secrets.json` na raiz do projeto
+5. Na primeira execução de `gerar_planilha_temas()`, o sistema abre o browser para autorização
+6. Após autorizar, o token é salvo automaticamente em `~/.config/gspread/authorized_user.json`
+7. Execuções seguintes usam o token salvo sem abrir o browser
+
+`client_secrets.json` e `authorized_user.json` estão no `.gitignore` — nunca comitar.
+
 ## Importante
 - Nunca quebrar os 18 testes existentes
 - Manter dark mode em todos os templates

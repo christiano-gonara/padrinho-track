@@ -8,3 +8,6 @@ __pycache__/
 scripts/seed.py
 scripts/seed_calouros.py
 config_semestre.json
+credentials.json
+client_secrets.json
+authorized_user.json

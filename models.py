@@ -1092,8 +1092,9 @@ def gerar_planilha_temas():
     total_temas = len(temas)
     limite = max(1, math.ceil(total_padrinhos / total_temas))
 
-    credentials_path = Path(__file__).parent / "credentials.json"
-    gc = gspread.service_account(filename=str(credentials_path))
+    # OAuth2: cria arquivos no Drive do usuário autorizado, evitando cota da service account
+    secrets_path = Path(__file__).parent / "client_secrets.json"
+    gc = gspread.oauth(credentials_filename=str(secrets_path))
 
     sh = gc.create("Inscrição em Temas — Padrinho Track")
     sh.share('christiano.gonara@gmail.com', perm_type='user', role='writer')
