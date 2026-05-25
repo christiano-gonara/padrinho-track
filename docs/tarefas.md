@@ -5,37 +5,65 @@
 
 ---
 
-## Tarefa 1 — Corrigir o que sumiu após a reorganização
+## Tarefa 1 — Corrigir JavaScript dos modais de edição
 
-Verificar e restaurar o que foi perdido quando o prompt de parar
-interrompeu a execução no meio:
+O console do browser mostra:
+- reunioes:195 — Uncaught SyntaxError: Unexpected end of input
+- reunioes:232:253 — Uncaught SyntaxError: Unexpected end of input
+- temas:234:230 — Uncaught SyntaxError: Unexpected end of input
 
-1. templates/base.html — link "Match" no sidebar entre Calouros
-   e a seção Gestão:
-   <a href="/match" class="pt-nav-item">
-     <i class="ri-link-m"></i>
-     <span>Match</span>
-   </a>
-
-2. templates/pages/reunioes.html — botão de lápis em cada linha
-   da tabela abrindo modal de edição com campos:
-   data, tema, descrição
-
-3. templates/pages/temas.html — botão de lápis em cada linha
-   da tabela abrindo modal de edição com campos:
-   título, data_aviso, data_limite, responsáveis
-
-As rotas e funções já existem em app.py e models.py —
-só garantir que os templates estão corretos.
+Os blocos <script> no final de reunioes.html e temas.html
+estão com sintaxe JavaScript incompleta — alguma chave ou
+parêntese faltando. Corrige os dois arquivos.
 
 Roda os 29 testes e commita:
 git add .
-git commit -m "fix: restaurar sidebar Match e botões de edição"
+git commit -m "fix: corrigir sintaxe JavaScript nos modais de edição"
 git push
 
 ---
 
-## Tarefa 2 — Integração com Google Sheets (botão Sincronizar)
+## Tarefa 2 — Simplificar página de match
+
+A página de match precisa ser mais limpa e intuitiva.
+
+### Remover da interface
+- Campo "Score mínimo" — remover da tela, fixar como 0 no código
+- Campo "Máx. calouros por padrinho" — remover da tela, calcular
+  automaticamente: ceil(total_calouros / total_padrinhos)
+- Tabela de pesos exposta — substituir por tooltip no ícone ⓘ
+
+### Comportamento por estado
+
+Estado 1 — sem matches:
+- Mostrar apenas botão "Gerar matches automaticamente"
+- Algoritmo roda e salva direto, sem etapa de confirmação separada
+
+Estado 2 — matches confirmados:
+- Mostrar lista padrinho → calouros
+- Sem botões desnecessários
+
+### Redistribuição de calouros (caso raro)
+No detalhe do padrinho, botão "Remover do programa":
+- Mostra os calouros órfãos
+- Para cada calouro, dropdown pra escolher novo padrinho
+- Botão "Confirmar redistribuição"
+Remover botão "Resetar matches" da página de match.
+
+### Exportar lista de contatos
+Botão "Exportar lista de contatos" na página de match:
+- Gera CSV com: Padrinho, Turno, Calouro, Telefone do Calouro
+- Um arquivo único com todos os pares
+- Coordenador manda pra cada padrinho via WhatsApp
+
+Roda os 29 testes e commita:
+git add .
+git commit -m "feat: simplificar página de match e exportar lista de contatos"
+git push
+
+---
+
+## Tarefa 3 — Integração com Google Sheets — Presença
 
 Pré-requisito: credentials.json do Google Cloud no .gitignore.
 
@@ -55,9 +83,9 @@ Resposta que não bater em nenhum dos três vai para lista de não reconhecidas.
 
 ### Implementação
 1. Instalar dependência: pip install gspread, adicionar ao requirements.txt
-2. Em config.html — adicionar seção "Google Forms":
+2. Em config.html — adicionar seção "Google Forms — Presença":
    - Campo para colar o link da planilha de respostas do Forms
-   - Salva na tabela config do banco (chave: sheets_url)
+   - Salva na tabela config do banco (chave: sheets_presenca_url)
 3. Criar função em models.py sincronizar_presencas_sheets(reuniao_id):
    - Lê a planilha via gspread usando credentials.json
    - Para cada resposta, tenta identificar o padrinho na ordem acima
@@ -72,14 +100,41 @@ Resposta que não bater em nenhum dos três vai para lista de não reconhecidas.
 
 ---
 
-## Tarefa 3 — Importação de padrinhos e calouros via Google Forms
+## Tarefa 4 — Integração com Google Sheets — Inscrição em temas
 
-Pré-requisito: Tarefa 2 concluída (infraestrutura Google Sheets já pronta).
+Pré-requisito: Tarefa 3 concluída (infraestrutura Google Sheets já pronta).
+
+### Fluxo
+Coordenador mantém uma planilha template reutilizável a cada semestre:
+- Apaga inscrições antigas
+- Cola os temas novos com o limite de vagas (média: total padrinhos ÷ total temas)
+- Manda o link pros padrinhos
+- Padrinhos inserem o nome até o limite
+- Coordenador clica "Sincronizar temas" no sistema
+
+### Implementação
+1. Em config.html — adicionar campo para link da planilha de temas
+   - Salva na tabela config (chave: sheets_temas_url)
+2. Criar função em models.py sincronizar_responsaveis_temas():
+   - Lê a planilha via gspread
+   - Bate nomes com padrinhos cadastrados (mesma lógica da presença)
+   - Atualiza tema_padrinhos no banco
+   - Idempotente
+3. Botão "Sincronizar inscrições" na página de temas
+   - Rota POST /temas/sincronizar em app.py
+   - Toast com resultado: "15 responsáveis atualizados"
+4. Roda os 29 testes após a implementação
+
+---
+
+## Tarefa 5 — Importação de padrinhos e calouros via Google Forms
+
+Pré-requisito: Tarefa 3 concluída (infraestrutura Google Sheets já pronta).
 
 ### Fluxo
 1. Forms de cadastro de padrinhos coleta:
-   nome, matrícula, email, telefone, turno, gênero, idade,
-   cidade (BH ou não), prouni, trabalha, curso, instituição
+   nome, matrícula, email, telefone, turno, curso, instituição,
+   cidade (Grande BH ou não), prouni, trabalha, idade
 2. Forms de cadastro de calouros coleta os mesmos campos
 3. Sistema lê a planilha via Google Sheets
 4. Filtra apenas respostas de Engenharia de Software da PUC Minas
@@ -96,7 +151,45 @@ Roda os 29 testes após a implementação.
 
 ---
 
-## Tarefa 4 — Bot do Telegram (futuro)
+## Tarefa 6 — Dados demográficos no relatório
+
+Adicionar bloco de perfil no Resumo do Semestre, exibido apenas
+quando houver dados demográficos preenchidos (não NULL).
+
+### Campos a exibir
+Perfil dos padrinhos e calouros separadamente:
+- Distribuição por turno (Manhã X% · Noite Y%)
+- % mora na Grande BH
+- % Prouni
+- % trabalha
+
+Não exibir gênero — dado pouco informativo no contexto do curso.
+
+Exibir aviso discreto se dados demográficos ainda não estiverem
+disponíveis: "Disponível após importação via Google Forms"
+
+Roda os 29 testes após a implementação.
+
+---
+
+## Tarefa 7 — Deploy no Fly.io
+
+Pré-requisito: login reativado (descomentar before_request em app.py).
+
+1. Criar conta no Fly.io (gratuito — https://fly.io)
+2. Instalar flyctl (CLI do Fly.io) e fazer login
+3. Rodar fly launch na raiz do projeto — detecta Flask automaticamente
+4. Configurar variáveis de ambiente via fly secrets set
+5. fly deploy — sobe o sistema
+6. Testar todas as rotas em produção
+7. Atualizar README.md com a URL de produção
+
+Observação: SQLite persiste no PythonAnywhere gratuito.
+Não migrar para PostgreSQL neste momento.
+
+---
+
+## Tarefa 8 — Bot do Telegram (futuro)
 
 Cria bot.py com python-telegram-bot integrado ao banco SQLite:
 - /status — resumo de aptos/alertas/inaptos
@@ -105,3 +198,83 @@ Cria bot.py com python-telegram-bot integrado ao banco SQLite:
 - /relatorio — abre link do relatório no sistema
 
 Mantém os 29 testes passando.
+
+---
+
+## Tarefa 9 — Integração com Claude API (Anthropic)
+
+Duas funcionalidades usando a API da Anthropic. Custo estimado:
+menos de R$1,00 por semestre completo.
+
+### 9.1 — Análise de risco por padrinho
+
+No detalhe do padrinho, botão "Analisar com IA" que gera um
+parágrafo curto de análise de risco baseado no histórico.
+
+Contexto enviado à API (JSON):
+```json
+{
+  "padrinho": {
+    "nome": "...",
+    "turno": "...",
+    "status": "..."
+  },
+  "presencas": {
+    "total_reunioes": 3,
+    "presentes": 2,
+    "faltas": 1
+  },
+  "advertencias": {
+    "amarelos": 1,
+    "vermelhos": 0
+  },
+  "temas": {
+    "pendentes": 2,
+    "entregues": 1,
+    "atrasados": 0
+  }
+}
+```
+
+Prompt: análise de risco de reprovação em linguagem natural,
+máximo 3 frases, tom objetivo.
+
+Exibir resultado abaixo dos cards de advertências no detalhe
+do padrinho. Cachear por sessão — não rechamar a API toda vez
+que a página abre.
+
+### 9.2 — Resumo do semestre em linguagem natural
+
+No relatório de Resumo do Semestre, bloco gerado pela IA com
+um parágrafo resumindo o desempenho geral do semestre.
+
+Contexto enviado à API (JSON):
+```json
+{
+  "semestre": "2026/1",
+  "total_padrinhos": 50,
+  "aprovados": 42,
+  "em_alerta": 5,
+  "reprovados": 2,
+  "reportados": 1,
+  "total_reunioes": 3,
+  "media_presenca": 87,
+  "temas_entregues": 13,
+  "temas_pendentes": 2
+}
+```
+
+Prompt: resumo executivo do semestre em linguagem natural,
+máximo 4 frases, tom profissional.
+
+Gerar uma vez ao abrir o relatório, exibir acima dos cards
+de resultado final.
+
+### Implementação
+- ANTHROPIC_API_KEY no .env
+- Função chamar_claude(prompt, contexto) em models.py
+- Usa modelo claude-sonnet-4-20250514
+- Tratamento de erro — se API falhar, exibe campo vazio
+  sem quebrar a página
+
+Roda os 29 testes após a implementação.
