@@ -16,7 +16,7 @@ from models import (
     get_todos_temas, get_calouros_match_completo, registrar_log,
     abreviar_nome, get_config_semestre, get_config, set_config, contar_reunioes,
     redistribuir_calouros, sincronizar_presencas_sheets,
-    gerar_planilha_temas, sincronizar_responsaveis_temas,
+    sincronizar_responsaveis_temas,
     importar_padrinhos_sheets, importar_calouros_sheets,
 )
 
@@ -432,34 +432,26 @@ def configuracoes():
     global CONFIG
     from models import salvar_config_semestre
     if request.method == "POST":
-        action = request.form.get("action", "amarelos")
-        if action == "semestre":
-            coordenadores_raw = request.form.get("coordenadores", "")
-            coordenadores = [n.strip() for n in coordenadores_raw.splitlines() if n.strip()]
-            cfg = {
-                "semestre": request.form.get("semestre", "2026/1").strip(),
-                "professor_coordenador": request.form.get("professor_coordenador", "").strip(),
-                "programa": request.form.get("programa", "").strip(),
-                "instituicao": request.form.get("instituicao", "").strip(),
-                "total_reunioes": int(request.form.get("total_reunioes", 3)),
-                "data_inicio": request.form.get("data_inicio", "").strip(),
-                "data_fim": request.form.get("data_fim", "").strip(),
-                "coordenadora_geral": request.form.get("coordenadora_geral", "").strip(),
-                "coordenadores": coordenadores,
-            }
-            salvar_config_semestre(cfg)
-            CONFIG = get_config_semestre()
-            registrar_log("ALTERACAO_CONFIG", f"Configurações do semestre {cfg['semestre']} atualizadas.")
-        elif action == "sheets_presenca":
-            url = request.form.get("sheets_presenca_url", "").strip()
-            set_config("sheets_presenca_url", url)
-            registrar_log("ALTERACAO_CONFIG", "URL da planilha de presença atualizada.")
+        coordenadores_raw = request.form.get("coordenadores", "")
+        coordenadores = [n.strip() for n in coordenadores_raw.splitlines() if n.strip()]
+        cfg = {
+            "semestre": request.form.get("semestre", "2026/1").strip(),
+            "professor_coordenador": request.form.get("professor_coordenador", "").strip(),
+            "programa": request.form.get("programa", "").strip(),
+            "instituicao": request.form.get("instituicao", "").strip(),
+            "total_reunioes": int(request.form.get("total_reunioes", 3)),
+            "data_inicio": request.form.get("data_inicio", "").strip(),
+            "data_fim": request.form.get("data_fim", "").strip(),
+            "coordenadora_geral": request.form.get("coordenadora_geral", "").strip(),
+            "coordenadores": coordenadores,
+        }
+        salvar_config_semestre(cfg)
+        CONFIG = get_config_semestre()
+        registrar_log("ALTERACAO_CONFIG", f"Configurações do semestre {cfg['semestre']} atualizadas.")
         flash("Configurações salvas.", "success")
         return redirect(url_for("configuracoes"))
-    sheets_url = get_config("sheets_presenca_url", "")
     return render_template("pages/config.html",
         config_semestre=CONFIG,
-        sheets_presenca_url=sheets_url,
         total_reunioes=contar_reunioes(),
     )
 
@@ -742,6 +734,7 @@ def relatorio_aptidao():
         config=CONFIG,
         hoje=date.today(),
         total=len(padrinhos) or 1,
+        total_reunioes_db=contar_reunioes(),
         aprovados=aprovados,
         reprovados=reprovados,
         reportados=reportados,
@@ -806,7 +799,6 @@ def relatorio_resumo():
         n_alerta=contadores["alerta"],
         n_reprovados=contadores["reprovados"],
         n_reportados=contadores["reportados"],
-        total_reunioes_contagem=len(reunioes),
         turno_data=turno_data,
     )
 

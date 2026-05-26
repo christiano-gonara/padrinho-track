@@ -431,31 +431,6 @@ def exportar_relatorio_csv(caminho="relatorio_acg.csv"):
             ])
     return caminho
 
-def get_calouros_por_padrinho(padrinho_id):
-    conn = get_conn()
-    calouros = conn.execute("""
-        SELECT c.id, c.nome, c.telefone
-        FROM calouros c
-        JOIN matches m ON m.calouro_id = c.id
-        WHERE m.padrinho_id = ?
-        ORDER BY c.nome
-    """, (padrinho_id,)).fetchall()
-    conn.close()
-    return calouros
-
-def get_todos_matches():
-    conn = get_conn()
-    resultado = conn.execute("""
-        SELECT p.id AS padrinho_id, p.nome AS padrinho_nome,
-               p.turno, COUNT(m.calouro_id) AS total_calouros
-        FROM padrinhos p
-        LEFT JOIN matches m ON m.padrinho_id = p.id
-        WHERE p.ativo = 1
-        GROUP BY p.id
-        ORDER BY p.nome
-    """).fetchall()
-    conn.close()
-    return resultado
 
 def get_calouros_match_completo():
     from collections import defaultdict
@@ -516,14 +491,6 @@ def excluir_advertencia(advertencia_id):
     conn.commit()
     conn.close()
 
-def editar_presenca(reuniao_id, padrinho_id, presente, justificada):
-    conn = get_conn()
-    conn.execute("""
-        UPDATE presencas SET presente=?, justificada=?
-        WHERE reuniao_id=? AND padrinho_id=?
-    """, (presente, justificada, reuniao_id, padrinho_id))
-    conn.commit()
-    conn.close()
 
 def excluir_reuniao(reuniao_id):
     conn = get_conn()
@@ -1080,112 +1047,6 @@ def gerar_pdf_inaptos_graves():
     doc.build(story)
     return buf.getvalue()
 
-
-def gerar_planilha_temas():
-    import gspread
-    import math
-    from pathlib import Path
-
-    conn = get_conn()
-    temas = conn.execute("SELECT id, titulo FROM temas ORDER BY data_limite ASC").fetchall()
-    total_padrinhos = conn.execute("SELECT COUNT(*) FROM padrinhos WHERE ativo=1").fetchone()[0]
-    conn.close()
-
-    if not temas:
-        raise ValueError("Nenhum tema cadastrado para gerar a planilha.")
-
-    total_temas = len(temas)
-    limite = max(1, math.ceil(total_padrinhos / total_temas))
-
-    # OAuth2: cria arquivos no Drive do usuário autorizado, evitando cota da service account
-    secrets_path = Path(__file__).parent / "client_secrets.json"
-    gc = gspread.oauth(credentials_filename=str(secrets_path))
-
-    sh = gc.create("Inscrição em Temas — Padrinho Track")
-    sh.share('christiano.gonara@gmail.com', perm_type='user', role='writer')
-    sh.share('', perm_type='anyone', role='writer')
-
-    ws = sh.sheet1
-    ws.update_title("Inscrições")
-
-    headers = ["Tema"] + [f"Vaga {i + 1}" for i in range(limite)]
-    data = [headers] + [[tema["titulo"]] + [""] * limite for tema in temas]
-    ws.update(data)
-
-    sid = ws.id
-    total_cols = 1 + limite
-    total_rows = 1 + total_temas
-
-    def _rgb(hex_color):
-        h = hex_color.lstrip("#")
-        return {"red": int(h[0:2], 16) / 255, "green": int(h[2:4], 16) / 255, "blue": int(h[4:6], 16) / 255}
-
-    border = {"style": "SOLID", "width": 1, "color": _rgb("b0b0b0")}
-
-    sh.batch_update({"requests": [
-        # Linha de cabeçalho fixada
-        {"updateSheetProperties": {
-            "properties": {"sheetId": sid, "gridProperties": {"frozenRowCount": 1}},
-            "fields": "gridProperties.frozenRowCount",
-        }},
-        # Largura coluna A: 250px
-        {"updateDimensionProperties": {
-            "range": {"sheetId": sid, "dimension": "COLUMNS", "startIndex": 0, "endIndex": 1},
-            "properties": {"pixelSize": 250},
-            "fields": "pixelSize",
-        }},
-        # Largura colunas de vagas: 150px
-        {"updateDimensionProperties": {
-            "range": {"sheetId": sid, "dimension": "COLUMNS", "startIndex": 1, "endIndex": total_cols},
-            "properties": {"pixelSize": 150},
-            "fields": "pixelSize",
-        }},
-        # Altura de todas as linhas: 30px
-        {"updateDimensionProperties": {
-            "range": {"sheetId": sid, "dimension": "ROWS", "startIndex": 0, "endIndex": total_rows},
-            "properties": {"pixelSize": 30},
-            "fields": "pixelSize",
-        }},
-        # Cabeçalho: fundo roxo, texto branco, negrito, centralizado verticalmente
-        {"repeatCell": {
-            "range": {"sheetId": sid, "startRowIndex": 0, "endRowIndex": 1,
-                      "startColumnIndex": 0, "endColumnIndex": total_cols},
-            "cell": {"userEnteredFormat": {
-                "backgroundColor": _rgb("7c5cff"),
-                "textFormat": {"foregroundColor": _rgb("ffffff"), "bold": True},
-                "verticalAlignment": "MIDDLE",
-            }},
-            "fields": "userEnteredFormat(backgroundColor,textFormat,verticalAlignment)",
-        }},
-        # Coluna A (dados): negrito, alinhamento vertical
-        {"repeatCell": {
-            "range": {"sheetId": sid, "startRowIndex": 1, "endRowIndex": total_rows,
-                      "startColumnIndex": 0, "endColumnIndex": 1},
-            "cell": {"userEnteredFormat": {
-                "textFormat": {"bold": True},
-                "verticalAlignment": "MIDDLE",
-            }},
-            "fields": "userEnteredFormat(textFormat,verticalAlignment)",
-        }},
-        # Células de vagas: alinhamento vertical
-        {"repeatCell": {
-            "range": {"sheetId": sid, "startRowIndex": 1, "endRowIndex": total_rows,
-                      "startColumnIndex": 1, "endColumnIndex": total_cols},
-            "cell": {"userEnteredFormat": {"verticalAlignment": "MIDDLE"}},
-            "fields": "userEnteredFormat(verticalAlignment)",
-        }},
-        # Bordas em todas as células preenchidas
-        {"updateBorders": {
-            "range": {"sheetId": sid, "startRowIndex": 0, "endRowIndex": total_rows,
-                      "startColumnIndex": 0, "endColumnIndex": total_cols},
-            "top": border, "bottom": border, "left": border, "right": border,
-            "innerHorizontal": border, "innerVertical": border,
-        }},
-    ]})
-
-    link = sh.url
-    set_config("sheets_temas_url", link)
-    return link
 
 
 def sincronizar_responsaveis_temas():

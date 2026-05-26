@@ -95,8 +95,6 @@ def init_db():
         ip          TEXT
     );
 
-    INSERT OR IGNORE INTO config (chave, valor) VALUES ('limite_amarelos', '2');
-
     CREATE INDEX IF NOT EXISTS idx_advertencias_padrinho ON advertencias(padrinho_id);
     CREATE INDEX IF NOT EXISTS idx_presencas_padrinho ON presencas(padrinho_id);
     CREATE INDEX IF NOT EXISTS idx_presencas_reuniao ON presencas(reuniao_id);
