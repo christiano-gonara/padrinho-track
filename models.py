@@ -1107,6 +1107,77 @@ def gerar_planilha_temas():
     data = [headers] + [[tema["titulo"]] + [""] * limite for tema in temas]
     ws.update(data)
 
+    sid = ws.id
+    total_cols = 1 + limite
+    total_rows = 1 + total_temas
+
+    def _rgb(hex_color):
+        h = hex_color.lstrip("#")
+        return {"red": int(h[0:2], 16) / 255, "green": int(h[2:4], 16) / 255, "blue": int(h[4:6], 16) / 255}
+
+    border = {"style": "SOLID", "width": 1, "color": _rgb("b0b0b0")}
+
+    sh.batch_update({"requests": [
+        # Linha de cabeçalho fixada
+        {"updateSheetProperties": {
+            "properties": {"sheetId": sid, "gridProperties": {"frozenRowCount": 1}},
+            "fields": "gridProperties.frozenRowCount",
+        }},
+        # Largura coluna A: 250px
+        {"updateDimensionProperties": {
+            "range": {"sheetId": sid, "dimension": "COLUMNS", "startIndex": 0, "endIndex": 1},
+            "properties": {"pixelSize": 250},
+            "fields": "pixelSize",
+        }},
+        # Largura colunas de vagas: 150px
+        {"updateDimensionProperties": {
+            "range": {"sheetId": sid, "dimension": "COLUMNS", "startIndex": 1, "endIndex": total_cols},
+            "properties": {"pixelSize": 150},
+            "fields": "pixelSize",
+        }},
+        # Altura de todas as linhas: 30px
+        {"updateDimensionProperties": {
+            "range": {"sheetId": sid, "dimension": "ROWS", "startIndex": 0, "endIndex": total_rows},
+            "properties": {"pixelSize": 30},
+            "fields": "pixelSize",
+        }},
+        # Cabeçalho: fundo roxo, texto branco, negrito, centralizado verticalmente
+        {"repeatCell": {
+            "range": {"sheetId": sid, "startRowIndex": 0, "endRowIndex": 1,
+                      "startColumnIndex": 0, "endColumnIndex": total_cols},
+            "cell": {"userEnteredFormat": {
+                "backgroundColor": _rgb("7c5cff"),
+                "textFormat": {"foregroundColor": _rgb("ffffff"), "bold": True},
+                "verticalAlignment": "MIDDLE",
+            }},
+            "fields": "userEnteredFormat(backgroundColor,textFormat,verticalAlignment)",
+        }},
+        # Coluna A (dados): negrito, alinhamento vertical
+        {"repeatCell": {
+            "range": {"sheetId": sid, "startRowIndex": 1, "endRowIndex": total_rows,
+                      "startColumnIndex": 0, "endColumnIndex": 1},
+            "cell": {"userEnteredFormat": {
+                "textFormat": {"bold": True},
+                "verticalAlignment": "MIDDLE",
+            }},
+            "fields": "userEnteredFormat(textFormat,verticalAlignment)",
+        }},
+        # Células de vagas: alinhamento vertical
+        {"repeatCell": {
+            "range": {"sheetId": sid, "startRowIndex": 1, "endRowIndex": total_rows,
+                      "startColumnIndex": 1, "endColumnIndex": total_cols},
+            "cell": {"userEnteredFormat": {"verticalAlignment": "MIDDLE"}},
+            "fields": "userEnteredFormat(verticalAlignment)",
+        }},
+        # Bordas em todas as células preenchidas
+        {"updateBorders": {
+            "range": {"sheetId": sid, "startRowIndex": 0, "endRowIndex": total_rows,
+                      "startColumnIndex": 0, "endColumnIndex": total_cols},
+            "top": border, "bottom": border, "left": border, "right": border,
+            "innerHorizontal": border, "innerVertical": border,
+        }},
+    ]})
+
     link = sh.url
     set_config("sheets_temas_url", link)
     return link
