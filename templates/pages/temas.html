@@ -161,7 +161,92 @@
     <i class="ri-table-line text-[#7c5cff]"></i>
     <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Inscrições em temas</h2>
   </div>
-  <div class="p-6">
+  <div class="p-6 flex flex-col gap-5">
+
+    <!-- Collapsível: como configurar -->
+    <details class="group">
+      <summary class="flex items-center gap-2 text-xs font-semibold text-[#7c5cff] cursor-pointer select-none hover:text-[#5b3df5] transition list-none">
+        <i class="ri-question-line"></i>
+        Como configurar o Forms de inscrição
+        <i class="ri-arrow-down-s-line text-sm transition-transform duration-200 group-open:rotate-180"></i>
+      </summary>
+      <div class="mt-3 flex flex-col gap-4">
+        <!-- Mockup visual do Forms -->
+        <div class="bg-white dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-xl overflow-hidden">
+          <div class="px-5 py-3 bg-slate-50 dark:bg-gray-800 border-b border-slate-200 dark:border-gray-700">
+            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+              Prévia do Forms — Inscrição em Temas
+            </p>
+          </div>
+          <div class="p-5 flex flex-col gap-4 font-mono text-xs text-gray-700 dark:text-gray-300">
+            <div class="flex items-center gap-3">
+              <span class="text-gray-500 dark:text-gray-500 w-32 shrink-0">Nome completo <span class="text-red-500">*</span></span>
+              <span class="flex-1 border-b border-dashed border-slate-300 dark:border-gray-600 h-5"></span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-gray-500 dark:text-gray-500 w-32 shrink-0">Matrícula <span class="text-red-500">*</span></span>
+              <span class="flex-1 border-b border-dashed border-slate-300 dark:border-gray-600 h-5"></span>
+            </div>
+            <div>
+              <p class="text-gray-600 dark:text-gray-400 mb-2">Qual tema você quer apresentar? <span class="text-red-500">*</span></p>
+              {% if temas and sugestao_vagas %}
+                {% for item in temas %}
+                  {% set loop_i = loop.index0 %}
+                  {% set vagas = sugestao_vagas.base + (1 if loop_i < sugestao_vagas.excedente else 0) %}
+                  <div class="flex items-center gap-2 py-0.5 text-gray-500 dark:text-gray-400">
+                    <span class="w-3 h-3 rounded-full border border-slate-400 dark:border-gray-500 shrink-0"></span>
+                    <span>{{ item.tema["titulo"] }}</span>
+                    <span class="text-[#7c5cff] font-semibold">({{ vagas }} vaga{{ 's' if vagas != 1 }})</span>
+                  </div>
+                {% endfor %}
+              {% elif temas %}
+                {% for item in temas %}
+                  <div class="flex items-center gap-2 py-0.5 text-gray-500 dark:text-gray-400">
+                    <span class="w-3 h-3 rounded-full border border-slate-400 dark:border-gray-500 shrink-0"></span>
+                    <span>{{ item.tema["titulo"] }}</span>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <p class="text-gray-400 dark:text-gray-600 italic">Nenhum tema cadastrado ainda.</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Passos -->
+        <div class="bg-slate-50 dark:bg-gray-800 rounded-xl p-4 border border-slate-100 dark:border-gray-700">
+          <ol class="space-y-2 text-xs text-gray-600 dark:text-gray-400 list-decimal list-inside leading-relaxed">
+            <li>Crie um Forms com os campos: <strong class="text-gray-700 dark:text-gray-300">Nome completo, Matrícula</strong> e uma pergunta de múltipla escolha com os títulos dos temas</li>
+            <li>Instale o add-on <strong class="text-gray-700 dark:text-gray-300">Form Limiter</strong> e configure o limite de vagas por opção (veja a sugestão abaixo)</li>
+            <li>Na aba <strong class="text-gray-700 dark:text-gray-300">Respostas</strong>, crie a planilha vinculada</li>
+            <li>Compartilhe com <code class="bg-slate-200 dark:bg-gray-700 rounded px-1 py-0.5 text-[11px]">padrinho-track@padrinho-track.iam.gserviceaccount.com</code></li>
+            <li>Cole o link da planilha abaixo e clique em <strong class="text-gray-700 dark:text-gray-300">Salvar link</strong></li>
+          </ol>
+          <p class="mt-3 text-xs text-amber-700 dark:text-amber-400 flex items-start gap-1.5">
+            <i class="ri-alert-line shrink-0 mt-0.5"></i>
+            Oriente os padrinhos a usar o nome completo <strong>exatamente</strong> como cadastrado no sistema.
+          </p>
+        </div>
+      </div>
+    </details>
+
+    <!-- Sugestão de vagas -->
+    {% if sugestao_vagas %}
+    <div style="background:var(--pt-violet-tint);border:1px solid var(--pt-violet-tint-deep);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--pt-violet-deep);">
+      <div style="display:flex;align-items:center;gap:6px;font-weight:600;margin-bottom:4px;">
+        <i class="ri-calculator-line"></i> Sugestão de vagas
+      </div>
+      {% if sugestao_vagas.excedente == 0 %}
+        {{ sugestao_vagas.total_padrinhos }} padrinhos ÷ {{ sugestao_vagas.total_temas }} temas = <strong>{{ sugestao_vagas.base }} vagas</strong> por tema
+      {% else %}
+        {{ sugestao_vagas.total_padrinhos }} padrinhos ÷ {{ sugestao_vagas.total_temas }} temas →
+        Temas 1 a {{ sugestao_vagas.excedente }}: <strong>{{ sugestao_vagas.base + 1 }} vagas</strong> ·
+        Demais: <strong>{{ sugestao_vagas.base }} vagas</strong>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Campo de link -->
     <form action="/temas/configurar-inscricoes" method="POST" class="flex items-end gap-3">
       <div class="flex-1">
         <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">
@@ -186,9 +271,6 @@
     {% if sheets_inscricoes_url %}
     <form id="form-sincronizar-inscricoes" action="/temas/sincronizar" method="POST" class="hidden"></form>
     {% endif %}
-    <p class="text-xs text-gray-400 dark:text-gray-500 mt-2.5">
-      Compartilhe a planilha com <strong class="font-medium text-gray-500 dark:text-gray-400">padrinho-track@padrinho-track.iam.gserviceaccount.com</strong> como Editor.
-    </p>
   </div>
 </div>
 

@@ -254,8 +254,18 @@ def temas():
     lista     = get_todos_temas()
     padrinhos = get_todos_padrinhos()
     sheets_url = get_config("sheets_inscricoes_url", "")
+    total_p = len(padrinhos)
+    total_t = len(lista)
+    if total_t > 0 and total_p > 0:
+        base = total_p // total_t
+        excedente = total_p % total_t
+        sugestao_vagas = {"base": base, "excedente": excedente,
+                          "total_padrinhos": total_p, "total_temas": total_t}
+    else:
+        sugestao_vagas = None
     return render_template("pages/temas.html", temas=lista, padrinhos=padrinhos,
-                           today=date.today().isoformat(), sheets_inscricoes_url=sheets_url)
+                           today=date.today().isoformat(), sheets_inscricoes_url=sheets_url,
+                           sugestao_vagas=sugestao_vagas)
 
 @app.route("/temas/configurar-inscricoes", methods=["POST"])
 def temas_configurar_inscricoes():

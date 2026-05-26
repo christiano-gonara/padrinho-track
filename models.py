@@ -1192,6 +1192,13 @@ def sincronizar_responsaveis_temas():
         nfkd = unicodedata.normalize("NFKD", str(texto or ""))
         return "".join(c for c in nfkd if not unicodedata.combining(c)).lower().strip()
 
+    def _find_idx(headers_norm, *kws):
+        for i, h in enumerate(headers_norm):
+            for kw in kws:
+                if kw in h:
+                    return i
+        return None
+
     url = get_config("sheets_inscricoes_url")
     if not url:
         raise ValueError("URL da planilha de inscrições não configurada. Cole o link em Temas.")
@@ -1206,8 +1213,9 @@ def sincronizar_responsaveis_temas():
         return {"atualizados": 0, "nao_reconhecidos": []}
 
     conn = get_conn()
-    padrinhos = conn.execute("SELECT id, nome FROM padrinhos WHERE ativo=1").fetchall()
-    por_nome = {_norm(p["nome"]): p["id"] for p in padrinhos}
+    padrinhos = conn.execute("SELECT id, nome, matricula FROM padrinhos WHERE ativo=1").fetchall()
+    por_nome      = {_norm(p["nome"]): p["id"] for p in padrinhos}
+    por_matricula = {str(p["matricula"] or "").strip(): p["id"] for p in padrinhos if p["matricula"]}
 
     temas_list = conn.execute("SELECT id, titulo FROM temas").fetchall()
     temas_por_titulo = {_norm(t["titulo"]): t["id"] for t in temas_list}
@@ -1215,33 +1223,80 @@ def sincronizar_responsaveis_temas():
     atualizados = 0
     nao_reconhecidos = []
 
-    for row in rows[1:]:
-        if not row or not row[0].strip():
-            continue
+    header_norm = [_norm(h) for h in rows[0]]
 
-        tema_id = temas_por_titulo.get(_norm(row[0].strip()))
-        if not tema_id:
-            continue
+    # Formato Forms response: primeira coluna é timestamp/carimbo
+    is_forms = any(kw in header_norm[0] for kw in ("carimbo", "timestamp", "data/hora", "hora"))
 
-        novos_ids = []
-        for cell in row[1:]:
-            nome = cell.strip()
-            if not nome:
+    if is_forms:
+        idx_nome      = _find_idx(header_norm, "nome")
+        idx_matricula = _find_idx(header_norm, "matricula")
+        idx_tema      = _find_idx(header_norm, "tema", "apresentar", "inscri", "qual")
+
+        if idx_tema is None:
+            conn.close()
+            raise ValueError("Coluna de tema não encontrada na planilha de respostas.")
+
+        tema_padrinhos_novos = {}
+        for row in rows[1:]:
+            if not row or len(row) <= idx_tema:
                 continue
-            pid = por_nome.get(_norm(nome))
+            tema_raw = _norm(row[idx_tema].strip())
+            tema_id  = temas_por_titulo.get(tema_raw)
+            if not tema_id:
+                continue
+
+            pid = None
+            if idx_matricula is not None and idx_matricula < len(row):
+                pid = por_matricula.get(str(row[idx_matricula]).strip())
+            if pid is None and idx_nome is not None and idx_nome < len(row):
+                pid = por_nome.get(_norm(row[idx_nome].strip()))
+
             if pid:
-                if pid not in novos_ids:
-                    novos_ids.append(pid)
+                tema_padrinhos_novos.setdefault(tema_id, [])
+                if pid not in tema_padrinhos_novos[tema_id]:
+                    tema_padrinhos_novos[tema_id].append(pid)
                 atualizados += 1
             else:
-                nao_reconhecidos.append(nome)
+                nome_str = row[idx_nome].strip() if idx_nome is not None and idx_nome < len(row) else "?"
+                if nome_str:
+                    nao_reconhecidos.append(nome_str)
 
-        conn.execute("DELETE FROM tema_padrinhos WHERE tema_id=?", (tema_id,))
-        for pid in novos_ids:
-            conn.execute(
-                "INSERT OR IGNORE INTO tema_padrinhos (tema_id, padrinho_id) VALUES (?, ?)",
-                (tema_id, pid)
-            )
+        for tema_id, pids in tema_padrinhos_novos.items():
+            conn.execute("DELETE FROM tema_padrinhos WHERE tema_id=?", (tema_id,))
+            for pid in pids:
+                conn.execute(
+                    "INSERT OR IGNORE INTO tema_padrinhos (tema_id, padrinho_id) VALUES (?, ?)",
+                    (tema_id, pid)
+                )
+    else:
+        # Formato tabela: col0 = título do tema, col1+ = nomes/matrículas dos padrinhos
+        for row in rows[1:]:
+            if not row or not row[0].strip():
+                continue
+            tema_id = temas_por_titulo.get(_norm(row[0].strip()))
+            if not tema_id:
+                continue
+
+            novos_ids = []
+            for cell in row[1:]:
+                val = cell.strip()
+                if not val:
+                    continue
+                pid = por_matricula.get(val) or por_nome.get(_norm(val))
+                if pid:
+                    if pid not in novos_ids:
+                        novos_ids.append(pid)
+                    atualizados += 1
+                else:
+                    nao_reconhecidos.append(val)
+
+            conn.execute("DELETE FROM tema_padrinhos WHERE tema_id=?", (tema_id,))
+            for pid in novos_ids:
+                conn.execute(
+                    "INSERT OR IGNORE INTO tema_padrinhos (tema_id, padrinho_id) VALUES (?, ?)",
+                    (tema_id, pid)
+                )
 
     conn.commit()
     conn.close()
