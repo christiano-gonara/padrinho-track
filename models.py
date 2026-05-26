@@ -1330,17 +1330,19 @@ def importar_padrinhos_sheets(url):
 
     keys_norm = {_norm(k): k for k in records[0].keys()}
 
-    col_nome         = _find_col(keys_norm, "nome")
-    col_matricula    = _find_col(keys_norm, "matricula", "matrícula")
-    col_email        = _find_col(keys_norm, "email", "e-mail")
-    col_telefone     = _find_col(keys_norm, "telefone", "celular", "whatsapp")
-    col_turno        = _find_col(keys_norm, "turno")
-    col_curso        = _find_col(keys_norm, "curso")
-    col_instituicao  = _find_col(keys_norm, "institui", "universidade", "faculdade")
-    col_cidade       = _find_col(keys_norm, "cidade", "grande bh", "bh")
-    col_prouni       = _find_col(keys_norm, "prouni", "pro-uni")
-    col_trabalha     = _find_col(keys_norm, "trabalha", "trabalho", "emprego")
-    col_idade        = _find_col(keys_norm, "idade")
+    col_nome              = _find_col(keys_norm, "nome")
+    col_matricula         = _find_col(keys_norm, "matricula", "matrícula")
+    col_email             = _find_col(keys_norm, "email", "e-mail")
+    col_telefone          = _find_col(keys_norm, "telefone", "celular", "whatsapp")
+    col_turno             = _find_col(keys_norm, "turno")
+    col_curso             = _find_col(keys_norm, "curso")
+    col_instituicao       = _find_col(keys_norm, "institui", "universidade", "faculdade")
+    col_cidade            = _find_col(keys_norm, "cidade", "grande bh", "bh")
+    col_prouni            = _find_col(keys_norm, "prouni", "pro-uni")
+    col_trabalha          = _find_col(keys_norm, "trabalha", "trabalho", "emprego")
+    col_idade             = _find_col(keys_norm, "idade")
+    col_periodo           = _find_col(keys_norm, "periodo", "período", "semestre cursando")
+    col_passou_algoritmos = _find_col(keys_norm, "algoritmo", "aeds", "introducao", "introdução", "intro a alg")
 
     def _get(rec, col):
         return str(rec.get(keys_norm.get(col, ""), "") or "").strip() if col else ""
@@ -1381,15 +1383,20 @@ def importar_padrinhos_sheets(url):
         trabalha_raw = _norm(_get(rec, col_trabalha))
         trabalha     = 1 if "sim" in trabalha_raw else 0
 
+        periodo = _get(rec, col_periodo) or None
+
+        passou_raw       = _norm(_get(rec, col_passou_algoritmos))
+        passou_algoritmos = 1 if "sim" in passou_raw else (0 if passou_raw else None)
+
         if not nome:
             ignorados += 1
             continue
 
         conn.execute("""
-            INSERT INTO padrinhos (nome, matricula, email, telefone, turno, idade, cidade_bh, prouni, trabalha)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO padrinhos (nome, matricula, email, telefone, turno, idade, cidade_bh, prouni, trabalha, periodo, passou_algoritmos)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (nome, matricula or None, email or None, telefone or None,
-              turno or None, idade, cidade_bh, prouni, trabalha))
+              turno or None, idade, cidade_bh, prouni, trabalha, periodo, passou_algoritmos))
 
         if matricula:
             existing[matricula] = True
@@ -1427,15 +1434,16 @@ def importar_calouros_sheets(url):
 
     keys_norm = {_norm(k): k for k in records[0].keys()}
 
-    col_nome        = _find_col(keys_norm, "nome")
-    col_telefone    = _find_col(keys_norm, "telefone", "celular", "whatsapp")
-    col_turno       = _find_col(keys_norm, "turno")
-    col_curso       = _find_col(keys_norm, "curso")
-    col_instituicao = _find_col(keys_norm, "institui", "universidade", "faculdade")
-    col_cidade      = _find_col(keys_norm, "cidade", "grande bh", "bh")
-    col_prouni      = _find_col(keys_norm, "prouni", "pro-uni")
-    col_trabalha    = _find_col(keys_norm, "trabalha", "trabalho", "emprego")
-    col_idade       = _find_col(keys_norm, "idade")
+    col_nome            = _find_col(keys_norm, "nome")
+    col_telefone        = _find_col(keys_norm, "telefone", "celular", "whatsapp")
+    col_turno           = _find_col(keys_norm, "turno")
+    col_curso           = _find_col(keys_norm, "curso")
+    col_instituicao     = _find_col(keys_norm, "institui", "universidade", "faculdade")
+    col_cidade          = _find_col(keys_norm, "cidade", "grande bh", "bh")
+    col_prouni          = _find_col(keys_norm, "prouni", "pro-uni")
+    col_trabalha        = _find_col(keys_norm, "trabalha", "trabalho", "emprego")
+    col_idade           = _find_col(keys_norm, "idade")
+    col_primeiro_periodo = _find_col(keys_norm, "primeiro periodo", "1o periodo", "1º periodo", "primeiro per")
 
     def _get(rec, col):
         return str(rec.get(keys_norm.get(col, ""), "") or "").strip() if col else ""
@@ -1477,10 +1485,13 @@ def importar_calouros_sheets(url):
         trabalha_raw = _norm(_get(rec, col_trabalha))
         trabalha     = 1 if "sim" in trabalha_raw else 0
 
+        primeiro_raw     = _norm(_get(rec, col_primeiro_periodo))
+        primeiro_periodo = 1 if "sim" in primeiro_raw else (0 if primeiro_raw else None)
+
         conn.execute("""
-            INSERT INTO calouros (nome, telefone, turno, idade, cidade_bh, prouni, trabalha)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (nome, telefone or None, turno or None, idade, cidade_bh, prouni, trabalha))
+            INSERT INTO calouros (nome, telefone, turno, idade, cidade_bh, prouni, trabalha, primeiro_periodo)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (nome, telefone or None, turno or None, idade, cidade_bh, prouni, trabalha, primeiro_periodo))
 
         existing_nomes[_norm(nome)] = True
         importados += 1

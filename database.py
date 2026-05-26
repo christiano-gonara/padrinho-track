@@ -118,6 +118,9 @@ def init_db():
         "ALTER TABLE calouros ADD COLUMN cidade_bh INTEGER DEFAULT 0",
         "ALTER TABLE calouros ADD COLUMN prouni INTEGER DEFAULT 0",
         "ALTER TABLE calouros ADD COLUMN trabalha INTEGER DEFAULT 0",
+        "ALTER TABLE padrinhos ADD COLUMN periodo TEXT",
+        "ALTER TABLE padrinhos ADD COLUMN passou_algoritmos INTEGER DEFAULT NULL",
+        "ALTER TABLE calouros ADD COLUMN primeiro_periodo INTEGER DEFAULT NULL",
     ]
     for sql in _migracoes:
         try:
