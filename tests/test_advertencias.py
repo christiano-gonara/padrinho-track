@@ -49,9 +49,15 @@ def _inserir_advertencia(padrinho_id, tipo, origem="falta"):
 
 # ── calcular_status ────────────────────────────────────────────────────────
 
+def _criar_reunioes(n):
+    for i in range(n):
+        criar_reuniao(f"2026-0{i % 9 + 1}-{i // 9 * 7 + 1:02d}", f"Reunião {i + 1}", "")
+
+
 class TestCalcularStatus:
 
     def test_sem_advertencias_retorna_apto(self):
+        _criar_reunioes(2)
         pid = _padrinho()
         status = calcular_status(pid)
         assert status["status"] == "apto"
@@ -59,6 +65,7 @@ class TestCalcularStatus:
         assert status["vermelhos"] == 0
 
     def test_um_amarelo_retorna_alerta(self):
+        _criar_reunioes(2)  # limite=2: 1 amarelo → alerta
         pid = _padrinho()
         _inserir_advertencia(pid, "amarelo")
         status = calcular_status(pid)
@@ -66,6 +73,7 @@ class TestCalcularStatus:
         assert status["amarelos"] == 1
 
     def test_dois_amarelos_retorna_inapto_amarelo(self):
+        _criar_reunioes(2)  # limite=2: 2 amarelos → inapto
         pid = _padrinho()
         _inserir_advertencia(pid, "amarelo")
         _inserir_advertencia(pid, "amarelo")
@@ -74,6 +82,7 @@ class TestCalcularStatus:
         assert status["amarelos"] == 2
 
     def test_tres_amarelos_continua_inapto_amarelo(self):
+        _criar_reunioes(3)  # limite=3: 3 amarelos → inapto
         pid = _padrinho()
         for _ in range(3):
             _inserir_advertencia(pid, "amarelo")
@@ -81,6 +90,7 @@ class TestCalcularStatus:
         assert status["status"] == "inapto_amarelo"
 
     def test_um_vermelho_retorna_inapto_vermelho(self):
+        _criar_reunioes(2)
         pid = _padrinho()
         _inserir_advertencia(pid, "vermelho")
         status = calcular_status(pid)
@@ -88,6 +98,7 @@ class TestCalcularStatus:
         assert status["vermelhos"] == 1
 
     def test_vermelho_sobrepoe_amarelos(self):
+        _criar_reunioes(2)
         pid = _padrinho()
         _inserir_advertencia(pid, "amarelo")
         _inserir_advertencia(pid, "vermelho")
@@ -95,6 +106,7 @@ class TestCalcularStatus:
         assert status["status"] == "inapto_vermelho"
 
     def test_padrinhos_independentes(self):
+        _criar_reunioes(3)  # limite=3: pid1 com 2 amarelos → alerta, pid2 → apto
         pid1 = _padrinho("Padrinho A", "999001")
         pid2 = _padrinho("Padrinho B", "999002")
         _inserir_advertencia(pid1, "amarelo")

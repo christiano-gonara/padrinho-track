@@ -14,7 +14,7 @@ from models import (
     emitir_advertencia_manual, get_advertencias_padrinho,
     calcular_status, get_historico_padrinho, get_relatorio_geral,
     get_todos_temas, get_calouros_match_completo, registrar_log,
-    abreviar_nome, get_config_semestre, get_config, set_config,
+    abreviar_nome, get_config_semestre, get_config, set_config, contar_reunioes,
     redistribuir_calouros, sincronizar_presencas_sheets,
     gerar_planilha_temas, sincronizar_responsaveis_temas,
     importar_padrinhos_sheets, importar_calouros_sheets,
@@ -81,10 +81,9 @@ def logout():
 @app.route("/")
 def dashboard():
     padrinhos = get_todos_padrinhos()
-    limite = int(get_config("limite_amarelos", "2"))
     dados = []
     for p in padrinhos:
-        status = calcular_status(p["id"], limite)
+        status = calcular_status(p["id"])
         dados.append({"padrinho": p, **status})
 
     conn = get_conn()
@@ -455,24 +454,13 @@ def configuracoes():
             url = request.form.get("sheets_presenca_url", "").strip()
             set_config("sheets_presenca_url", url)
             registrar_log("ALTERACAO_CONFIG", "URL da planilha de presença atualizada.")
-        else:
-            limite = request.form.get("limite_amarelos", "2")
-            conn = get_conn()
-            conn.execute(
-                "UPDATE config SET valor=? WHERE chave='limite_amarelos'",
-                (limite,)
-            )
-            conn.commit()
-            conn.close()
-            registrar_log("ALTERACAO_CONFIG", f"Limite de amarelos alterado para {limite}.")
         flash("Configurações salvas.", "success")
         return redirect(url_for("configuracoes"))
-    limite_atual = get_config("limite_amarelos", "2")
     sheets_url = get_config("sheets_presenca_url", "")
     return render_template("pages/config.html",
-        limite_amarelos=limite_atual,
         config_semestre=CONFIG,
         sheets_presenca_url=sheets_url,
+        total_reunioes=contar_reunioes(),
     )
 
 # ── CRUD Padrinhos ─────────────────────────────────────────────────────────
@@ -720,13 +708,11 @@ def importar_presencas(reuniao_id):
 @app.route("/relatorio/aptidao")
 def relatorio_aptidao():
     padrinhos = get_todos_padrinhos()
-    limite = int(get_config("limite_amarelos", "2"))
-
     aprovados, reprovados, reportados = [], [], []
     conn = get_conn()
 
     for p in padrinhos:
-        status_dict = calcular_status(p["id"], limite)
+        status_dict = calcular_status(p["id"])
         status = status_dict["status"]
         historico = get_historico_padrinho(p["id"])
         presencas = sum(1 for pr in historico["presencas"] if pr["presente"])
@@ -767,7 +753,6 @@ def relatorio_resumo():
     padrinhos = get_todos_padrinhos()
     reunioes = get_todas_reunioes()
     temas_raw = get_todos_temas()
-    limite = int(get_config("limite_amarelos", "2"))
 
     conn = get_conn()
     total_calouros = conn.execute("SELECT COUNT(*) FROM calouros").fetchone()[0]
@@ -775,7 +760,7 @@ def relatorio_resumo():
 
     contadores = {"aprovados": 0, "alerta": 0, "reprovados": 0, "reportados": 0}
     for p in padrinhos:
-        status = calcular_status(p["id"], limite)["status"]
+        status = calcular_status(p["id"])["status"]
         if status == "apto":
             contadores["aprovados"] += 1
         elif status == "alerta":
@@ -821,7 +806,7 @@ def relatorio_resumo():
         n_alerta=contadores["alerta"],
         n_reprovados=contadores["reprovados"],
         n_reportados=contadores["reportados"],
-        limite_amarelos=limite,
+        total_reunioes_contagem=len(reunioes),
         turno_data=turno_data,
     )
 
@@ -829,12 +814,11 @@ def relatorio_resumo():
 @app.route("/relatorio/reportados")
 def relatorio_reportados():
     padrinhos = get_todos_padrinhos()
-    limite = int(get_config("limite_amarelos", "2"))
     reportados = []
 
     conn = get_conn()
     for p in padrinhos:
-        if calcular_status(p["id"], limite)["status"] == "inapto_vermelho":
+        if calcular_status(p["id"])["status"] == "inapto_vermelho":
             adv = conn.execute(
                 "SELECT motivo, data FROM advertencias WHERE padrinho_id=? AND tipo='vermelho' ORDER BY data DESC LIMIT 1",
                 (p["id"],)

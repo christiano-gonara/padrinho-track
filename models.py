@@ -94,6 +94,12 @@ def get_todas_reunioes():
     conn.close()
     return reunioes
 
+def contar_reunioes():
+    conn = get_conn()
+    count = conn.execute("SELECT COUNT(*) FROM reunioes").fetchone()[0]
+    conn.close()
+    return count
+
 def criar_reuniao(data, tema, descricao):
     conn = get_conn()
     conn.execute(
@@ -355,13 +361,13 @@ def calcular_status(padrinho_id, limite=None):
     vermelhos = counts.get("vermelho", 0)
 
     if limite is None:
-        limite = int(get_config("limite_amarelos", "2"))
+        limite = contar_reunioes()
 
     if vermelhos >= 1:
         return {"status": "inapto_vermelho", "amarelos": amarelos, "vermelhos": vermelhos}
-    if amarelos >= limite:
+    if limite > 0 and amarelos >= limite:
         return {"status": "inapto_amarelo", "amarelos": amarelos, "vermelhos": vermelhos}
-    if amarelos == limite - 1:
+    if limite > 0 and amarelos == limite - 1:
         return {"status": "alerta", "amarelos": amarelos, "vermelhos": vermelhos}
     return {"status": "apto", "amarelos": amarelos, "vermelhos": vermelhos}
 
@@ -386,10 +392,9 @@ def get_historico_padrinho(padrinho_id):
 
 def get_relatorio_geral():
     padrinhos = get_todos_padrinhos()
-    limite = int(get_config("limite_amarelos", "2"))
     relatorio = []
     for p in padrinhos:
-        status   = calcular_status(p["id"], limite)
+        status   = calcular_status(p["id"])
         historico = get_historico_padrinho(p["id"])
         total_reunioes  = len(historico["presencas"])
         total_presentes = sum(1 for pr in historico["presencas"] if pr["presente"])
