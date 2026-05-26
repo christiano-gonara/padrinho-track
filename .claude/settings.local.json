@@ -20,7 +20,19 @@
       "Bash(PYTHONUTF8=1 python *)",
       "PowerShell(taskkill *)",
       "Bash(curl -s http://127.0.0.1:5000/)",
-      "PowerShell(netstat *)"
+      "PowerShell(netstat *)",
+      "Bash(pip install *)",
+      "Bash(pkill -f \"python app.py\")",
+      "Bash(curl -s -o - -w \"\\\\n---STATUS:%{http_code}---\" -X POST http://127.0.0.1:5000/temas/gerar-forms)",
+      "Bash(netstat -ano)",
+      "Bash(kill -9 35868 30552 20956)",
+      "Bash(curl -s -w \"\\\\n---STATUS:%{http_code}---\" -X POST http://127.0.0.1:5000/temas/gerar-forms)",
+      "PowerShell(Get-NetTCPConnection *)",
+      "PowerShell(Get-Process *)",
+      "PowerShell(Stop-Process *)",
+      "PowerShell(Start-Process -FilePath \"C:\\\\Python314\\\\python.exe\" -ArgumentList \"app.py\" -WorkingDirectory \"C:\\\\Users\\\\Pexy0\\\\padrinho-track\" -WindowStyle Hidden; Start-Sleep -Seconds 2; \\(Invoke-WebRequest -Uri \"http://127.0.0.1:5000/temas/gerar-forms\" -Method POST -UseBasicParsing -ErrorAction SilentlyContinue\\).StatusCode)",
+      "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://127.0.0.1:5000/temas/gerar-forms\" -Method GET -UseBasicParsing; $r.StatusCode } catch { $_.Exception.Response.StatusCode.value__ })",
+      "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://127.0.0.1:5000/temas/gerar-forms\" -Method POST -UseBasicParsing; \"STATUS: $\\($r.StatusCode\\)`nBODY: $\\($r.Content\\)\" } catch { \"STATUS: $\\($_.Exception.Response.StatusCode.value__\\)`nBODY_INICIO: $\\(\\($_.ErrorDetails.Message\\) | Select-Object -First 1\\)\" })"
     ]
   }
 }
