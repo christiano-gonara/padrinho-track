@@ -2,7 +2,7 @@ import os
 import sqlite3
 from dotenv import load_dotenv
 load_dotenv(override=True)
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from datetime import date, datetime
 from database import init_db, get_conn
 import math
@@ -17,6 +17,7 @@ from models import (
     abreviar_nome, get_config_semestre, get_config, set_config,
     redistribuir_calouros, sincronizar_presencas_sheets,
     gerar_planilha_temas, sincronizar_responsaveis_temas,
+    gerar_script_forms_temas,
 )
 
 app = Flask(__name__)
@@ -256,15 +257,24 @@ def temas():
     return render_template("pages/temas.html", temas=lista, padrinhos=padrinhos,
                            today=date.today().isoformat(), sheets_temas_url=sheets_url)
 
-@app.route("/temas/gerar-planilha", methods=["POST"])
-def temas_gerar_planilha():
+@app.route("/temas/gerar-forms", methods=["POST"])
+def temas_gerar_forms():
     try:
-        link = gerar_planilha_temas()
-        registrar_log("PLANILHA_TEMAS_GERADA", f"Planilha de inscrições em temas gerada: {link}")
-        flash(f"Planilha criada! Acesse o link no topo da página.", "success")
+        lista = get_todos_temas()
+        temas = [item["tema"] for item in lista]
+        if not temas:
+            return jsonify({"error": "Nenhum tema cadastrado."}), 400
+        conn = get_conn()
+        total_padrinhos = conn.execute(
+            "SELECT COUNT(*) FROM padrinhos WHERE ativo=1"
+        ).fetchone()[0]
+        conn.close()
+        limite = max(1, math.ceil(total_padrinhos / len(temas)))
+        script = gerar_script_forms_temas(temas, limite)
+        registrar_log("FORMS_TEMAS_GERADO", "Apps Script para Forms de inscrição gerado via Gemini")
+        return jsonify({"script": script, "limite": limite})
     except Exception as e:
-        flash(f"Erro ao gerar planilha: {e}", "error")
-    return redirect(url_for("temas"))
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/temas/sincronizar", methods=["POST"])
 def temas_sincronizar():

@@ -1183,6 +1183,54 @@ def gerar_planilha_temas():
     return link
 
 
+def gerar_script_forms_temas(temas, limite):
+    import os
+    import json
+    import re
+    import requests as _req
+
+    api_key = os.environ.get("GEMINI_API_KEY", "")
+    if not api_key:
+        raise ValueError("GEMINI_API_KEY não configurada no .env")
+
+    semestre = get_config_semestre().get("semestre", "")
+    payload = {
+        "semestre": semestre,
+        "limite_vagas": limite,
+        "temas": [
+            {"titulo": t["titulo"], "data_limite": str(t["data_limite"] or "")}
+            for t in temas
+        ],
+    }
+
+    prompt = (
+        f"Gere um Google Apps Script completo que crie um Google Forms "
+        f"com uma pergunta de múltipla escolha onde cada opção é um tema "
+        f"com limite de {limite} respostas. Use FormApp do Google.\n\n"
+        f"Dados do semestre:\n{json.dumps(payload, ensure_ascii=False, indent=2)}\n\n"
+        f"Requisitos:\n"
+        f"- Título do formulário: 'Inscrição em Temas — {semestre}'\n"
+        f"- Primeiro campo: texto curto para nome completo do padrinho (obrigatório)\n"
+        f"- Segunda pergunta: múltipla escolha com cada tema como opção\n"
+        f"- Ao final, exiba o URL do formulário com Logger.log()\n"
+        f"- Retorne apenas o código Apps Script, sem explicações"
+    )
+
+    body = {"contents": [{"parts": [{"text": prompt}]}]}
+    url = (
+        "https://generativelanguage.googleapis.com/v1beta/models/"
+        f"gemini-2.0-flash:generateContent?key={api_key}"
+    )
+    resp = _req.post(url, json=body, timeout=30)
+    resp.raise_for_status()
+
+    script = resp.json()["candidates"][0]["content"]["parts"][0]["text"]
+    # remove delimitadores de bloco de código se o modelo os incluir
+    script = re.sub(r"^```[a-zA-Z]*\n?", "", script.strip())
+    script = re.sub(r"\n?```$", "", script.strip())
+    return script.strip()
+
+
 def sincronizar_responsaveis_temas():
     import gspread
     import unicodedata
