@@ -17,7 +17,7 @@ from models import (
     abreviar_nome, get_config_semestre, get_config, set_config,
     redistribuir_calouros, sincronizar_presencas_sheets,
     gerar_planilha_temas, sincronizar_responsaveis_temas,
-    gerar_script_forms_temas,
+    importar_padrinhos_sheets, importar_calouros_sheets,
 )
 
 app = Flask(__name__)
@@ -253,28 +253,17 @@ def presencas(reuniao_id):
 def temas():
     lista     = get_todos_temas()
     padrinhos = get_todos_padrinhos()
-    sheets_url = get_config("sheets_temas_url", "")
+    sheets_url = get_config("sheets_inscricoes_url", "")
     return render_template("pages/temas.html", temas=lista, padrinhos=padrinhos,
-                           today=date.today().isoformat(), sheets_temas_url=sheets_url)
+                           today=date.today().isoformat(), sheets_inscricoes_url=sheets_url)
 
-@app.route("/temas/gerar-forms", methods=["POST"])
-def temas_gerar_forms():
-    try:
-        lista = get_todos_temas()
-        temas = [item["tema"] for item in lista]
-        if not temas:
-            return jsonify({"error": "Nenhum tema cadastrado."}), 400
-        conn = get_conn()
-        total_padrinhos = conn.execute(
-            "SELECT COUNT(*) FROM padrinhos WHERE ativo=1"
-        ).fetchone()[0]
-        conn.close()
-        limite = max(1, math.ceil(total_padrinhos / len(temas)))
-        script = gerar_script_forms_temas(temas, limite)
-        registrar_log("FORMS_TEMAS_GERADO", "Apps Script para Forms de inscrição gerado via Gemini")
-        return jsonify({"script": script, "limite": limite})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+@app.route("/temas/configurar-inscricoes", methods=["POST"])
+def temas_configurar_inscricoes():
+    url = request.form.get("sheets_inscricoes_url", "").strip()
+    set_config("sheets_inscricoes_url", url)
+    registrar_log("ALTERACAO_CONFIG", "URL da planilha de inscrições em temas atualizada.")
+    flash("Link salvo com sucesso.", "success")
+    return redirect(url_for("temas"))
 
 @app.route("/temas/sincronizar", methods=["POST"])
 def temas_sincronizar():
@@ -861,6 +850,65 @@ def relatorio_reportados():
         reportados=reportados,
     )
 
+
+# ── Início do Semestre ────────────────────────────────────────────────────
+
+@app.route("/inicio")
+def inicio_semestre():
+    conn = get_conn()
+    total_padrinhos = conn.execute("SELECT COUNT(*) FROM padrinhos WHERE ativo=1").fetchone()[0]
+    total_calouros  = conn.execute("SELECT COUNT(*) FROM calouros").fetchone()[0]
+    conn.close()
+    sheets_padrinhos_url = get_config("sheets_padrinhos_url", "")
+    sheets_calouros_url  = get_config("sheets_calouros_url", "")
+    return render_template("pages/inicio_semestre.html",
+        total_padrinhos=total_padrinhos,
+        total_calouros=total_calouros,
+        sheets_padrinhos_url=sheets_padrinhos_url,
+        sheets_calouros_url=sheets_calouros_url,
+    )
+
+@app.route("/inicio/importar-padrinhos", methods=["POST"])
+def inicio_importar_padrinhos():
+    url = request.form.get("sheets_padrinhos_url", "").strip()
+    if url:
+        set_config("sheets_padrinhos_url", url)
+    else:
+        url = get_config("sheets_padrinhos_url", "")
+    if not url:
+        flash("Cole o link da planilha antes de importar.", "error")
+        return redirect(url_for("inicio_semestre"))
+    try:
+        resultado = importar_padrinhos_sheets(url)
+        msg = (f"{resultado['importados']} padrinho(s) importado(s). "
+               f"{resultado['ignorados']} ignorado(s) (curso diferente). "
+               f"{resultado['duplicatas']} duplicata(s).")
+        registrar_log("IMPORTACAO_PADRINHOS", msg)
+        flash(msg, "success")
+    except Exception as e:
+        flash(f"Erro ao importar: {e}", "error")
+    return redirect(url_for("inicio_semestre"))
+
+@app.route("/inicio/importar-calouros", methods=["POST"])
+def inicio_importar_calouros():
+    url = request.form.get("sheets_calouros_url", "").strip()
+    if url:
+        set_config("sheets_calouros_url", url)
+    else:
+        url = get_config("sheets_calouros_url", "")
+    if not url:
+        flash("Cole o link da planilha antes de importar.", "error")
+        return redirect(url_for("inicio_semestre"))
+    try:
+        resultado = importar_calouros_sheets(url)
+        msg = (f"{resultado['importados']} calouro(s) importado(s). "
+               f"{resultado['ignorados']} ignorado(s) (curso diferente). "
+               f"{resultado['duplicatas']} duplicata(s).")
+        registrar_log("IMPORTACAO_CALOUROS", msg)
+        flash(msg, "success")
+    except Exception as e:
+        flash(f"Erro ao importar: {e}", "error")
+    return redirect(url_for("inicio_semestre"))
 
 # ── Inicialização ──────────────────────────────────────────────────────────
 

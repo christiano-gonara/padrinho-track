@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Início do Semestre — Padrinho Track{% endblock %}
+{% block page_title %}Início do Semestre{% endblock %}
+
+{% block content %}
+
+<div class="mb-8">
+  <h1 class="pt-page-title">Início do Semestre</h1>
+  <p class="pt-page-subtitle">Importe padrinhos, calouros e gere os matches para o semestre</p>
+</div>
+
+<div style="max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:24px;">
+
+  <!-- Seção 1: Padrinhos -->
+  <div class="pt-card pt-card-flat">
+    <div class="pt-card-header" style="padding:18px 22px 14px;">
+      <div class="pt-card-header-title">
+        <div class="pt-card-header-icon"><i class="ri-user-star-line"></i></div>
+        <span class="pt-card-title">Padrinhos</span>
+      </div>
+      {% if total_padrinhos > 0 %}
+      <span class="pt-badge pt-badge-green">{{ total_padrinhos }} cadastrado{{ 's' if total_padrinhos != 1 }}</span>
+      {% endif %}
+    </div>
+    <form action="/inicio/importar-padrinhos" method="POST" class="p-6" style="display:flex;flex-direction:column;gap:16px;">
+      <div class="pt-field">
+        <label class="pt-label">Link da planilha de respostas do Forms de cadastro</label>
+        <input type="url" name="sheets_padrinhos_url"
+               value="{{ sheets_padrinhos_url }}"
+               placeholder="https://docs.google.com/spreadsheets/d/..."
+               class="pt-input" />
+        <p class="pt-muted-text" style="font-size:12px;margin-top:6px;">
+          Compartilhe com <strong>padrinho-track@padrinho-track.iam.gserviceaccount.com</strong> como Editor.
+        </p>
+      </div>
+      <div style="background:var(--pt-violet-tint);border:1px solid var(--pt-violet-tint-deep);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--pt-violet-deep);">
+        <i class="ri-information-line"></i>
+        Importa apenas respostas de <strong>Engenharia de Software</strong> da <strong>PUC Minas</strong>.
+        Duplicatas (mesma matrícula) são ignoradas.
+      </div>
+      <div style="display:flex;justify-content:flex-end;">
+        <button type="submit" class="pt-btn pt-btn-primary">
+          <i class="ri-download-line"></i> Importar padrinhos
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Seção 2: Calouros -->
+  <div class="pt-card pt-card-flat">
+    <div class="pt-card-header" style="padding:18px 22px 14px;">
+      <div class="pt-card-header-title">
+        <div class="pt-card-header-icon"><i class="ri-group-line"></i></div>
+        <span class="pt-card-title">Calouros</span>
+      </div>
+      {% if total_calouros > 0 %}
+      <span class="pt-badge pt-badge-green">{{ total_calouros }} cadastrado{{ 's' if total_calouros != 1 }}</span>
+      {% endif %}
+    </div>
+    <form action="/inicio/importar-calouros" method="POST" class="p-6" style="display:flex;flex-direction:column;gap:16px;">
+      <div class="pt-field">
+        <label class="pt-label">Link da planilha de respostas do Forms de cadastro</label>
+        <input type="url" name="sheets_calouros_url"
+               value="{{ sheets_calouros_url }}"
+               placeholder="https://docs.google.com/spreadsheets/d/..."
+               class="pt-input" />
+        <p class="pt-muted-text" style="font-size:12px;margin-top:6px;">
+          Compartilhe com <strong>padrinho-track@padrinho-track.iam.gserviceaccount.com</strong> como Editor.
+        </p>
+      </div>
+      <div style="background:var(--pt-violet-tint);border:1px solid var(--pt-violet-tint-deep);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--pt-violet-deep);">
+        <i class="ri-information-line"></i>
+        Importa apenas respostas de <strong>Engenharia de Software</strong> da <strong>PUC Minas</strong>.
+        Duplicatas (mesmo nome) são ignoradas.
+      </div>
+      <div style="display:flex;justify-content:flex-end;">
+        <button type="submit" class="pt-btn pt-btn-primary">
+          <i class="ri-download-line"></i> Importar calouros
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Seção 3: Match -->
+  <div class="pt-card pt-card-flat">
+    <div class="pt-card-header" style="padding:18px 22px 14px;">
+      <div class="pt-card-header-title">
+        <div class="pt-card-header-icon"><i class="ri-link-m"></i></div>
+        <span class="pt-card-title">Match</span>
+      </div>
+    </div>
+    <div class="p-6" style="display:flex;flex-direction:column;gap:16px;">
+      {% if total_padrinhos == 0 or total_calouros == 0 %}
+      <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:12px 14px;font-size:12px;color:#92400e;display:flex;align-items:flex-start;gap:8px;">
+        <i class="ri-alert-line" style="flex-shrink:0;margin-top:1px;"></i>
+        <span>
+          Para gerar matches é necessário ter
+          {% if total_padrinhos == 0 and total_calouros == 0 %}padrinhos e calouros{% elif total_padrinhos == 0 %}padrinhos{% else %}calouros{% endif %}
+          importados.
+        </span>
+      </div>
+      {% else %}
+      <div style="background:var(--pt-violet-tint);border:1px solid var(--pt-violet-tint-deep);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--pt-violet-deep);">
+        <i class="ri-information-line"></i>
+        <strong>{{ total_padrinhos }}</strong> padrinho{{ 's' if total_padrinhos != 1 }} e
+        <strong>{{ total_calouros }}</strong> calouro{{ 's' if total_calouros != 1 }} disponíveis para o match.
+      </div>
+      {% endif %}
+      <div style="display:flex;justify-content:flex-end;">
+        <form action="/match/rodar" method="POST">
+          <button type="submit"
+                  {% if total_padrinhos == 0 or total_calouros == 0 %}disabled{% endif %}
+                  class="pt-btn pt-btn-primary"
+                  style="{% if total_padrinhos == 0 or total_calouros == 0 %}opacity:0.45;cursor:not-allowed;{% endif %}">
+            <i class="ri-shuffle-line"></i> Gerar matches automaticamente
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

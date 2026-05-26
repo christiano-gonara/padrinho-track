@@ -1183,54 +1183,6 @@ def gerar_planilha_temas():
     return link
 
 
-def gerar_script_forms_temas(temas, limite):
-    import os
-    import json
-    import re
-    import requests as _req
-
-    api_key = os.environ.get("GEMINI_API_KEY", "")
-    if not api_key:
-        raise ValueError("GEMINI_API_KEY não configurada no .env")
-
-    semestre = get_config_semestre().get("semestre", "")
-    payload = {
-        "semestre": semestre,
-        "limite_vagas": limite,
-        "temas": [
-            {"titulo": t["titulo"], "data_limite": str(t["data_limite"] or "")}
-            for t in temas
-        ],
-    }
-
-    prompt = (
-        f"Gere um Google Apps Script completo que crie um Google Forms "
-        f"com uma pergunta de múltipla escolha onde cada opção é um tema "
-        f"com limite de {limite} respostas. Use FormApp do Google.\n\n"
-        f"Dados do semestre:\n{json.dumps(payload, ensure_ascii=False, indent=2)}\n\n"
-        f"Requisitos:\n"
-        f"- Título do formulário: 'Inscrição em Temas — {semestre}'\n"
-        f"- Primeiro campo: texto curto para nome completo do padrinho (obrigatório)\n"
-        f"- Segunda pergunta: múltipla escolha com cada tema como opção\n"
-        f"- Ao final, exiba o URL do formulário com Logger.log()\n"
-        f"- Retorne apenas o código Apps Script, sem explicações"
-    )
-
-    body = {"contents": [{"parts": [{"text": prompt}]}]}
-    url = (
-        "https://generativelanguage.googleapis.com/v1beta/models/"
-        f"gemini-2.0-flash:generateContent?key={api_key}"
-    )
-    resp = _req.post(url, json=body, timeout=30)
-    resp.raise_for_status()
-
-    script = resp.json()["candidates"][0]["content"]["parts"][0]["text"]
-    # remove delimitadores de bloco de código se o modelo os incluir
-    script = re.sub(r"^```[a-zA-Z]*\n?", "", script.strip())
-    script = re.sub(r"\n?```$", "", script.strip())
-    return script.strip()
-
-
 def sincronizar_responsaveis_temas():
     import gspread
     import unicodedata
@@ -1240,9 +1192,9 @@ def sincronizar_responsaveis_temas():
         nfkd = unicodedata.normalize("NFKD", str(texto or ""))
         return "".join(c for c in nfkd if not unicodedata.combining(c)).lower().strip()
 
-    url = get_config("sheets_temas_url")
+    url = get_config("sheets_inscricoes_url")
     if not url:
-        raise ValueError("Planilha não gerada. Clique em 'Gerar planilha de inscrições' primeiro.")
+        raise ValueError("URL da planilha de inscrições não configurada. Cole o link em Temas.")
 
     credentials_path = Path(__file__).parent / "credentials.json"
     gc = gspread.service_account(filename=str(credentials_path))
@@ -1294,6 +1246,193 @@ def sincronizar_responsaveis_temas():
     conn.commit()
     conn.close()
     return {"atualizados": atualizados, "nao_reconhecidos": list(dict.fromkeys(nao_reconhecidos))}
+
+
+def importar_padrinhos_sheets(url):
+    import gspread
+    import unicodedata
+    from pathlib import Path
+
+    def _norm(texto):
+        nfkd = unicodedata.normalize("NFKD", str(texto or ""))
+        return "".join(c for c in nfkd if not unicodedata.combining(c)).lower().strip()
+
+    def _find_col(keys_norm, *kws):
+        for k in keys_norm:
+            for kw in kws:
+                if kw in k:
+                    return k
+        return None
+
+    credentials_path = Path(__file__).parent / "credentials.json"
+    gc = gspread.service_account(filename=str(credentials_path))
+    sh = gc.open_by_url(url)
+    ws = sh.sheet1
+    records = ws.get_all_records()
+
+    if not records:
+        return {"importados": 0, "ignorados": 0, "duplicatas": 0}
+
+    keys_norm = {_norm(k): k for k in records[0].keys()}
+
+    col_nome         = _find_col(keys_norm, "nome")
+    col_matricula    = _find_col(keys_norm, "matricula", "matrícula")
+    col_email        = _find_col(keys_norm, "email", "e-mail")
+    col_telefone     = _find_col(keys_norm, "telefone", "celular", "whatsapp")
+    col_turno        = _find_col(keys_norm, "turno")
+    col_curso        = _find_col(keys_norm, "curso")
+    col_instituicao  = _find_col(keys_norm, "institui", "universidade", "faculdade")
+    col_cidade       = _find_col(keys_norm, "cidade", "grande bh", "bh")
+    col_prouni       = _find_col(keys_norm, "prouni", "pro-uni")
+    col_trabalha     = _find_col(keys_norm, "trabalha", "trabalho", "emprego")
+    col_idade        = _find_col(keys_norm, "idade")
+
+    def _get(rec, col):
+        return str(rec.get(keys_norm.get(col, ""), "") or "").strip() if col else ""
+
+    conn = get_conn()
+    existing = {str(p["matricula"]).strip(): True
+                for p in conn.execute("SELECT matricula FROM padrinhos").fetchall()
+                if p["matricula"]}
+
+    importados = ignorados = duplicatas = 0
+
+    for rec in records:
+        curso = _norm(_get(rec, col_curso))
+        inst  = _norm(_get(rec, col_instituicao))
+
+        if "engenharia de software" not in curso or "puc" not in inst:
+            ignorados += 1
+            continue
+
+        matricula = _get(rec, col_matricula)
+        if matricula and matricula in existing:
+            duplicatas += 1
+            continue
+
+        nome     = _get(rec, col_nome)
+        email    = _get(rec, col_email)
+        telefone = _get(rec, col_telefone)
+        turno    = _get(rec, col_turno)
+        idade_s  = _get(rec, col_idade)
+        idade    = int(idade_s) if idade_s.isdigit() else None
+
+        cidade_raw = _norm(_get(rec, col_cidade))
+        cidade_bh  = 1 if ("sim" in cidade_raw or "grande bh" in cidade_raw or "bh" in cidade_raw) else 0
+
+        prouni_raw = _norm(_get(rec, col_prouni))
+        prouni     = 1 if "sim" in prouni_raw else 0
+
+        trabalha_raw = _norm(_get(rec, col_trabalha))
+        trabalha     = 1 if "sim" in trabalha_raw else 0
+
+        if not nome:
+            ignorados += 1
+            continue
+
+        conn.execute("""
+            INSERT INTO padrinhos (nome, matricula, email, telefone, turno, idade, cidade_bh, prouni, trabalha)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (nome, matricula or None, email or None, telefone or None,
+              turno or None, idade, cidade_bh, prouni, trabalha))
+
+        if matricula:
+            existing[matricula] = True
+        importados += 1
+
+    conn.commit()
+    conn.close()
+    return {"importados": importados, "ignorados": ignorados, "duplicatas": duplicatas}
+
+
+def importar_calouros_sheets(url):
+    import gspread
+    import unicodedata
+    from pathlib import Path
+
+    def _norm(texto):
+        nfkd = unicodedata.normalize("NFKD", str(texto or ""))
+        return "".join(c for c in nfkd if not unicodedata.combining(c)).lower().strip()
+
+    def _find_col(keys_norm, *kws):
+        for k in keys_norm:
+            for kw in kws:
+                if kw in k:
+                    return k
+        return None
+
+    credentials_path = Path(__file__).parent / "credentials.json"
+    gc = gspread.service_account(filename=str(credentials_path))
+    sh = gc.open_by_url(url)
+    ws = sh.sheet1
+    records = ws.get_all_records()
+
+    if not records:
+        return {"importados": 0, "ignorados": 0, "duplicatas": 0}
+
+    keys_norm = {_norm(k): k for k in records[0].keys()}
+
+    col_nome        = _find_col(keys_norm, "nome")
+    col_telefone    = _find_col(keys_norm, "telefone", "celular", "whatsapp")
+    col_turno       = _find_col(keys_norm, "turno")
+    col_curso       = _find_col(keys_norm, "curso")
+    col_instituicao = _find_col(keys_norm, "institui", "universidade", "faculdade")
+    col_cidade      = _find_col(keys_norm, "cidade", "grande bh", "bh")
+    col_prouni      = _find_col(keys_norm, "prouni", "pro-uni")
+    col_trabalha    = _find_col(keys_norm, "trabalha", "trabalho", "emprego")
+    col_idade       = _find_col(keys_norm, "idade")
+
+    def _get(rec, col):
+        return str(rec.get(keys_norm.get(col, ""), "") or "").strip() if col else ""
+
+    conn = get_conn()
+    existing_nomes = {_norm(c["nome"]): True
+                      for c in conn.execute("SELECT nome FROM calouros").fetchall()}
+
+    importados = ignorados = duplicatas = 0
+
+    for rec in records:
+        curso = _norm(_get(rec, col_curso))
+        inst  = _norm(_get(rec, col_instituicao))
+
+        if "engenharia de software" not in curso or "puc" not in inst:
+            ignorados += 1
+            continue
+
+        nome = _get(rec, col_nome)
+        if not nome:
+            ignorados += 1
+            continue
+
+        if _norm(nome) in existing_nomes:
+            duplicatas += 1
+            continue
+
+        telefone  = _get(rec, col_telefone)
+        turno     = _get(rec, col_turno)
+        idade_s   = _get(rec, col_idade)
+        idade     = int(idade_s) if idade_s.isdigit() else None
+
+        cidade_raw = _norm(_get(rec, col_cidade))
+        cidade_bh  = 1 if ("sim" in cidade_raw or "grande bh" in cidade_raw or "bh" in cidade_raw) else 0
+
+        prouni_raw = _norm(_get(rec, col_prouni))
+        prouni     = 1 if "sim" in prouni_raw else 0
+
+        trabalha_raw = _norm(_get(rec, col_trabalha))
+        trabalha     = 1 if "sim" in trabalha_raw else 0
+
+        conn.execute("""
+            INSERT INTO calouros (nome, telefone, turno, idade, cidade_bh, prouni, trabalha)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (nome, telefone or None, turno or None, idade, cidade_bh, prouni, trabalha))
+
+        existing_nomes[_norm(nome)] = True
+        importados += 1
+
+    conn.commit()
+    conn.close()
+    return {"importados": importados, "ignorados": ignorados, "duplicatas": duplicatas}
 
 
 def importar_presencas_csv(caminho_csv, reuniao_id):
