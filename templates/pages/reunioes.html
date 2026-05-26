@@ -49,10 +49,6 @@
                class="inline-flex items-center gap-1.5 bg-[#7c5cff]/10 text-[#7c5cff] hover:bg-[#7c5cff]/20 px-3 py-1.5 rounded-lg text-xs font-medium transition">
               <i class="ri-user-follow-line"></i> lançar presença
             </a>
-            <a href="/presencas/{{ r['id'] }}/importar"
-               class="inline-flex items-center gap-1.5 bg-violet-50 dark:bg-violet-900/50 text-violet-600 dark:text-violet-400 hover:bg-violet-100 dark:hover:bg-violet-900 px-3 py-1.5 rounded-lg text-xs font-medium transition">
-              <i class="ri-upload-line"></i> importar CSV
-            </a>
             {% if sheets_presenca_url %}
             <form action="/reunioes/{{ r['id'] }}/sincronizar" method="POST" class="inline">
               <button type="submit"
@@ -91,6 +87,39 @@
     </tbody>
   </table>
   </div>
+</div>
+
+<!-- Google Forms — Presença -->
+<div class="mt-8 bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 shadow-sm overflow-hidden">
+  <div class="px-6 py-4 border-b border-slate-200 dark:border-gray-800 flex items-center gap-3">
+    <div class="w-8 h-8 rounded-lg bg-[#7c5cff]/10 flex items-center justify-center shrink-0">
+      <i class="ri-table-line text-[#7c5cff] text-sm"></i>
+    </div>
+    <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Google Forms — Presença</h2>
+  </div>
+  <form action="/reunioes/configurar-forms" method="POST" class="p-6 flex flex-col gap-5">
+    <div class="pt-field">
+      <label class="pt-label">Link da planilha de respostas</label>
+      <p class="pt-muted-text text-xs mb-2">
+        Cole o link da planilha de respostas do Google Forms de presença.
+        Após a reunião, clique em "Sincronizar Forms" para registrar as presenças automaticamente.
+      </p>
+      <input type="text" name="sheets_presenca_url"
+             value="{{ sheets_presenca_url or '' }}"
+             class="pt-input"
+             placeholder="https://docs.google.com/spreadsheets/d/..." />
+    </div>
+    <div style="background:var(--pt-violet-tint);border:1px solid var(--pt-violet-tint-deep);border-radius:10px;padding:12px 14px;display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--pt-violet-deep);">
+      <i class="ri-information-line shrink-0 mt-0.5"></i>
+      <span>A planilha deve ser compartilhada com a conta de serviço:
+        <strong>padrinho-track@padrinho-track.iam.gserviceaccount.com</strong></span>
+    </div>
+    <div class="flex justify-end">
+      <button type="submit" class="pt-btn pt-btn-primary">
+        <i class="ri-save-line"></i> Salvar link
+      </button>
+    </div>
+  </form>
 </div>
 
 {% include "components/modal_nova_reuniao.html" %}

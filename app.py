@@ -338,8 +338,11 @@ def advertencias():
 def advertencia_manual():
     padrinho_id = request.form["padrinho_id"]
     motivo      = request.form["motivo"].strip()
-    emitir_advertencia_manual(padrinho_id, motivo)
-    registrar_log("ADVERTENCIA_MANUAL", f"Advertência manual para padrinho ID {padrinho_id}: {motivo}")
+    tipo        = request.form.get("tipo", "vermelho")
+    if tipo not in ("amarelo", "vermelho"):
+        tipo = "vermelho"
+    emitir_advertencia_manual(padrinho_id, motivo, tipo)
+    registrar_log("ADVERTENCIA_MANUAL", f"Advertência manual ({tipo}) para padrinho ID {padrinho_id}: {motivo}")
     flash("Advertência manual registrada.", "error")
     return redirect(url_for("advertencias"))
 
@@ -612,6 +615,19 @@ def match_resetar():
     flash("Matches resetados.", "success")
     return redirect(url_for("match"))
 
+@app.route("/match/lista-contatos")
+def match_lista_contatos():
+    conn = get_conn()
+    rows = conn.execute("""
+        SELECT p.nome as padrinho_nome, p.turno, c.nome as calouro_nome, c.telefone
+        FROM matches m
+        JOIN padrinhos p ON p.id = m.padrinho_id
+        JOIN calouros c ON c.id = m.calouro_id
+        ORDER BY p.nome, c.nome
+    """).fetchall()
+    conn.close()
+    return render_template("pages/lista_contatos.html", rows=rows, config=CONFIG, hoje=date.today())
+
 @app.route("/match/exportar")
 def match_exportar():
     import csv, io
@@ -636,7 +652,25 @@ def match_exportar():
         headers={"Content-Disposition": "attachment; filename=lista_contatos_match.csv"},
     )
 
+@app.route("/reunioes/configurar-forms", methods=["POST"])
+def reunioes_configurar_forms():
+    url = request.form.get("sheets_presenca_url", "").strip()
+    set_config("sheets_presenca_url", url)
+    registrar_log("ALTERACAO_CONFIG", "URL da planilha de presença atualizada.")
+    flash("Link salvo com sucesso.", "success")
+    return redirect(url_for("reunioes"))
+
 # ── Logs de auditoria ─────────────────────────────────────────────────────
+
+@app.route("/logs/limpar", methods=["POST"])
+def logs_limpar():
+    conn = get_conn()
+    conn.execute("DELETE FROM logs")
+    conn.commit()
+    conn.close()
+    registrar_log("LOGS_LIMPOS", "Logs de auditoria apagados pelo coordenador.")
+    flash("Logs de auditoria apagados.", "success")
+    return redirect(url_for("configuracoes"))
 
 @app.route("/logs")
 def logs():

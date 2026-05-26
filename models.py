@@ -244,12 +244,12 @@ def emitir_advertencias_falta(reuniao_id):
     conn.commit()
     conn.close()
 
-def emitir_advertencia_manual(padrinho_id, motivo):
+def emitir_advertencia_manual(padrinho_id, motivo, tipo='vermelho'):
     conn = get_conn()
     conn.execute("""
         INSERT INTO advertencias (padrinho_id, tipo, origem, motivo, data)
-        VALUES (?, 'vermelho', 'manual', ?, ?)
-    """, (padrinho_id, motivo, date.today().isoformat()))
+        VALUES (?, ?, 'manual', ?, ?)
+    """, (padrinho_id, tipo, motivo, date.today().isoformat()))
     conn.commit()
     conn.close()
 
