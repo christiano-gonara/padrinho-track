@@ -45,10 +45,6 @@
         <td class="px-6 py-4 text-gray-500 dark:text-gray-400">{{ r["descricao"] or "—" }}</td>
         <td class="px-6 py-4 text-right">
           <div class="flex items-center justify-end gap-3">
-            <a href="/presencas/{{ r['id'] }}"
-               class="inline-flex items-center gap-1.5 bg-[#7c5cff]/10 text-[#7c5cff] hover:bg-[#7c5cff]/20 px-3 py-1.5 rounded-lg text-xs font-medium transition">
-              <i class="ri-user-follow-line"></i> lançar presença
-            </a>
             {% if sheets_presenca_url %}
             <form action="/reunioes/{{ r['id'] }}/sincronizar" method="POST" class="inline">
               <button type="submit"
