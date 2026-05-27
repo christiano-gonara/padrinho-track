@@ -12,7 +12,7 @@ from models import (
     lancar_presenca, get_presencas_reuniao, emitir_advertencias_falta,
     registrar_tema, registrar_entrega_tema, marcar_tema_nao_entregue,
     emitir_advertencia_manual, get_advertencias_padrinho,
-    calcular_status, get_historico_padrinho, get_relatorio_geral,
+    calcular_status, calcular_todos_status, get_historico_padrinho, get_relatorio_geral,
     get_todos_temas, get_calouros_match_completo, registrar_log,
     abreviar_nome, get_config_semestre, get_config, set_config, contar_reunioes,
     redistribuir_calouros, sincronizar_presencas_sheets,
@@ -81,10 +81,9 @@ def logout():
 @app.route("/")
 def dashboard():
     padrinhos = get_todos_padrinhos()
-    dados = []
-    for p in padrinhos:
-        status = calcular_status(p["id"])
-        dados.append({"padrinho": p, **status})
+    limite = contar_reunioes()
+    todos_status = calcular_todos_status([p["id"] for p in padrinhos], limite)
+    dados = [{"padrinho": p, **todos_status.get(p["id"], {"status": "apto", "amarelos": 0, "vermelhos": 0})} for p in padrinhos]
 
     conn = get_conn()
     proxima_reuniao = conn.execute(
@@ -721,41 +720,42 @@ def importar_presencas(reuniao_id):
 @app.route("/relatorio/aptidao")
 def relatorio_aptidao():
     padrinhos = get_todos_padrinhos()
-    aprovados, reprovados, reportados = [], [], []
+    limite = contar_reunioes()
+    todos_status = calcular_todos_status([p["id"] for p in padrinhos], limite)
+
     conn = get_conn()
+    vermelho_rows = conn.execute(
+        "SELECT padrinho_id, motivo FROM advertencias WHERE tipo='vermelho' ORDER BY data DESC"
+    ).fetchall()
+    conn.close()
+    vermelho_map = {}
+    for r in vermelho_rows:
+        if r["padrinho_id"] not in vermelho_map:
+            vermelho_map[r["padrinho_id"]] = r["motivo"]
 
+    aprovados, reprovados, reportados = [], [], []
     for p in padrinhos:
-        status_dict = calcular_status(p["id"])
+        status_dict = todos_status.get(p["id"], {"status": "apto", "amarelos": 0, "vermelhos": 0})
         status = status_dict["status"]
-        historico = get_historico_padrinho(p["id"])
-        presencas = sum(1 for pr in historico["presencas"] if pr["presente"])
-
         row = {
             "nome": p["nome"], "matricula": p["matricula"],
             "turno": p["turno"] or "—",
             "email": p["email"] or "—",
             "num_amarelos": status_dict["amarelos"],
         }
-
         if status == "inapto_vermelho":
-            adv = conn.execute(
-                "SELECT motivo FROM advertencias WHERE padrinho_id=? AND tipo='vermelho' ORDER BY data DESC LIMIT 1",
-                (p["id"],)
-            ).fetchone()
-            row["motivo_vermelho"] = adv["motivo"] if adv else "—"
+            row["motivo_vermelho"] = vermelho_map.get(p["id"], "—")
             reportados.append(row)
         elif status == "inapto_amarelo":
             reprovados.append(row)
         else:
             aprovados.append(row)
 
-    conn.close()
-
     return render_template("pages/relatorio_aptidao_acg.html",
         config=CONFIG,
         hoje=date.today(),
         total=len(padrinhos) or 1,
-        total_reunioes_db=contar_reunioes(),
+        total_reunioes_db=limite,
         aprovados=aprovados,
         reprovados=reprovados,
         reportados=reportados,
@@ -769,19 +769,21 @@ def relatorio_resumo():
     temas_raw = get_todos_temas()
 
     conn = get_conn()
-    total_calouros = conn.execute("SELECT COUNT(*) FROM calouros").fetchone()[0]
-    n_bol_cal  = conn.execute("SELECT COUNT(*) FROM calouros WHERE bolsista=1").fetchone()[0]
-    n_bh_cal   = conn.execute("SELECT COUNT(*) FROM calouros WHERE cidade_bh=1").fetchone()[0]
-    n_trab_cal = conn.execute("SELECT COUNT(*) FROM calouros WHERE trabalha=1").fetchone()[0]
+    cal_row = conn.execute(
+        "SELECT COUNT(*) AS total, SUM(bolsista) AS bol, SUM(cidade_bh) AS bh, SUM(trabalha) AS trab FROM calouros"
+    ).fetchone()
     conn.close()
+    total_calouros = cal_row["total"] or 0
     total_cal_d = total_calouros or 1
-    pct_bolsista_cal = round(n_bol_cal  / total_cal_d * 100)
-    pct_bh_cal       = round(n_bh_cal   / total_cal_d * 100)
-    pct_trabalha_cal = round(n_trab_cal / total_cal_d * 100)
+    pct_bolsista_cal = round((cal_row["bol"] or 0) / total_cal_d * 100)
+    pct_bh_cal       = round((cal_row["bh"]  or 0) / total_cal_d * 100)
+    pct_trabalha_cal = round((cal_row["trab"] or 0) / total_cal_d * 100)
 
+    limite = contar_reunioes()
+    todos_status = calcular_todos_status([p["id"] for p in padrinhos], limite)
     contadores = {"aprovados": 0, "alerta": 0, "reprovados": 0, "reportados": 0}
     for p in padrinhos:
-        status = calcular_status(p["id"])["status"]
+        status = todos_status.get(p["id"], {"status": "apto"})["status"]
         if status == "apto":
             contadores["aprovados"] += 1
         elif status == "alerta":
@@ -845,15 +847,23 @@ def relatorio_resumo():
 @app.route("/relatorio/reportados")
 def relatorio_reportados():
     padrinhos = get_todos_padrinhos()
-    reportados = []
+    limite = contar_reunioes()
+    todos_status = calcular_todos_status([p["id"] for p in padrinhos], limite)
 
     conn = get_conn()
+    adv_rows = conn.execute(
+        "SELECT padrinho_id, motivo, data FROM advertencias WHERE tipo='vermelho' ORDER BY data DESC"
+    ).fetchall()
+    conn.close()
+    adv_map = {}
+    for r in adv_rows:
+        if r["padrinho_id"] not in adv_map:
+            adv_map[r["padrinho_id"]] = r
+
+    reportados = []
     for p in padrinhos:
-        if calcular_status(p["id"])["status"] == "inapto_vermelho":
-            adv = conn.execute(
-                "SELECT motivo, data FROM advertencias WHERE padrinho_id=? AND tipo='vermelho' ORDER BY data DESC LIMIT 1",
-                (p["id"],)
-            ).fetchone()
+        if todos_status.get(p["id"], {"status": "apto"})["status"] == "inapto_vermelho":
+            adv = adv_map.get(p["id"])
             data_adv = None
             if adv and adv["data"]:
                 try:
@@ -867,7 +877,6 @@ def relatorio_reportados():
                 "motivo_vermelho": adv["motivo"] if adv else "—",
                 "data_advertencia_grave": data_adv,
             })
-    conn.close()
 
     return render_template("pages/relatorio_reportados.html",
         config=CONFIG,

@@ -32,7 +32,16 @@
       "PowerShell(Stop-Process *)",
       "PowerShell(Start-Process -FilePath \"C:\\\\Python314\\\\python.exe\" -ArgumentList \"app.py\" -WorkingDirectory \"C:\\\\Users\\\\Pexy0\\\\padrinho-track\" -WindowStyle Hidden; Start-Sleep -Seconds 2; \\(Invoke-WebRequest -Uri \"http://127.0.0.1:5000/temas/gerar-forms\" -Method POST -UseBasicParsing -ErrorAction SilentlyContinue\\).StatusCode)",
       "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://127.0.0.1:5000/temas/gerar-forms\" -Method GET -UseBasicParsing; $r.StatusCode } catch { $_.Exception.Response.StatusCode.value__ })",
-      "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://127.0.0.1:5000/temas/gerar-forms\" -Method POST -UseBasicParsing; \"STATUS: $\\($r.StatusCode\\)`nBODY: $\\($r.Content\\)\" } catch { \"STATUS: $\\($_.Exception.Response.StatusCode.value__\\)`nBODY_INICIO: $\\(\\($_.ErrorDetails.Message\\) | Select-Object -First 1\\)\" })"
+      "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://127.0.0.1:5000/temas/gerar-forms\" -Method POST -UseBasicParsing; \"STATUS: $\\($r.StatusCode\\)`nBODY: $\\($r.Content\\)\" } catch { \"STATUS: $\\($_.Exception.Response.StatusCode.value__\\)`nBODY_INICIO: $\\(\\($_.ErrorDetails.Message\\) | Select-Object -First 1\\)\" })",
+      "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://127.0.0.1:5000/logs/limpar\" -Method POST -UseBasicParsing; \"STATUS: $\\($r.StatusCode\\)\" } catch { \"STATUS: $\\($_.Exception.Response.StatusCode.value__\\)`nBODY: $\\($_.ErrorDetails.Message\\)\" })",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://127.0.0.1:5000/inicio)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://127.0.0.1:5000/temas)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://127.0.0.1:5000/reunioes)",
+      "PowerShell(Start-Process python -ArgumentList \"app.py\" -WorkingDirectory \"C:\\\\Users\\\\Pexy0\\\\padrinho-track\" -WindowStyle Hidden; Start-Sleep -Seconds 2; Write-Host \"Servidor reiniciado\")",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\Pexy0\\\\padrinho-track\\\\scripts\" -ErrorAction SilentlyContinue | Select-Object Name; if \\(-not \\(Test-Path \"C:\\\\Users\\\\Pexy0\\\\padrinho-track\\\\scripts\"\\)\\) { Write-Host \"scripts/ nao existe\" })",
+      "Bash(git check-ignore *)",
+      "PowerShell(Start-Process python -ArgumentList \"app.py\" -WorkingDirectory \"C:\\\\Users\\\\Pexy0\\\\padrinho-track\" -WindowStyle Hidden)",
+      "Bash(Remove-Item -Force \"instance\\\\mentoria.db\" -ErrorAction SilentlyContinue)"
     ]
   }
 }

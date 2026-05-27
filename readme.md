@@ -26,28 +26,28 @@ PUC Minas · Semestre 2026/1
 ## Funcionalidades
 
 **Gestão de padrinhos e calouros**
-- Cadastro de padrinhos com turno, email e telefone
-- Match padrinho-calouro com histórico completo
+- Cadastro de padrinhos com turno, email, telefone e dados demográficos
+- Match padrinho-calouro com algoritmo de compatibilidade por turno e perfil
+- Redistribuição de calouros ao remover padrinho do programa
 - Histórico individual — presenças, temas e advertências
 
 **Presenças e reuniões**
 - Registro manual de presença por reunião
-- Importação automática via CSV exportado do Google Forms
+- Sincronização automática via Google Forms/Sheets
 - Advertência automática para faltas sem justificativa
 
 **Temas informativos**
 - Controle de entrega de temas em grupo
 - Advertência automática por atraso ou não entrega
-- Advertência manual para comportamentos inadequados
+- Advertência manual (amarela ou grave) para comportamentos inadequados
 
 **Relatórios e aptidão ACG**
 - Dashboard com visão geral — aprovados, em alerta, reprovados, reportados
 - Gráficos de distribuição de status e presenças por reunião
-- Relatório geral exportável em CSV
-- Relatório de Aptidão ACG — HTML para impressão via browser (Ctrl+P → Salvar como PDF)
-- Resumo do Semestre — HTML para impressão via browser
-- Reportados ao Professor Coordenador — HTML para impressão via browser
-- Limite de advertências configurável pela coordenação
+- Relatório de Aptidão ACG — impressão via browser (Ctrl+P → PDF)
+- Resumo do Semestre — impressão via browser
+- Reportados ao Professor Coordenador — impressão via browser
+- Lista de contatos padrinho-calouro — impressão via browser
 
 **Interface**
 - Design system próprio com identidade visual da marca
@@ -55,6 +55,7 @@ PUC Minas · Semestre 2026/1
 - Dark mode com toggle e preferência salva
 - Busca em tempo real na lista de padrinhos
 - Toast notifications nas ações
+- Logs de auditoria de todas as ações
 
 ---
 
@@ -63,8 +64,8 @@ PUC Minas · Semestre 2026/1
 | Situação | Tipo | Consequência |
 |---|---|---|
 | Falta sem justificativa em reunião | Advertência | — |
-| Entrega de tema com 1 dia de atraso | Advertência | — |
-| N advertências acumuladas (configurável) | — | Reprovado para ACG |
+| Atraso na entrega de tema (manual) | Advertência | — |
+| Faltas em todas as reuniões do semestre | — | Reprovado para ACG |
 | Não entrega de tema | Advertência Grave | Reprovado + reportar professor |
 | Comportamento inadequado (manual) | Advertência Grave | Reprovado + reportar professor |
 
@@ -79,43 +80,6 @@ PUC Minas · Semestre 2026/1
 
 ---
 
-## Telas
-
-### Dashboard
-![Dashboard](docs/images/dashboard.png)
-
-### Padrinhos
-![Padrinhos](docs/images/padrinhos.png)
-
-### Reuniões
-![Reuniões](docs/images/reunioes.png)
-
-### Lançar presenças
-![Presenças](docs/images/presencas.png)
-
-### Temas
-![Temas](docs/images/temas.png)
-
-### Calouros
-![Calouros](docs/images/calouros.png)
-
-### Advertências
-![Advertências](docs/images/advertencias.png)
-
-### Detalhe do padrinho
-![Detalhe](docs/images/padrinho_detalhe.png)
-
-### Relatório geral — dark mode
-![Relatório](docs/images/relatorio_dark.png)
-
-### Modais
-
-| Novo padrinho | Nova reunião | Novo tema | Advertência manual |
-|---|---|---|---|
-| ![](docs/images/modal_padrinho.png) | ![](docs/images/modal_reuniao.png) | ![](docs/images/modal_tema.png) | ![](docs/images/modal_advertencia.png) |
-
----
-
 ## Stack
 
 - **Backend:** Python + Flask
@@ -124,8 +88,7 @@ PUC Minas · Semestre 2026/1
 - **Ícones:** Remix Icon
 - **Gráficos:** ApexCharts
 - **Testes:** pytest — 29 testes cobrindo regras de advertência, aptidão e idempotência
-- **Relatórios:** páginas HTML/Jinja impressas via browser (sem dependência externa)
-- **PDF:** reportlab (mantido para uso interno, não exposto na interface)
+- **Integrações:** Google Sheets API (gspread) para sincronização de presenças
 
 ---
 
@@ -136,11 +99,11 @@ padrinho-track/
 ├── app.py                  # Flask: configuração e rotas
 ├── database.py             # Conexão e criação do banco SQLite
 ├── models.py               # Funções de leitura e escrita no banco
-├── seed_exemplo.py         # Dados fictícios para demonstração
 ├── config_semestre.json    # Configurações do semestre (gitignore)
-├── CLAUDE.md               # Contexto do projeto para Claude Code
-├── APRENDIZADOS.md         # Lições aprendidas no desenvolvimento
-├── tarefas.md              # Tarefas pendentes para Claude Code
+├── credentials.json        # Service account Google Cloud (gitignore)
+├── client_secrets.json     # OAuth2 Google Cloud (gitignore)
+├── requirements.txt
+├── README.md
 ├── tests/                  # Testes automatizados com pytest
 ├── templates/              # Páginas HTML
 │   ├── base.html
@@ -150,8 +113,15 @@ padrinho-track/
 │   ├── css/app.css         # Design system completo
 │   └── *.svg               # Logo e favicon
 ├── instance/               # Banco de dados local (gitignore)
-├── docs/                   # Screenshots para o README
-└── requirements.txt
+├── scripts/
+│   ├── seed_exemplo.py     # Dados fictícios para demonstração
+│   ├── seed.py             # Seed com dados reais (gitignore)
+│   ├── seed_calouros.py    # Seed de calouros reais (gitignore)
+│   └── match.py            # Script standalone de match via CSV
+└── docs/
+    ├── CLAUDE.md           # Contexto do projeto para Claude Code
+    ├── tarefas.md          # Tarefas pendentes
+    └── APRENDIZADOS.md     # Lições aprendidas
 ```
 
 ---
@@ -178,6 +148,7 @@ Edite `.env` com suas credenciais:
 APP_USERNAME=admin
 APP_PASSWORD=sua_senha_aqui
 SECRET_KEY=chave_secreta_longa_e_aleatoria
+GEMINI_API_KEY=sua_chave_gemini
 ```
 
 **4. Popule o banco com dados de exemplo**
@@ -207,15 +178,16 @@ python -m pytest tests/ -v
 ## Roadmap
 
 - [x] Sistema de advertências automáticas
-- [x] Importação de presenças via CSV do Google Forms
+- [x] Sincronização de presenças via Google Forms/Sheets
 - [x] Relatórios HTML para impressão/PDF via browser
 - [x] Login com autenticação
 - [x] Design system com identidade visual própria
 - [x] Logs de auditoria
-- [x] Interface de match padrinho-calouro
-- [ ] Deploy em nuvem
+- [x] Match padrinho-calouro com algoritmo de compatibilidade
+- [x] Dados demográficos e distribuição por turno
+- [ ] Tela de início do semestre (importação via Forms)
+- [ ] Deploy no Fly.io
 - [ ] Bot do Telegram para a coordenação
-- [ ] Integração com Google Sheets API
 
 ---
 

@@ -390,21 +390,70 @@ def get_historico_padrinho(padrinho_id):
     conn.close()
     return {"presencas": presencas, "temas": temas}
 
+def calcular_todos_status(padrinho_ids, limite=None):
+    """Bulk calcular_status — 2 queries instead of 2N."""
+    if not padrinho_ids:
+        return {}
+    if limite is None:
+        limite = contar_reunioes()
+    conn = get_conn()
+    ph = ",".join("?" * len(padrinho_ids))
+    rows = conn.execute(
+        f"SELECT padrinho_id, tipo, COUNT(*) AS cnt FROM advertencias "
+        f"WHERE padrinho_id IN ({ph}) GROUP BY padrinho_id, tipo",
+        list(padrinho_ids)
+    ).fetchall()
+    conn.close()
+    counts = {}
+    for r in rows:
+        pid = r["padrinho_id"]
+        if pid not in counts:
+            counts[pid] = {}
+        counts[pid][r["tipo"]] = r["cnt"]
+    result = {}
+    for pid in padrinho_ids:
+        c = counts.get(pid, {})
+        amarelos  = c.get("amarelo", 0)
+        vermelhos = c.get("vermelho", 0)
+        if vermelhos >= 1:
+            status = "inapto_vermelho"
+        elif limite > 0 and amarelos >= limite:
+            status = "inapto_amarelo"
+        elif limite > 0 and amarelos == limite - 1:
+            status = "alerta"
+        else:
+            status = "apto"
+        result[pid] = {"status": status, "amarelos": amarelos, "vermelhos": vermelhos}
+    return result
+
+
 def get_relatorio_geral():
     padrinhos = get_todos_padrinhos()
+    if not padrinhos:
+        return []
+    padrinho_ids = [p["id"] for p in padrinhos]
+    limite = contar_reunioes()
+    todos_status = calcular_todos_status(padrinho_ids, limite)
+    conn = get_conn()
+    ph = ",".join("?" * len(padrinho_ids))
+    pres_rows = conn.execute(
+        f"SELECT padrinho_id, COUNT(*) AS total, SUM(presente) AS presentes "
+        f"FROM presencas WHERE padrinho_id IN ({ph}) GROUP BY padrinho_id",
+        padrinho_ids
+    ).fetchall()
+    conn.close()
+    pres_map = {r["padrinho_id"]: (r["total"], r["presentes"] or 0) for r in pres_rows}
     relatorio = []
     for p in padrinhos:
-        status   = calcular_status(p["id"])
-        historico = get_historico_padrinho(p["id"])
-        total_reunioes  = len(historico["presencas"])
-        total_presentes = sum(1 for pr in historico["presencas"] if pr["presente"])
+        st = todos_status.get(p["id"], {"status": "apto", "amarelos": 0, "vermelhos": 0})
+        total_r, presentes = pres_map.get(p["id"], (0, 0))
         relatorio.append({
             "padrinho":        p,
-            "status":          status["status"],
-            "amarelos":        status["amarelos"],
-            "vermelhos":       status["vermelhos"],
-            "total_reunioes":  total_reunioes,
-            "total_presentes": total_presentes,
+            "status":          st["status"],
+            "amarelos":        st["amarelos"],
+            "vermelhos":       st["vermelhos"],
+            "total_reunioes":  total_r,
+            "total_presentes": presentes,
         })
     return relatorio
 

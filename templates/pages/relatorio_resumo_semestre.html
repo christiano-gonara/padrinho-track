@@ -70,24 +70,24 @@
 
     <!-- Cards: Padrinhos / Calouros / Reuniões / Temas -->
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px;">
-      <div style="border:1px solid #e6e7ee;border-radius:8px;padding:18px 16px;">
+      <div style="border:1px solid #e6e7ee;border-radius:8px;padding:10px 14px;">
         <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#64748b;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;">Padrinhos</div>
-        <div style="font-size:36px;font-weight:700;color:#0f172a;letter-spacing:-0.025em;margin-top:8px;line-height:1;font-variant-numeric:tabular-nums;">{{ total_padrinhos }}</div>
+        <div style="font-size:28px;font-weight:700;color:#0f172a;letter-spacing:-0.025em;margin-top:5px;line-height:1;font-variant-numeric:tabular-nums;">{{ total_padrinhos }}</div>
         <div style="font-size:11px;color:#64748b;margin-top:6px;">inscritos no semestre</div>
       </div>
-      <div style="border:1px solid #e6e7ee;border-radius:8px;padding:18px 16px;">
+      <div style="border:1px solid #e6e7ee;border-radius:8px;padding:10px 14px;">
         <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#64748b;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;">Calouros</div>
-        <div style="font-size:36px;font-weight:700;color:#0f172a;letter-spacing:-0.025em;margin-top:8px;line-height:1;font-variant-numeric:tabular-nums;">{{ total_calouros }}</div>
+        <div style="font-size:28px;font-weight:700;color:#0f172a;letter-spacing:-0.025em;margin-top:5px;line-height:1;font-variant-numeric:tabular-nums;">{{ total_calouros }}</div>
         <div style="font-size:11px;color:#64748b;margin-top:6px;">acompanhados</div>
       </div>
-      <div style="border:1px solid #e6e7ee;border-radius:8px;padding:18px 16px;">
+      <div style="border:1px solid #e6e7ee;border-radius:8px;padding:10px 14px;">
         <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#64748b;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;">Reuniões</div>
-        <div style="font-size:36px;font-weight:700;color:#0f172a;letter-spacing:-0.025em;margin-top:8px;line-height:1;font-variant-numeric:tabular-nums;">{{ total_reunioes }}</div>
+        <div style="font-size:28px;font-weight:700;color:#0f172a;letter-spacing:-0.025em;margin-top:5px;line-height:1;font-variant-numeric:tabular-nums;">{{ total_reunioes }}</div>
         <div style="font-size:11px;color:#64748b;margin-top:6px;">realizadas até hoje</div>
       </div>
-      <div style="border:1px solid #e6e7ee;border-radius:8px;padding:18px 16px;">
+      <div style="border:1px solid #e6e7ee;border-radius:8px;padding:10px 14px;">
         <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#64748b;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;">Temas</div>
-        <div style="font-size:36px;font-weight:700;color:#0f172a;letter-spacing:-0.025em;margin-top:8px;line-height:1;font-variant-numeric:tabular-nums;">{{ temas|length }}</div>
+        <div style="font-size:28px;font-weight:700;color:#0f172a;letter-spacing:-0.025em;margin-top:5px;line-height:1;font-variant-numeric:tabular-nums;">{{ temas|length }}</div>
         <div style="font-size:11px;color:#64748b;margin-top:6px;">no cronograma</div>
       </div>
     </div>
@@ -117,8 +117,6 @@
       </div>
       <div style="border-top:1px solid #e6e7ee;margin-top:2px;padding-top:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px;color:#334155;">
         <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#64748b;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;white-space:nowrap;margin-right:4px;">Calouros</span>
-        <span>Total: <strong>{{ total_calouros }}</strong></span>
-        <span style="color:#94a3b8;">·</span>
         <span>Bolsistas: <strong>{{ pct_bolsista_cal }}%</strong></span>
         <span style="color:#94a3b8;">·</span>
         <span>Grande BH: <strong>{{ pct_bh_cal }}%</strong></span>
@@ -174,27 +172,27 @@
       </div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
 
-        <div style="border:1px solid #d1fae5;background:#ecfdf5;border-radius:8px;padding:18px 16px;">
+        <div style="border:1px solid #d1fae5;background:#ecfdf5;border-radius:8px;padding:10px 14px;">
           <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#047857;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;">Aprovados</div>
-          <div style="font-size:34px;font-weight:700;color:#047857;letter-spacing:-0.025em;margin-top:8px;line-height:1;font-variant-numeric:tabular-nums;">{{ n_aprovados }}</div>
+          <div style="font-size:28px;font-weight:700;color:#047857;letter-spacing:-0.025em;margin-top:8px;line-height:1;font-variant-numeric:tabular-nums;">{{ n_aprovados }}</div>
           <div style="font-size:11px;color:#047857;margin-top:6px;opacity:0.8;">aptos para ACG</div>
         </div>
 
-        <div style="border:1px solid #fde68a;background:#fffbeb;border-radius:8px;padding:18px 16px;">
+        <div style="border:1px solid #fde68a;background:#fffbeb;border-radius:8px;padding:10px 14px;">
           <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#b45309;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;">Em alerta</div>
-          <div style="font-size:34px;font-weight:700;color:#b45309;letter-spacing:-0.025em;margin-top:8px;line-height:1;font-variant-numeric:tabular-nums;">{{ n_alerta }}</div>
+          <div style="font-size:28px;font-weight:700;color:#b45309;letter-spacing:-0.025em;margin-top:8px;line-height:1;font-variant-numeric:tabular-nums;">{{ n_alerta }}</div>
           <div style="font-size:11px;color:#b45309;margin-top:6px;opacity:0.8;">próximo do limite</div>
         </div>
 
-        <div style="border:1px solid #fed7aa;background:#fff7ed;border-radius:8px;padding:18px 16px;">
+        <div style="border:1px solid #fed7aa;background:#fff7ed;border-radius:8px;padding:10px 14px;">
           <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#c2410c;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;">Reprovados</div>
-          <div style="font-size:34px;font-weight:700;color:#c2410c;letter-spacing:-0.025em;margin-top:8px;line-height:1;font-variant-numeric:tabular-nums;">{{ n_reprovados }}</div>
+          <div style="font-size:28px;font-weight:700;color:#c2410c;letter-spacing:-0.025em;margin-top:8px;line-height:1;font-variant-numeric:tabular-nums;">{{ n_reprovados }}</div>
           <div style="font-size:11px;color:#c2410c;margin-top:6px;opacity:0.8;">faltas em todas as reuniões</div>
         </div>
 
-        <div style="border:1px solid #fecaca;background:#fef2f2;border-radius:8px;padding:18px 16px;">
+        <div style="border:1px solid #fecaca;background:#fef2f2;border-radius:8px;padding:10px 14px;">
           <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#991b1b;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;">Reportados</div>
-          <div style="font-size:34px;font-weight:700;color:#991b1b;letter-spacing:-0.025em;margin-top:8px;line-height:1;font-variant-numeric:tabular-nums;">{{ n_reportados }}</div>
+          <div style="font-size:28px;font-weight:700;color:#991b1b;letter-spacing:-0.025em;margin-top:8px;line-height:1;font-variant-numeric:tabular-nums;">{{ n_reportados }}</div>
           <div style="font-size:11px;color:#991b1b;margin-top:6px;opacity:0.8;">ao prof. coord.</div>
         </div>
       </div>
