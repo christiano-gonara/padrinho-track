@@ -31,29 +31,21 @@
 <div style="width:794px;margin:24px auto;background:#ffffff;font-family:'Inter',system-ui,sans-serif;color:#0f172a;box-shadow:0 6px 20px rgba(15,23,42,0.08);">
 
   <!-- ============== HEADER ============== -->
-  <div style="background:#7c5cff;color:#ffffff;padding:28px 40px 24px;position:relative;overflow:hidden;">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px;">
-      <div>
-        <div style="display:flex;align-items:center;gap:14px;">
-          <div style="width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,0.16);display:inline-flex;align-items:center;justify-content:center;">
-            <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-              <path d="M10 22 C5 22, 5 12, 10 12 C14 12, 16 20, 22 20 C27 20, 27 10, 22 10 C18 10, 16 18, 10 18"
-                stroke="#ffffff" stroke-width="3.2" stroke-linecap="round" fill="none" />
-            </svg>
-          </div>
-          <div style="font-size:22px;font-weight:800;letter-spacing:0.18em;">
-            PADRINHO <span style="color:#c4b5fd;">TRACK</span>
-          </div>
+  <div style="background:#7c5cff;color:#ffffff;padding:14px 40px 0;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.18);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:26px;height:26px;border-radius:7px;background:rgba(255,255,255,0.18);overflow:hidden;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
+            <path d="M10 22 C5 22, 5 12, 10 12 C14 12, 16 20, 22 20 C27 20, 27 10, 22 10 C18 10, 16 18, 10 18" stroke="#ffffff" stroke-width="3.4" stroke-linecap="round" fill="none" />
+          </svg>
         </div>
-        <div style="margin-top:14px;font-size:18px;font-weight:600;letter-spacing:-0.01em;">Aptidão ACG — {{ config.semestre }}</div>
-        <div style="margin-top:4px;font-size:12px;color:rgba(255,255,255,0.78);letter-spacing:0.04em;">{{ config.programa }} · {{ config.instituicao }}</div>
+        <span style="font-size:13px;font-weight:700;letter-spacing:0.02em;">Padrinho <span style="color:#c4b5fd;">Track</span></span>
       </div>
-      <div style="text-align:right;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:10px;color:rgba(255,255,255,0.78);letter-spacing:0.1em;text-transform:uppercase;">
-        <div style="margin-bottom:4px;">Documento</div>
-        <div style="font-size:13px;color:#ffffff;font-weight:600;">RELATÓRIO-001/{{ hoje.year }}</div>
-        <div style="margin-top:14px;margin-bottom:4px;">Emitido em</div>
-        <div style="font-size:13px;color:#ffffff;font-weight:600;">{{ hoje.strftime('%d/%m/%Y') }}</div>
-      </div>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,0.72);letter-spacing:0.08em;">RELATÓRIO-001/{{ hoje.year }} · {{ hoje.strftime('%d/%m/%Y') }}</span>
+    </div>
+    <div style="padding:11px 0 14px;">
+      <div style="font-size:17px;font-weight:700;letter-spacing:-0.01em;">Aptidão ACG — {{ config.semestre }}</div>
+      <div style="margin-top:3px;font-size:11px;color:rgba(255,255,255,0.78);">{{ config.programa }} · {{ config.instituicao }}</div>
     </div>
   </div>
 

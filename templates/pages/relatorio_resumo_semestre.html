@@ -31,33 +31,25 @@
 <div style="width:794px;margin:24px auto;background:#ffffff;font-family:'Inter',system-ui,sans-serif;color:#0f172a;box-shadow:0 6px 20px rgba(15,23,42,0.08);">
 
   <!-- HEADER -->
-  <div style="background:#7c5cff;color:#ffffff;padding:28px 40px 24px;">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px;">
-      <div>
-        <div style="display:flex;align-items:center;gap:14px;">
-          <div style="width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,0.16);display:inline-flex;align-items:center;justify-content:center;">
-            <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-              <path d="M10 22 C5 22, 5 12, 10 12 C14 12, 16 20, 22 20 C27 20, 27 10, 22 10 C18 10, 16 18, 10 18"
-                stroke="#ffffff" stroke-width="3.2" stroke-linecap="round" fill="none" />
-            </svg>
-          </div>
-          <div style="font-size:22px;font-weight:800;letter-spacing:0.18em;">
-            PADRINHO <span style="color:#c4b5fd;">TRACK</span>
-          </div>
+  <div style="background:#7c5cff;color:#ffffff;padding:14px 40px 0;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.18);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:26px;height:26px;border-radius:7px;background:rgba(255,255,255,0.18);overflow:hidden;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
+            <path d="M10 22 C5 22, 5 12, 10 12 C14 12, 16 20, 22 20 C27 20, 27 10, 22 10 C18 10, 16 18, 10 18" stroke="#ffffff" stroke-width="3.4" stroke-linecap="round" fill="none" />
+          </svg>
         </div>
-        <div style="margin-top:14px;font-size:18px;font-weight:600;letter-spacing:-0.01em;">Resumo do Semestre — {{ config.semestre }}</div>
-        <div style="margin-top:4px;font-size:12px;color:rgba(255,255,255,0.78);letter-spacing:0.04em;">{{ config.programa }} · {{ config.instituicao }}</div>
+        <span style="font-size:13px;font-weight:700;letter-spacing:0.02em;">Padrinho <span style="color:#c4b5fd;">Track</span></span>
       </div>
-      <div style="text-align:right;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:10px;color:rgba(255,255,255,0.78);letter-spacing:0.1em;text-transform:uppercase;">
-        <div style="margin-bottom:4px;">Documento</div>
-        <div style="font-size:13px;color:#ffffff;font-weight:600;">RESUMO-001/{{ hoje.year }}</div>
-        <div style="margin-top:14px;margin-bottom:4px;">Emitido em</div>
-        <div style="font-size:13px;color:#ffffff;font-weight:600;">{{ hoje.strftime('%d/%m/%Y') }}</div>
-      </div>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,0.72);letter-spacing:0.08em;">RESUMO-001/{{ hoje.year }} · {{ hoje.strftime('%d/%m/%Y') }}</span>
+    </div>
+    <div style="padding:11px 0 10px;">
+      <div style="font-size:17px;font-weight:700;letter-spacing:-0.01em;">Resumo do Semestre — {{ config.semestre }}</div>
+      <div style="margin-top:3px;font-size:11px;color:rgba(255,255,255,0.78);">{{ config.programa }} · {{ config.instituicao }}</div>
     </div>
 
     <!-- Faixa de identificação do programa -->
-    <div style="margin-top:20px;padding:14px 16px;border-radius:10px;background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.18);display:grid;grid-template-columns:1fr 1fr 2fr;gap:18px;align-items:start;">
+    <div style="margin-bottom:14px;padding:12px 16px;border-radius:10px;background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.18);display:grid;grid-template-columns:1fr 1fr 2fr;gap:18px;align-items:start;">
       <div>
         <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.7);letter-spacing:0.14em;text-transform:uppercase;">Prof. Coordenador</div>
         <div style="font-size:12.5px;color:#ffffff;font-weight:600;margin-top:3px;">{{ config.professor_coordenador }}</div>
@@ -116,13 +108,22 @@
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px;color:#334155;">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#64748b;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;white-space:nowrap;margin-right:4px;">Padrinhos</span>
         <span>Bolsistas: <strong>{{ pct_bolsista }}%</strong></span>
         <span style="color:#94a3b8;">·</span>
-        <span>Mora na Grande BH: <strong>{{ pct_bh }}%</strong></span>
+        <span>Grande BH: <strong>{{ pct_bh }}%</strong></span>
         <span style="color:#94a3b8;">·</span>
         <span>Trabalha: <strong>{{ pct_trabalha }}%</strong></span>
+      </div>
+      <div style="border-top:1px solid #e6e7ee;margin-top:2px;padding-top:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px;color:#334155;">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#64748b;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;white-space:nowrap;margin-right:4px;">Calouros</span>
+        <span>Total: <strong>{{ total_calouros }}</strong></span>
         <span style="color:#94a3b8;">·</span>
-        <span>Total de calouros: <strong>{{ total_calouros }}</strong></span>
+        <span>Bolsistas: <strong>{{ pct_bolsista_cal }}%</strong></span>
+        <span style="color:#94a3b8;">·</span>
+        <span>Grande BH: <strong>{{ pct_bh_cal }}%</strong></span>
+        <span style="color:#94a3b8;">·</span>
+        <span>Trabalha: <strong>{{ pct_trabalha_cal }}%</strong></span>
       </div>
     </div>
 

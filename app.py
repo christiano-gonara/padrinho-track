@@ -770,7 +770,14 @@ def relatorio_resumo():
 
     conn = get_conn()
     total_calouros = conn.execute("SELECT COUNT(*) FROM calouros").fetchone()[0]
+    n_bol_cal  = conn.execute("SELECT COUNT(*) FROM calouros WHERE bolsista=1").fetchone()[0]
+    n_bh_cal   = conn.execute("SELECT COUNT(*) FROM calouros WHERE cidade_bh=1").fetchone()[0]
+    n_trab_cal = conn.execute("SELECT COUNT(*) FROM calouros WHERE trabalha=1").fetchone()[0]
     conn.close()
+    total_cal_d = total_calouros or 1
+    pct_bolsista_cal = round(n_bol_cal  / total_cal_d * 100)
+    pct_bh_cal       = round(n_bh_cal   / total_cal_d * 100)
+    pct_trabalha_cal = round(n_trab_cal / total_cal_d * 100)
 
     contadores = {"aprovados": 0, "alerta": 0, "reprovados": 0, "reportados": 0}
     for p in padrinhos:
@@ -829,6 +836,9 @@ def relatorio_resumo():
         pct_bolsista=pct_bolsista,
         pct_bh=pct_bh,
         pct_trabalha=pct_trabalha,
+        pct_bolsista_cal=pct_bolsista_cal,
+        pct_bh_cal=pct_bh_cal,
+        pct_trabalha_cal=pct_trabalha_cal,
     )
 
 
