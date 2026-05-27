@@ -548,7 +548,7 @@ def rodar_match(max_calouros=3, score_minimo=0):
             s += 80
         if p.get("cidade_bh") and c.get("cidade_bh"):
             s += 4
-        if p.get("prouni") and c.get("prouni"):
+        if p.get("bolsista") and c.get("bolsista"):
             s += 2
         if p.get("trabalha") and c.get("trabalha"):
             s += 1
@@ -1204,7 +1204,7 @@ def importar_padrinhos_sheets(url):
     col_curso             = _find_col(keys_norm, "curso")
     col_instituicao       = _find_col(keys_norm, "institui", "universidade", "faculdade")
     col_cidade            = _find_col(keys_norm, "cidade", "grande bh", "bh")
-    col_prouni            = _find_col(keys_norm, "prouni", "pro-uni")
+    col_bolsista          = _find_col(keys_norm, "bolsista", "prouni", "pro-uni")
     col_trabalha          = _find_col(keys_norm, "trabalha", "trabalho", "emprego")
     col_idade             = _find_col(keys_norm, "idade")
     col_periodo           = _find_col(keys_norm, "periodo", "período", "semestre cursando")
@@ -1243,8 +1243,8 @@ def importar_padrinhos_sheets(url):
         cidade_raw = _norm(_get(rec, col_cidade))
         cidade_bh  = 1 if ("sim" in cidade_raw or "grande bh" in cidade_raw or "bh" in cidade_raw) else 0
 
-        prouni_raw = _norm(_get(rec, col_prouni))
-        prouni     = 1 if "sim" in prouni_raw else 0
+        bolsista_raw = _norm(_get(rec, col_bolsista))
+        bolsista     = 1 if "sim" in bolsista_raw else 0
 
         trabalha_raw = _norm(_get(rec, col_trabalha))
         trabalha     = 1 if "sim" in trabalha_raw else 0
@@ -1259,10 +1259,10 @@ def importar_padrinhos_sheets(url):
             continue
 
         conn.execute("""
-            INSERT INTO padrinhos (nome, matricula, email, telefone, turno, idade, cidade_bh, prouni, trabalha, periodo, passou_algoritmos)
+            INSERT INTO padrinhos (nome, matricula, email, telefone, turno, idade, cidade_bh, bolsista, trabalha, periodo, passou_algoritmos)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (nome, matricula or None, email or None, telefone or None,
-              turno or None, idade, cidade_bh, prouni, trabalha, periodo, passou_algoritmos))
+              turno or None, idade, cidade_bh, bolsista, trabalha, periodo, passou_algoritmos))
 
         if matricula:
             existing[matricula] = True
@@ -1306,7 +1306,7 @@ def importar_calouros_sheets(url):
     col_curso           = _find_col(keys_norm, "curso")
     col_instituicao     = _find_col(keys_norm, "institui", "universidade", "faculdade")
     col_cidade          = _find_col(keys_norm, "cidade", "grande bh", "bh")
-    col_prouni          = _find_col(keys_norm, "prouni", "pro-uni")
+    col_bolsista        = _find_col(keys_norm, "bolsista", "prouni", "pro-uni")
     col_trabalha        = _find_col(keys_norm, "trabalha", "trabalho", "emprego")
     col_idade           = _find_col(keys_norm, "idade")
     col_primeiro_periodo = _find_col(keys_norm, "primeiro periodo", "1o periodo", "1º periodo", "primeiro per")
@@ -1345,8 +1345,8 @@ def importar_calouros_sheets(url):
         cidade_raw = _norm(_get(rec, col_cidade))
         cidade_bh  = 1 if ("sim" in cidade_raw or "grande bh" in cidade_raw or "bh" in cidade_raw) else 0
 
-        prouni_raw = _norm(_get(rec, col_prouni))
-        prouni     = 1 if "sim" in prouni_raw else 0
+        bolsista_raw = _norm(_get(rec, col_bolsista))
+        bolsista     = 1 if "sim" in bolsista_raw else 0
 
         trabalha_raw = _norm(_get(rec, col_trabalha))
         trabalha     = 1 if "sim" in trabalha_raw else 0
@@ -1355,9 +1355,9 @@ def importar_calouros_sheets(url):
         primeiro_periodo = 1 if "sim" in primeiro_raw else (0 if primeiro_raw else None)
 
         conn.execute("""
-            INSERT INTO calouros (nome, telefone, turno, idade, cidade_bh, prouni, trabalha, primeiro_periodo)
+            INSERT INTO calouros (nome, telefone, turno, idade, cidade_bh, bolsista, trabalha, primeiro_periodo)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, (nome, telefone or None, turno or None, idade, cidade_bh, prouni, trabalha, primeiro_periodo))
+        """, (nome, telefone or None, turno or None, idade, cidade_bh, bolsista, trabalha, primeiro_periodo))
 
         existing_nomes[_norm(nome)] = True
         importados += 1

@@ -352,7 +352,7 @@ def relatorio():
     padrinhos_raw = get_todos_padrinhos()
     total = len(padrinhos_raw) or 1
     por_turno = {}
-    n_fem = n_masc = n_prouni = n_bh = n_trabalha = 0
+    n_fem = n_masc = n_bolsista = n_bh = n_trabalha = 0
     for p in padrinhos_raw:
         turno = p["turno"] or "—"
         por_turno[turno] = por_turno.get(turno, 0) + 1
@@ -360,8 +360,8 @@ def relatorio():
             n_fem += 1
         elif p["genero"] == "M":
             n_masc += 1
-        if p["prouni"]:
-            n_prouni += 1
+        if p["bolsista"]:
+            n_bolsista += 1
         if p["cidade_bh"]:
             n_bh += 1
         if p["trabalha"]:
@@ -370,7 +370,7 @@ def relatorio():
         "por_turno": por_turno,
         "pct_feminino": round(n_fem / total * 100),
         "pct_masculino": round(n_masc / total * 100),
-        "pct_prouni": round(n_prouni / total * 100),
+        "pct_bolsista": round(n_bolsista / total * 100),
         "pct_bh": round(n_bh / total * 100),
         "pct_trabalha": round(n_trabalha / total * 100),
         "total": total,
@@ -799,6 +799,11 @@ def relatorio_resumo():
         for t, q in sorted(turno_counter.items())
     ]
 
+    total_p = len(padrinhos) or 1
+    pct_bolsista = round(sum(1 for p in padrinhos if p["bolsista"]) / total_p * 100)
+    pct_bh       = round(sum(1 for p in padrinhos if p["cidade_bh"]) / total_p * 100)
+    pct_trabalha = round(sum(1 for p in padrinhos if p["trabalha"]) / total_p * 100)
+
     return render_template("pages/relatorio_resumo_semestre.html",
         config=CONFIG,
         hoje=date.today(),
@@ -811,6 +816,9 @@ def relatorio_resumo():
         n_reprovados=contadores["reprovados"],
         n_reportados=contadores["reportados"],
         turno_data=turno_data,
+        pct_bolsista=pct_bolsista,
+        pct_bh=pct_bh,
+        pct_trabalha=pct_trabalha,
     )
 
 

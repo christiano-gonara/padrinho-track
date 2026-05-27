@@ -11,7 +11,7 @@ import re
 # - Turno: 200 pts
 # - Gênero: 80 pts
 # - Cidade: 4 pts
-# - Prouni: 2 pts
+# - Bolsista: 2 pts
 # - Trabalho: 1 pt
 # - Proximidade de idade ≤2 anos: 8 pts / ≤5 anos: 4 pts
 #
@@ -46,7 +46,7 @@ def calcular_pontuacao(veterano, calouro):
         'turno':   200,
         'genero':   80,
         'cidade':    4,
-        'prouni':    2,
+        'bolsista':  2,
         'trabalho':  1,
     }
     for criterio, peso in pesos.items():
@@ -146,7 +146,7 @@ def exportar_resultado(matches, veteranos_df):
 def limpar_csv(arquivo_entrada, arquivo_saida, tipo):
     colunas = [
         "timestamp", "user", "nome", "idade", "matricula",
-        "telefone", "turno", "genero", "cidade", "prouni", "trabalho"
+        "telefone", "turno", "genero", "cidade", "bolsista", "trabalho"
     ]
     df = pd.read_csv(arquivo_entrada, header=None, names=colunas,
                      skiprows=1, engine='python')
@@ -173,7 +173,7 @@ def limpar_csv(arquivo_entrada, arquivo_saida, tipo):
 
     df['turno']    = df['turno'].str.title()
     df['genero']   = df['genero'].str.title()
-    df['prouni']   = df['prouni'].apply(padronizar_sim_nao)
+    df['bolsista'] = df['bolsista'].apply(padronizar_sim_nao)
     df['trabalho'] = df['trabalho'].apply(padronizar_sim_nao)
     df['cidade']   = df['cidade'].apply(padronizar_cidade)
     df['idade']    = df['idade'].apply(extrair_idade)
@@ -182,7 +182,7 @@ def limpar_csv(arquivo_entrada, arquivo_saida, tipo):
 
     colunas_finais = [
         'nome', 'turno', 'genero', 'idade',
-        'cidade', 'prouni', 'trabalho', 'telefone'
+        'cidade', 'bolsista', 'trabalho', 'telefone'
     ]
     df[colunas_finais].to_csv(arquivo_saida, index=False, encoding='utf-8-sig')
     print(f"Limpeza concluída! '{arquivo_saida}' com {len(df)} {tipo}(s) únicos.")
