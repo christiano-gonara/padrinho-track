@@ -15,40 +15,43 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from database import init_db, get_conn
 from datetime import date
 
+# (nome, matricula, email, telefone, turno, genero, idade, cidade_bh, bolsista, trabalha, periodo, passou_algoritmos)
 PADRINHOS = [
-    ("Alice Mendonça",       "100001", "alice.mendonca@exemplo.com",    "31900000001", "Manhã"),
-    ("Bruno Tavares",        "100002", "bruno.tavares@exemplo.com",     "31900000002", "Noite"),
-    ("Camila Rezende",       "100003", "camila.rezende@exemplo.com",    "31900000003", "Manhã"),
-    ("Diego Fonseca",        "100004", "diego.fonseca@exemplo.com",     "31900000004", "Noite"),
-    ("Elisa Drummond",       "100005", "elisa.drummond@exemplo.com",    "31900000005", "Manhã"),
-    ("Felipe Quaresma",      "100006", "felipe.quaresma@exemplo.com",   "31900000006", "Noite"),
-    ("Gabriela Monteiro",    "100007", "gabriela.monteiro@exemplo.com", "31900000007", "Manhã"),
-    ("Henrique Lacerda",     "100008", "henrique.lacerda@exemplo.com",  "31900000008", "Noite"),
-    ("Isabela Coutinho",     "100009", "isabela.coutinho@exemplo.com",  "31900000009", "Manhã"),
-    ("João Vasconcelos",     "100010", "joao.vasconcelos@exemplo.com",  "31900000010", "Noite"),
+    ("Alice Mendonça",    "100001", "alice.mendonca@exemplo.com",    "31900000001", "Manhã",  "F", 21, 1, 0, 0, "5°", 1),
+    ("Bruno Tavares",     "100002", "bruno.tavares@exemplo.com",     "31900000002", "Noite",  "M", 23, 0, 1, 1, "7°", 1),
+    ("Camila Rezende",    "100003", "camila.rezende@exemplo.com",    "31900000003", "Manhã",  "F", 22, 1, 0, 1, "5°", 1),
+    ("Diego Fonseca",     "100004", "diego.fonseca@exemplo.com",     "31900000004", "Noite",  "M", 24, 0, 0, 1, "8°", 1),
+    ("Elisa Drummond",    "100005", "elisa.drummond@exemplo.com",    "31900000005", "Manhã",  "F", 20, 1, 1, 0, "4°", 1),
+    ("Felipe Quaresma",   "100006", "felipe.quaresma@exemplo.com",   "31900000006", "Noite",  "M", 22, 1, 0, 0, "6°", 1),
+    ("Gabriela Monteiro", "100007", "gabriela.monteiro@exemplo.com", "31900000007", "Manhã",  "F", 21, 0, 1, 1, "5°", 1),
+    ("Henrique Lacerda",  "100008", "henrique.lacerda@exemplo.com",  "31900000008", "Noite",  "M", 23, 1, 0, 1, "7°", 1),
+    ("Isabela Coutinho",  "100009", "isabela.coutinho@exemplo.com",  "31900000009", "Manhã",  "F", 20, 1, 0, 0, "4°", 1),
+    ("João Vasconcelos",  "100010", "joao.vasconcelos@exemplo.com",  "31900000010", "Noite",  "M", 25, 0, 0, 1, "8°", 1),
 ]
 
+# (nome, telefone, turno, genero, idade, cidade_bh, bolsista, trabalha, primeiro_periodo)
 CALOUROS = [
-    ("Mateus Aguiar",        "31900001001"),
-    ("Larissa Peixoto",      "31900001002"),
-    ("Rafael Evangelista",   "31900001003"),
-    ("Beatriz Salomão",      "31900001004"),
-    ("Lucas Wanderley",      "31900001005"),
-    ("Fernanda Azevedo",     "31900001006"),
-    ("Pedro Magalhães",      "31900001007"),
-    ("Julia Paranhos",       "31900001008"),
-    ("Guilherme Pacheco",    "31900001009"),
-    ("Amanda Vilela",        "31900001010"),
-    ("Thiago Brandão",       "31900001011"),
-    ("Carolina Salgado",     "31900001012"),
-    ("Vitor Sepúlveda",      "31900001013"),
-    ("Mariana Toledo",       "31900001014"),
-    ("Leonardo Bittencourt", "31900001015"),
-    ("Stephanie Caldeira",   "31900001016"),
-    ("André Mascarenhas",    "31900001017"),
-    ("Natalia Veríssimo",    "31900001018"),
-    ("Diego Canellas",       "31900001019"),
-    ("Priscila Uchôa",       "31900001020"),
+    ("Mateus Aguiar",        "31900001001", "Manhã",  "M", 18, 1, 0, 0, 1),
+    ("Larissa Peixoto",      "31900001002", "Manhã",  "F", 19, 0, 1, 0, 1),
+    ("Rafael Evangelista",   "31900001003", "Noite",  "M", 20, 1, 0, 1, 0),
+    ("Beatriz Salomão",      "31900001004", "Noite",  "F", 18, 1, 1, 0, 1),
+    
+    ("Lucas Wanderley",      "31900001005", "Manhã",  "M", 19, 0, 0, 1, 1),
+    ("Fernanda Azevedo",     "31900001006", "Manhã",  "F", 21, 1, 0, 0, 0),
+    ("Pedro Magalhães",      "31900001007", "Noite",  "M", 18, 0, 1, 1, 1),
+    ("Julia Paranhos",       "31900001008", "Noite",  "F", 22, 1, 0, 1, 0),
+    ("Guilherme Pacheco",    "31900001009", "Manhã",  "M", 19, 1, 0, 0, 1),
+    ("Amanda Vilela",        "31900001010", "Manhã",  "F", 18, 0, 1, 0, 1),
+    ("Thiago Brandão",       "31900001011", "Noite",  "M", 20, 1, 0, 1, 0),
+    ("Carolina Salgado",     "31900001012", "Noite",  "F", 19, 1, 0, 0, 1),
+    ("Vitor Sepúlveda",      "31900001013", "Manhã",  "M", 21, 0, 1, 1, 0),
+    ("Mariana Toledo",       "31900001014", "Manhã",  "F", 18, 1, 0, 0, 1),
+    ("Leonardo Bittencourt", "31900001015", "Noite",  "M", 22, 0, 0, 1, 0),
+    ("Stephanie Caldeira",   "31900001016", "Noite",  "F", 19, 1, 1, 0, 1),
+    ("André Mascarenhas",    "31900001017", "Manhã",  "M", 20, 1, 0, 1, 0),
+    ("Natalia Veríssimo",    "31900001018", "Manhã",  "F", 18, 0, 1, 0, 1),
+    ("Diego Canellas",       "31900001019", "Noite",  "M", 21, 1, 0, 1, 0),
+    ("Priscila Uchôa",       "31900001020", "Noite",  "F", 19, 1, 0, 0, 1),
 ]
 
 TEMAS = [
@@ -65,12 +68,15 @@ def seed():
 
     # Padrinhos
     padrinho_ids = []
-    for nome, matricula, email, telefone, turno in PADRINHOS:
+    for nome, matricula, email, telefone, turno, genero, idade, cidade_bh, bolsista, trabalha, periodo, passou_algoritmos in PADRINHOS:
         try:
-            cur = conn.execute(
-                "INSERT INTO padrinhos (nome, matricula, email, telefone, turno) VALUES (?,?,?,?,?)",
-                (nome, matricula, email, telefone, turno)
-            )
+            cur = conn.execute("""
+                INSERT INTO padrinhos
+                    (nome, matricula, email, telefone, turno, genero, idade,
+                     cidade_bh, bolsista, trabalha, periodo, passou_algoritmos)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+            """, (nome, matricula, email, telefone, turno, genero, idade,
+                  cidade_bh, bolsista, trabalha, periodo, passou_algoritmos))
             padrinho_ids.append(cur.lastrowid)
         except Exception:
             row = conn.execute("SELECT id FROM padrinhos WHERE matricula=?", (matricula,)).fetchone()
@@ -78,11 +84,12 @@ def seed():
     print(f"[OK] {len(padrinho_ids)} padrinhos inseridos.")
 
     # Calouros e matches
-    for i, (nome, telefone) in enumerate(CALOUROS):
-        cur = conn.execute(
-            "INSERT INTO calouros (nome, telefone) VALUES (?,?)",
-            (nome, telefone)
-        )
+    for i, (nome, telefone, turno, genero, idade, cidade_bh, bolsista, trabalha, primeiro_periodo) in enumerate(CALOUROS):
+        cur = conn.execute("""
+            INSERT INTO calouros
+                (nome, telefone, turno, genero, idade, cidade_bh, bolsista, trabalha, primeiro_periodo)
+            VALUES (?,?,?,?,?,?,?,?,?)
+        """, (nome, telefone, turno, genero, idade, cidade_bh, bolsista, trabalha, primeiro_periodo))
         calouro_id = cur.lastrowid
         padrinho_id = padrinho_ids[i % len(padrinho_ids)]
         conn.execute(

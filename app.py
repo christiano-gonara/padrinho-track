@@ -262,9 +262,10 @@ def temas():
                           "total_padrinhos": total_p, "total_temas": total_t}
     else:
         sugestao_vagas = None
+    ultimo_prazo = lista[-1]["tema"]["data_limite"] if lista else ""
     return render_template("pages/temas.html", temas=lista, padrinhos=padrinhos,
                            today=date.today().isoformat(), sheets_inscricoes_url=sheets_url,
-                           sugestao_vagas=sugestao_vagas)
+                           sugestao_vagas=sugestao_vagas, ultimo_prazo=ultimo_prazo)
 
 @app.route("/temas/configurar-inscricoes", methods=["POST"])
 def temas_configurar_inscricoes():
@@ -461,6 +462,8 @@ def configuracoes():
 def editar_padrinho(padrinho_id):
     from models import editar_padrinho as _editar
     nome = request.form["nome"].strip()
+    idade_s = request.form.get("idade", "").strip()
+    passou_s = request.form.get("passou_algoritmos", "")
     _editar(
         padrinho_id,
         nome,
@@ -468,6 +471,13 @@ def editar_padrinho(padrinho_id):
         request.form.get("email", "").strip(),
         request.form.get("telefone", "").strip(),
         request.form.get("turno", "").strip(),
+        genero=request.form.get("genero", "").strip() or None,
+        idade=int(idade_s) if idade_s.isdigit() else None,
+        cidade_bh=1 if request.form.get("cidade_bh") else 0,
+        bolsista=1 if request.form.get("bolsista") else 0,
+        trabalha=1 if request.form.get("trabalha") else 0,
+        periodo=request.form.get("periodo", "").strip() or None,
+        passou_algoritmos=int(passou_s) if passou_s in ("0", "1") else None,
     )
     registrar_log("EDICAO_PADRINHO", f"Padrinho '{nome}' (ID {padrinho_id}) atualizado.")
     flash("Padrinho atualizado.", "success")
@@ -723,7 +733,7 @@ def relatorio_aptidao():
         row = {
             "nome": p["nome"], "matricula": p["matricula"],
             "turno": p["turno"] or "—",
-            "presencas": presencas,
+            "email": p["email"] or "—",
             "num_amarelos": status_dict["amarelos"],
         }
 

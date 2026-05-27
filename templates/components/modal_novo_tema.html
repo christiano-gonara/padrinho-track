@@ -14,11 +14,11 @@
         <div class="grid grid-cols-2 gap-3">
           <div class="pt-field">
             <label class="pt-label">Data de aviso</label>
-            <input type="date" name="data_aviso" class="pt-input" />
+            <input type="date" name="data_aviso" id="novo-tema-aviso" class="pt-input" />
           </div>
           <div class="pt-field">
             <label class="pt-label">Prazo de entrega</label>
-            <input type="date" name="data_limite" required class="pt-input" />
+            <input type="date" name="data_limite" id="novo-tema-limite" required class="pt-input" />
           </div>
         </div>
         <div class="pt-field">
@@ -42,3 +42,36 @@
     </form>
   </div>
 </div>
+<script>
+(function () {
+  var ultimoPrazo = "{{ ultimo_prazo or '' }}";
+
+  function addDays(isoDate, n) {
+    var d = new Date(isoDate + "T00:00:00");
+    d.setDate(d.getDate() + n);
+    return d.toISOString().slice(0, 10);
+  }
+
+  window.abrirNovoTema = function () {
+    var avisoEl  = document.getElementById("novo-tema-aviso");
+    var limiteEl = document.getElementById("novo-tema-limite");
+    avisoEl.value  = "";
+    limiteEl.value = "";
+
+    if (ultimoPrazo) {
+      var aviso = addDays(ultimoPrazo, 1);
+      avisoEl.value  = aviso;
+      limiteEl.value = addDays(aviso, 7);
+    }
+
+    openModal("modal-novo");
+  };
+
+  document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("novo-tema-aviso").addEventListener("change", function () {
+      if (!this.value) return;
+      document.getElementById("novo-tema-limite").value = addDays(this.value, 7);
+    });
+  });
+})();
+</script>

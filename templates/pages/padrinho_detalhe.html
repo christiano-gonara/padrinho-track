@@ -119,7 +119,7 @@
 
 <!-- Modal editar padrinho -->
 <div id="modal-editar" class="pt-modal-backdrop">
-  <div class="pt-modal">
+  <div class="pt-modal pt-modal-lg">
     <div class="pt-modal-header pt-tone-violet">
       <i class="ri-edit-line"></i>
       <span class="pt-modal-title">Editar padrinho</span>
@@ -144,14 +144,67 @@
             </select>
           </div>
         </div>
-        <div class="pt-field">
-          <label class="pt-label">Email</label>
-          <input type="email" name="email" value="{{ padrinho['email'] or '' }}" class="pt-input" />
+        <div class="grid grid-cols-2 gap-3">
+          <div class="pt-field">
+            <label class="pt-label">Email</label>
+            <input type="email" name="email" value="{{ padrinho['email'] or '' }}" class="pt-input" />
+          </div>
+          <div class="pt-field">
+            <label class="pt-label">Telefone</label>
+            <input type="text" name="telefone" value="{{ padrinho['telefone'] or '' }}" class="pt-input" />
+          </div>
         </div>
-        <div class="pt-field">
-          <label class="pt-label">Telefone</label>
-          <input type="text" name="telefone" value="{{ padrinho['telefone'] or '' }}" class="pt-input" />
+
+        <div class="pt-field" style="margin-top:4px;">
+          <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Dados demográficos <span class="pt-label-optional normal-case">(opcional)</span></p>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="pt-field">
+              <label class="pt-label">Gênero</label>
+              <select name="genero" class="pt-select">
+                <option value="" {% if not padrinho['genero'] %}selected{% endif %}>— Não informado —</option>
+                <option value="F" {% if padrinho['genero'] == 'F' %}selected{% endif %}>Feminino</option>
+                <option value="M" {% if padrinho['genero'] == 'M' %}selected{% endif %}>Masculino</option>
+                <option value="Outro" {% if padrinho['genero'] == 'Outro' %}selected{% endif %}>Outro</option>
+              </select>
+            </div>
+            <div class="pt-field">
+              <label class="pt-label">Idade</label>
+              <input type="number" name="idade" value="{{ padrinho['idade'] or '' }}" min="16" max="60" class="pt-input" />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="pt-field">
+              <label class="pt-label">Período atual</label>
+              <input type="text" name="periodo" value="{{ padrinho['periodo'] or '' }}" placeholder="ex: 5°" class="pt-input" />
+            </div>
+            <div class="pt-field">
+              <label class="pt-label">Passou em Algoritmos</label>
+              <select name="passou_algoritmos" class="pt-select">
+                <option value="" {% if padrinho['passou_algoritmos'] is none %}selected{% endif %}>— Não informado —</option>
+                <option value="1" {% if padrinho['passou_algoritmos'] == 1 %}selected{% endif %}>Sim</option>
+                <option value="0" {% if padrinho['passou_algoritmos'] == 0 %}selected{% endif %}>Não</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center gap-6 mt-1">
+            <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer select-none">
+              <input type="checkbox" name="cidade_bh" value="1" {% if padrinho['cidade_bh'] %}checked{% endif %}
+                     class="w-4 h-4 rounded accent-[#7c5cff]" />
+              Mora na Grande BH
+            </label>
+            <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer select-none">
+              <input type="checkbox" name="bolsista" value="1" {% if padrinho['bolsista'] %}checked{% endif %}
+                     class="w-4 h-4 rounded accent-[#7c5cff]" />
+              Bolsista
+            </label>
+            <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer select-none">
+              <input type="checkbox" name="trabalha" value="1" {% if padrinho['trabalha'] %}checked{% endif %}
+                     class="w-4 h-4 rounded accent-[#7c5cff]" />
+              Trabalha
+            </label>
+          </div>
         </div>
+
         <div class="pt-modal-actions">
           <button type="button" class="pt-btn pt-btn-ghost" onclick="closeModal('modal-editar')">Cancelar</button>
           <button type="submit" class="pt-btn pt-btn-primary">

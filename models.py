@@ -452,12 +452,19 @@ def get_calouros_match_completo():
         )
     return [{"padrinho": p, "calouros": calouros_por_padrinho[p["id"]]} for p in padrinhos]
 
-def editar_padrinho(padrinho_id, nome, matricula, email, telefone, turno):
+def editar_padrinho(padrinho_id, nome, matricula, email, telefone, turno,
+                    genero=None, idade=None, cidade_bh=None, bolsista=None,
+                    trabalha=None, periodo=None, passou_algoritmos=None):
     conn = get_conn()
     conn.execute("""
-        UPDATE padrinhos SET nome=?, matricula=?, email=?, telefone=?, turno=?
+        UPDATE padrinhos
+        SET nome=?, matricula=?, email=?, telefone=?, turno=?,
+            genero=?, idade=?, cidade_bh=?, bolsista=?, trabalha=?,
+            periodo=?, passou_algoritmos=?
         WHERE id=?
-    """, (nome, matricula, email, telefone, turno, padrinho_id))
+    """, (nome, matricula, email, telefone, turno,
+          genero, idade, cidade_bh, bolsista, trabalha,
+          periodo, passou_algoritmos, padrinho_id))
     conn.commit()
     conn.close()
 
