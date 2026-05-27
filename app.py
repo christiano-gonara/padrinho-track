@@ -639,6 +639,17 @@ def reunioes_configurar_forms():
     flash("Link salvo com sucesso.", "success")
     return redirect(url_for("reunioes"))
 
+# ── Backup do banco ───────────────────────────────────────────────────────
+
+@app.route("/config/backup-db")
+def backup_db():
+    from flask import send_file
+    from database import DB_PATH
+    from datetime import date as _date
+    nome = f"mentoria_{_date.today().isoformat()}.db"
+    registrar_log("BACKUP_DB", "Backup do banco exportado pelo coordenador.")
+    return send_file(str(DB_PATH), as_attachment=True, download_name=nome)
+
 # ── Logs de auditoria ─────────────────────────────────────────────────────
 
 @app.route("/logs/limpar", methods=["POST"])
