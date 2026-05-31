@@ -8,86 +8,188 @@
 
 ---
 
-## Tarefa 1 — Handoff para o próximo coordenador
+## Tarefa 1 — Melhorias de UX pendentes
 
-### Criar scripts/setup_handoff.py
-Script que o próximo coordenador roda uma vez pra configurar
-o sistema para o novo semestre:
+### 1.1 — Busca em tempo real nos calouros
+Já existe na lista de padrinhos — replicar o mesmo comportamento
+na página de calouros.
 
-```python
-import json, os, sys
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from models import set_config
+### 1.2 — Filtro por status na lista de padrinhos
+Adicionar botões de filtro no topo da lista:
+Todos | Aprovados | Em alerta | Reprovados | Reportados
+Filtro client-side via JavaScript — sem recarregar a página.
 
-with open('config_handoff.json') as f:
-    config = json.load(f)
+### 1.3 — Calouros por turno no relatório de resumo
+Adicionar distribuição de calouros por turno no bloco demográfico
+do relatorio_resumo_semestre.html:
+  Calouros por turno: Manhã X (X%) · Noite X (X%)
 
-set_config('sheets_presenca_url', config['google']['planilha_presencas_url'])
-set_config('sheets_inscricoes_url', config['google']['planilha_inscricoes_url'])
-set_config('sheets_padrinhos_url', config['google']['forms_padrinhos_url'])
-set_config('sheets_calouros_url', config['google']['forms_calouros_url'])
-print("[OK] Sistema configurado para o novo semestre.")
-```
+### 1.4 — Separar testes por funcionalidade
+Reorganizar tests/ em arquivos separados com comentário
+explicativo no topo de cada um:
+- test_advertencias.py — regras de advertência e status
+- test_presencas.py — sincronização e lançamento
+- test_temas.py — entrega, atraso, responsáveis
+- test_match.py — algoritmo de match
+- test_integracao.py — rotas HTTP
+- test_models.py — funções gerais de models.py
 
-### Criar config_handoff.json na raiz
-Adicionar ao .gitignore — contém links e chaves reais do próximo coordenador.
+### 1.5 — Corrigir menção a 29 testes no CLAUDE.md
+O projeto agora tem 53 testes — atualizar as referências.
 
-```json
-{
-  "semestre": "2026/2",
-  "data_inicio": "2026-08-01",
-  "data_fim": "2026-12-15",
-  "google": {
-    "service_account_email": "padrinho-track@padrinho-track.iam.gserviceaccount.com",
-    "planilha_presencas_url": "COLE_O_LINK_AQUI",
-    "planilha_inscricoes_url": "COLE_O_LINK_AQUI",
-    "forms_padrinhos_url": "COLE_O_LINK_AQUI",
-    "forms_calouros_url": "COLE_O_LINK_AQUI"
-  },
-  "apis": {
-    "gemini_key": "COLE_A_CHAVE_AQUI",
-    "anthropic_key": "COLE_A_CHAVE_AQUI"
-  }
-}
-```
-
-### Criar docs/HANDOFF.md
-Guia completo passo a passo para o próximo coordenador:
-1. Clonar o repositório GitHub
-2. Gerar novo client_secrets.json no Google Cloud Console
-3. Preencher config_handoff.json com os novos links e chaves
-   (as chaves ficam só localmente — nunca commitar)
-4. Rodar python scripts/setup_handoff.py
-5. Copiar o backup do banco instance/mentoria.db do coordenador anterior
-
-### Implementação no sistema
-- Botão "Exportar backup do banco" em Configurações
-  — baixa o instance/mentoria.db atual
-
-Roda os 29 testes após a implementação.
+Roda os 53 testes e commita:
+git add .
+git commit -m "feat: melhorias de UX, calouros por turno e reorganização de testes"
+git push
 
 ---
 
-## Tarefa 2 — Deploy no Fly.io
+## Tarefa 2 — Lista negra e permissões
 
-Pré-requisito: login reativado (descomentar before_request em app.py).
+### 2.1 — Lista negra de padrinhos reportados
+Padrinho que recebe advertência vermelha é adicionado
+automaticamente à lista negra — não pode ser importado
+como padrinho em semestres futuros.
 
-1. Criar conta no Fly.io (gratuito — https://fly.io)
-2. Instalar flyctl (CLI do Fly.io) e fazer login
-3. Rodar fly launch na raiz do projeto — detecta Flask automaticamente
-4. Configurar variáveis de ambiente via fly secrets set
-5. fly deploy — sobe o sistema
-6. Testar todas as rotas em produção
-7. Atualizar README.md com a URL de produção
+Implementação:
+- Nova tabela no banco: lista_negra (id, matricula, nome,
+  motivo, semestre, data)
+- Ao emitir advertência vermelha, inserir automaticamente
+  na lista_negra
+- Na importação via Forms (importar_padrinhos_sheets()),
+  verificar se a matrícula está na lista_negra e ignorar
+  com aviso: "X candidatos ignorados por histórico de
+  ocorrência grave: Nome (matrícula)"
+- Na tela de Início do Semestre, exibir os ignorados
+  no relatório de importação
+- Página de visualização da lista negra em Configurações
+  com opção de remover manualmente (caso excepcional)
 
-Observação: SQLite persiste com volume Fly — configurar fly volumes create.
-Não migrar para PostgreSQL neste momento.
+### 2.2 — Níveis de permissão
+Adicionar dois níveis de acesso ao sistema:
+
+**Coordenador** (acesso padrão):
+- Lançar presença, sincronizar Forms
+- Adicionar advertências manuais
+- Ver relatórios
+
+**Coordenador Chefe** (acesso total — senha extra):
+- Tudo do coordenador
+- Remover padrinho do programa
+- Editar dados de padrinho
+- Limpar logs
+- Exportar backup do banco
+- Enviar certificados
+
+Implementação:
+- Dois campos no .env: APP_USERNAME, APP_PASSWORD (já existe)
+  e ADMIN_PASSWORD (novo — para ações críticas)
+- Modal de confirmação de senha antes de ações críticas
+- Não requer sessão separada — só confirmação pontual
+
+Roda os 53 testes e commita:
+git add .
+git commit -m "feat: lista negra e permissões por ação"
+git push
+
+---
+
+## Tarefa 3 — Certificado de participação
+
+### Certificado individual por padrinho aprovado
+Página HTML formatada para impressão, gerada automaticamente
+para cada padrinho aprovado ao final do semestre.
+
+Conteúdo do certificado:
+- Logo Padrinho Track
+- Nome completo do padrinho em destaque
+- Matrícula e turno
+- Texto:
+  "participou como Padrinho Voluntário no programa de
+   Mentoria Acadêmica — Engenharia de Software · PUC Minas
+   Semestre 2026/1, contribuindo com a formação acadêmica
+   de calouros do curso junto a uma equipe de X padrinhos."
+- Assinaturas: Prof. Laerte Xavier e Ana Santos
+- Data de emissão
+
+Implementação:
+- Rota GET /relatorio/certificado/<padrinho_id> em app.py
+- Template templates/pages/certificado.html
+- Botão "Ver certificado" no detalhe de cada padrinho aprovado
+- Botão "Gerar todos os certificados" na página de relatórios
+  — abre lista com link individual de cada aprovado
+
+### Envio por email (Gmail SMTP)
+Botão "Enviar certificados por email" na página de relatórios:
+- Gera PDF de cada certificado
+- Envia para o email cadastrado de cada padrinho aprovado
+- Corpo do email:
+  "Olá, [Nome]! Parabéns pela participação como Padrinho
+   Voluntário. Segue em anexo seu certificado. Atenciosamente,
+   Coordenação da Monitoria — Eng. de Software · PUC Minas"
+- Variáveis no .env: GMAIL_USER e GMAIL_APP_PASSWORD
+  (senha de app gerada no Google — não a senha da conta)
+
+Roda os 53 testes e commita:
+git add .
+git commit -m "feat: certificado de participação e envio por email"
+git push
+
+---
+
+## Tarefa 4 — Deploy na Hostinger
+
+Pré-requisitos:
+- Login reativado (descomentar before_request em app.py)
+- Migração para PostgreSQL
+- Cloudflare configurado na frente
+
+### 4.1 — Migrar para PostgreSQL
+- Substituir SQLite por PostgreSQL em database.py
+- Usar psycopg2 como driver
+- Manter compatibilidade com todos os testes
+- Atualizar requirements.txt
+
+### 4.2 — Configurar VPS na Hostinger
+1. Contratar VPS Ubuntu (plano básico)
+2. Instalar Python, nginx, gunicorn, PostgreSQL
+3. Subir o código via git clone
+4. Configurar variáveis de ambiente no servidor
+5. Configurar gunicorn como serviço systemd
+6. Configurar nginx como proxy reverso
+
+### 4.3 — Configurar Cloudflare
+1. Apontar domínio para o IP do VPS via Cloudflare
+2. Ativar proxy (laranja) para ocultar o IP
+3. Ativar SSL/TLS
+
+### 4.4 — Pós-deploy
+- Testar todas as rotas em produção
+- Reativar login (before_request em app.py)
+- Atualizar README.md com a URL de produção
+- Adicionar índice em logs.data no banco (item B3 da auditoria)
+
+---
+
+## Tarefa 5 — README com demonstração visual
+
+Adicionar seção de demonstração no README.md com GIFs
+mostrando o sistema em ação:
+
+1. Dashboard com cards de status
+2. Sincronizar presença via Forms
+3. Relatório de aptidão sendo gerado
+4. Início do semestre importando padrinhos
+
+Ferramentas recomendadas: ScreenToGif (Windows) — gratuito.
+GIFs de 10-15 segundos cada, hospedados no próprio repositório
+em docs/images/.
 
 ---
 
 ## Opcional — Bot do Telegram
 
-Cria bot.py com python-telegram-bot integrado ao banco SQLite.
+Cria bot.py com python-telegram-bot integrado ao banco.
 Agrega no portfólio mas não é essencial pro programa.
 
 ### Consultas
@@ -108,7 +210,7 @@ Agrega no portfólio mas não é essencial pro programa.
 - Padrinho que atingiu o limite de amarelos
 - Lembrete de reunião próxima
 
-Mantém os 29 testes passando.
+Mantém os 53 testes passando.
 
 ---
 

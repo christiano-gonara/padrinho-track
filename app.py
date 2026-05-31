@@ -127,7 +127,14 @@ def dashboard():
 @app.route("/padrinhos")
 def padrinhos():
     lista = get_todos_padrinhos()
-    return render_template("pages/padrinhos.html", padrinhos=lista)
+    limite = contar_reunioes()
+    todos_status = calcular_todos_status([p["id"] for p in lista], limite)
+    padrinhos_com_status = []
+    for p in lista:
+        d = dict(p)
+        d["status"] = todos_status.get(p["id"], {"status": "apto"})["status"]
+        padrinhos_com_status.append(d)
+    return render_template("pages/padrinhos.html", padrinhos=padrinhos_com_status)
 
 @app.route("/padrinhos/novo", methods=["GET", "POST"])
 def novo_padrinho():
@@ -772,12 +779,20 @@ def relatorio_resumo():
     cal_row = conn.execute(
         "SELECT COUNT(*) AS total, SUM(bolsista) AS bol, SUM(cidade_bh) AS bh, SUM(trabalha) AS trab FROM calouros"
     ).fetchone()
+    cal_turnos_raw = conn.execute(
+        "SELECT turno, COUNT(*) AS qtd FROM calouros WHERE turno IS NOT NULL AND turno != '' GROUP BY turno ORDER BY turno"
+    ).fetchall()
     conn.close()
     total_calouros = cal_row["total"] or 0
     total_cal_d = total_calouros or 1
     pct_bolsista_cal = round((cal_row["bol"] or 0) / total_cal_d * 100)
     pct_bh_cal       = round((cal_row["bh"]  or 0) / total_cal_d * 100)
     pct_trabalha_cal = round((cal_row["trab"] or 0) / total_cal_d * 100)
+    total_turno_cal = sum(r["qtd"] for r in cal_turnos_raw)
+    turno_data_cal = [
+        {"turno": r["turno"], "qtd": r["qtd"], "pct": round(r["qtd"] / total_turno_cal * 100) if total_turno_cal else 0}
+        for r in cal_turnos_raw
+    ]
 
     limite = contar_reunioes()
     todos_status = calcular_todos_status([p["id"] for p in padrinhos], limite)
@@ -835,6 +850,7 @@ def relatorio_resumo():
         n_reprovados=contadores["reprovados"],
         n_reportados=contadores["reportados"],
         turno_data=turno_data,
+        turno_data_cal=turno_data_cal,
         pct_bolsista=pct_bolsista,
         pct_bh=pct_bh,
         pct_trabalha=pct_trabalha,

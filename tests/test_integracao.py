@@ -1,10 +1,9 @@
-"""Integration tests — rotas retornam 200 ou 302, nunca 404 ou 500."""
+"""Testes de integração — rotas HTTP retornam 200 ou 302, nunca 404 ou 500."""
 
 import os
 import sys
 from pathlib import Path
 
-# Deve ser definido antes de importar app.py (que lança RuntimeError caso contrário)
 os.environ.setdefault("SECRET_KEY", "test-integration-key")
 os.environ.setdefault("APP_PASSWORD", "test-password")
 
@@ -18,7 +17,7 @@ from database import init_db, get_conn
 @pytest.fixture()
 def client(tmp_path, monkeypatch):
     """Cliente de teste com banco isolado e dados mínimos de seed."""
-    db_path = tmp_path / "test_routes.db"
+    db_path = tmp_path / "test_integracao.db"
     monkeypatch.setattr(db_module, "DB_PATH", db_path)
     init_db()
 
@@ -127,11 +126,9 @@ class TestPostActions:
         assert client.post("/match/rodar").status_code == 302
 
     def test_sincronizar_presenca_sem_config(self, client):
-        # URL não configurada → flash de erro + redirect (nunca 500)
         assert client.post("/reunioes/1/sincronizar").status_code == 302
 
     def test_importar_padrinhos_sem_url(self, client):
-        # Sem URL → flash de erro + redirect
         assert client.post("/inicio/importar-padrinhos", data={}).status_code == 302
 
     def test_importar_calouros_sem_url(self, client):

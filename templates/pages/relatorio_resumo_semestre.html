@@ -117,6 +117,13 @@
       </div>
       <div style="border-top:1px solid #e6e7ee;margin-top:2px;padding-top:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px;color:#334155;">
         <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#64748b;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;white-space:nowrap;margin-right:4px;">Calouros</span>
+        {% if turno_data_cal %}
+          {% for item in turno_data_cal %}
+            {% if not loop.first %}<span style="color:#94a3b8;">·</span>{% endif %}
+            <strong>{{ item.turno }}</strong>: {{ item.qtd }} <span style="color:#64748b;">({{ item.pct }}%)</span>
+          {% endfor %}
+          <span style="color:#94a3b8;">·</span>
+        {% endif %}
         <span>Bolsistas: <strong>{{ pct_bolsista_cal }}%</strong></span>
         <span style="color:#94a3b8;">·</span>
         <span>Grande BH: <strong>{{ pct_bh_cal }}%</strong></span>

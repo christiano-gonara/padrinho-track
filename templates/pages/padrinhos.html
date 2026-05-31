@@ -16,8 +16,30 @@
 </div>
 
 <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 overflow-hidden shadow-sm">
-  <div class="px-6 py-4 border-b border-slate-200 dark:border-gray-800 flex items-center justify-between">
-  <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Lista de padrinhos</h2>
+  <div class="px-6 py-4 border-b border-slate-200 dark:border-gray-800 flex items-center justify-between gap-3 flex-wrap">
+  <div class="flex items-center gap-2 flex-wrap">
+    <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mr-2">Lista de padrinhos</h2>
+    <button data-filtro="todos"
+            class="filtro-btn active text-xs px-3 py-1 rounded-full border border-slate-300 dark:border-gray-600 bg-[#7c5cff] text-white font-medium transition">
+      Todos
+    </button>
+    <button data-filtro="apto"
+            class="filtro-btn text-xs px-3 py-1 rounded-full border border-slate-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-emerald-400 hover:text-emerald-600 font-medium transition">
+      Aprovados
+    </button>
+    <button data-filtro="alerta"
+            class="filtro-btn text-xs px-3 py-1 rounded-full border border-slate-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-amber-400 hover:text-amber-600 font-medium transition">
+      Em alerta
+    </button>
+    <button data-filtro="inapto_amarelo"
+            class="filtro-btn text-xs px-3 py-1 rounded-full border border-slate-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-orange-400 hover:text-orange-600 font-medium transition">
+      Reprovados
+    </button>
+    <button data-filtro="inapto_vermelho"
+            class="filtro-btn text-xs px-3 py-1 rounded-full border border-slate-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-red-400 hover:text-red-600 font-medium transition">
+      Reportados
+    </button>
+  </div>
   <div class="flex items-center gap-3">
     <span class="text-xs text-gray-400" id="contador">{{ padrinhos | length }} cadastrados</span>
     <div class="relative">
@@ -42,7 +64,8 @@
     {% for p in padrinhos %}
     <tr class="hover:bg-slate-50 dark:hover:bg-gray-800 transition"
         data-nome="{{ p['nome'] }}"
-        data-matricula="{{ p['matricula'] }}">
+        data-matricula="{{ p['matricula'] }}"
+        data-status="{{ p['status'] }}">
       <td class="px-6 py-4 font-medium text-gray-800 dark:text-gray-200">{{ p["nome"] | abreviar }}</td>
       <td class="px-6 py-4 text-[#64748b] mono text-[13px]">{{ p["matricula"] }}</td>
       <td class="px-6 py-4 text-gray-500 dark:text-gray-400">{{ p["email"] or "—" }}</td>
@@ -85,18 +108,37 @@
   const busca = document.getElementById('busca');
   const contador = document.getElementById('contador');
   const linhas = document.querySelectorAll('tbody tr[data-nome]');
+  let filtroAtivo = 'todos';
 
-  busca.addEventListener('input', () => {
+  function aplicarFiltros() {
     const termo = busca.value.toLowerCase().trim();
     let visiveis = 0;
     linhas.forEach(linha => {
       const nome = linha.dataset.nome.toLowerCase();
       const matricula = linha.dataset.matricula.toLowerCase();
-      const visivel = nome.includes(termo) || matricula.includes(termo);
+      const status = linha.dataset.status;
+      const bateBusca = nome.includes(termo) || matricula.includes(termo);
+      const bateFiltro = filtroAtivo === 'todos' || status === filtroAtivo;
+      const visivel = bateBusca && bateFiltro;
       linha.style.display = visivel ? '' : 'none';
       if (visivel) visiveis++;
     });
     contador.textContent = `${visiveis} cadastrados`;
+  }
+
+  busca.addEventListener('input', aplicarFiltros);
+
+  document.querySelectorAll('.filtro-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      filtroAtivo = btn.dataset.filtro;
+      document.querySelectorAll('.filtro-btn').forEach(b => {
+        b.classList.remove('active', 'bg-[#7c5cff]', 'text-white', 'border-[#7c5cff]');
+        b.classList.add('text-gray-500', 'dark:text-gray-400', 'border-slate-200', 'dark:border-gray-700');
+      });
+      btn.classList.add('active', 'bg-[#7c5cff]', 'text-white', 'border-[#7c5cff]');
+      btn.classList.remove('text-gray-500', 'dark:text-gray-400', 'border-slate-200', 'dark:border-gray-700');
+      aplicarFiltros();
+    });
   });
 </script>
 

@@ -14,7 +14,7 @@ Instituição: PUC Minas · Eng. de Software · 2026/1
 - Banco: SQLite (instance/mentoria.db)
 - Frontend: HTML + Tailwind CSS + app.css (design system próprio) + Remix Icon
 - Gráficos: ApexCharts
-- Testes: pytest (29 testes em tests/)
+- Testes: pytest (53+ testes em tests/)
 - Google Sheets: gspread (service account para leitura, OAuth2 para criação)
 
 ## Estrutura
@@ -34,7 +34,7 @@ padrinho-track/
 ├── static/
 │   ├── css/app.css         — design system completo com classes pt-
 │   └── *.svg               — logo e favicon
-├── tests/                  — pytest (29 testes)
+├── tests/                  — pytest (53+ testes)
 ├── scripts/
 │   ├── match.py            — script standalone de match via CSV
 │   ├── seed_exemplo.py     — dados fictícios para demo
@@ -143,7 +143,7 @@ SECRET_KEY=uma_chave_secreta
 GEMINI_API_KEY=sua_chave_gemini
 
 ## Importante
-- Nunca quebrar os 29 testes existentes
+- Nunca quebrar os testes existentes (53+)
 - Manter dark mode em todos os templates
 - Sidebar sempre escura (#0f1424) independente do tema
 - Login está comentado temporariamente no before_request — descomentar antes do deploy
@@ -158,7 +158,7 @@ Ao receber uma tarefa do docs/tarefas.md:
 2. Execute a tarefa completa sem pedir confirmação no meio
 3. Após cada alteração relevante, rode pytest e corrija eventuais falhas antes de continuar
 4. Só conclua a tarefa quando todos os critérios estiverem satisfeitos:
-   - Os 29 testes passando
+   - Os testes passando (53+)
    - Nenhum print() de debug no código
    - Dark mode preservado nos templates alterados
 5. Avise quando terminar com um resumo do que foi feito

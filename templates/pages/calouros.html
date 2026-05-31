@@ -13,8 +13,13 @@
   {% for item in dados %}
     {% set total_calouros.value = total_calouros.value + (item.calouros | length) %}
   {% endfor %}
-  <div class="flex gap-2">
-    <span class="inline-flex items-center gap-1.5 bg-[#7c5cff]/10 text-[#7c5cff] px-3 py-1.5 rounded-xl text-xs font-semibold border border-[#7c5cff]/20">
+  <div class="flex items-center gap-3 flex-wrap">
+    <div class="relative">
+      <i class="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+      <input type="text" id="busca-calouros" placeholder="Buscar padrinho ou calouro..."
+             class="pl-8 pr-4 py-1.5 text-xs border border-slate-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7c5cff] w-52 transition" />
+    </div>
+    <span class="inline-flex items-center gap-1.5 bg-[#7c5cff]/10 text-[#7c5cff] px-3 py-1.5 rounded-xl text-xs font-semibold border border-[#7c5cff]/20" id="cnt-padrinhos">
       <i class="ri-user-star-line"></i> {{ dados | length }} padrinhos
     </span>
     <span class="inline-flex items-center gap-1.5 bg-violet-50 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 px-3 py-1.5 rounded-xl text-xs font-semibold border border-violet-100 dark:border-violet-800">
@@ -23,10 +28,12 @@
   </div>
 </div>
 
-<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-4" id="lista-calouros">
   {% for item in dados %}
     {% if item.calouros %}
-    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 overflow-hidden shadow-sm">
+    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 overflow-hidden shadow-sm"
+         data-padrinho="{{ item.padrinho['nome'] | lower }}"
+         data-calouros="{{ item.calouros | map(attribute='nome') | join(' ') | lower }}">
       <div class="flex items-center justify-between px-6 py-3.5 bg-slate-50 dark:bg-gray-800 border-b border-slate-200 dark:border-gray-800">
         <div class="flex items-center gap-3">
           <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#7c5cff] to-[#8b6dff] flex items-center justify-center shrink-0">
@@ -83,5 +90,24 @@
   </div>
   {% endfor %}
 </div>
+
+<script>
+  const buscaCalouros = document.getElementById('busca-calouros');
+  const cntPadrinhos = document.getElementById('cnt-padrinhos');
+  const cards = document.querySelectorAll('#lista-calouros [data-padrinho]');
+
+  buscaCalouros.addEventListener('input', () => {
+    const termo = buscaCalouros.value.toLowerCase().trim();
+    let visiveis = 0;
+    cards.forEach(card => {
+      const padrinho = card.dataset.padrinho;
+      const calouros = card.dataset.calouros;
+      const bate = !termo || padrinho.includes(termo) || calouros.includes(termo);
+      card.style.display = bate ? '' : 'none';
+      if (bate) visiveis++;
+    });
+    cntPadrinhos.innerHTML = `<i class="ri-user-star-line"></i> ${visiveis} padrinhos`;
+  });
+</script>
 
 {% endblock %}
