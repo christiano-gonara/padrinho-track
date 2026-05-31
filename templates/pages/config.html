@@ -11,49 +11,6 @@
 
 <div style="max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:24px;">
 
-  <!-- Regras de advertência -->
-  <div class="pt-card pt-card-flat">
-    <div class="pt-card-header" style="padding:18px 22px 14px;">
-      <div class="pt-card-header-title">
-        <div class="pt-card-header-icon"><i class="ri-error-warning-line"></i></div>
-        <span class="pt-card-title">Regras de advertência</span>
-      </div>
-    </div>
-    <div class="p-6" style="display:flex;flex-direction:column;gap:16px;">
-      <div style="display:flex;align-items:flex-start;gap:14px;">
-        <div style="flex-shrink:0;width:40px;height:40px;border-radius:10px;background:var(--pt-violet-tint);display:flex;align-items:center;justify-content:center;">
-          <i class="ri-shield-check-line" style="font-size:18px;color:var(--pt-violet);"></i>
-        </div>
-        <div>
-          <p style="font-size:14px;font-weight:600;color:var(--pt-ink);margin-bottom:4px;">Limite automático por número de reuniões</p>
-          <p class="pt-muted-text" style="font-size:13px;line-height:1.6;">
-            Um padrinho é reprovado se faltar em todas as reuniões do semestre.
-            {% if total_reunioes > 0 %}
-              Com <strong>{{ total_reunioes }} reunião{{ 'ões' if total_reunioes > 1 }}</strong> cadastrada{{ 's' if total_reunioes > 1 }}, o limite atual é <strong>{{ total_reunioes }} amarelo{{ 's' if total_reunioes > 1 }}</strong>.
-            {% else %}
-              Nenhuma reunião cadastrada ainda — o limite será definido automaticamente ao criar reuniões.
-            {% endif %}
-          </p>
-        </div>
-      </div>
-
-      <div style="display:flex;flex-direction:column;gap:8px;">
-        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--pt-muted);">
-          <i class="ri-checkbox-circle-line" style="color:#10b981;font-size:15px;flex-shrink:0;"></i>
-          <span>Advertências manuais (atraso em tema, comportamento) continuam contando normalmente.</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--pt-muted);">
-          <i class="ri-checkbox-circle-line" style="color:#10b981;font-size:15px;flex-shrink:0;"></i>
-          <span>Advertência grave (vermelha) reprova automaticamente, independente do limite.</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--pt-muted);">
-          <i class="ri-checkbox-circle-line" style="color:#10b981;font-size:15px;flex-shrink:0;"></i>
-          <span>Alerta preventivo aparece quando o padrinho tem <strong>limite − 1</strong> amarelos.</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Configurações do semestre -->
   <div class="pt-card pt-card-flat">
     <div class="pt-card-header" style="padding:18px 22px 14px;">

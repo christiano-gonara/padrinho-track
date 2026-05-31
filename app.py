@@ -337,7 +337,8 @@ def advertencias():
     """).fetchall()
     conn.close()
     padrinhos = get_todos_padrinhos()
-    return render_template("pages/advertencias.html", advertencias=lista, padrinhos=padrinhos)
+    total_reunioes = contar_reunioes()
+    return render_template("pages/advertencias.html", advertencias=lista, padrinhos=padrinhos, total_reunioes=total_reunioes)
 
 @app.route("/advertencias/manual", methods=["POST"])
 def advertencia_manual():
