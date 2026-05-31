@@ -99,8 +99,6 @@ class TestGetPages:
     def test_relatorio_resumo(self, client):
         assert client.get("/relatorio/resumo").status_code == 200
 
-    def test_relatorio_reportados(self, client):
-        assert client.get("/relatorio/reportados").status_code == 200
 
 
 class TestPostActions:

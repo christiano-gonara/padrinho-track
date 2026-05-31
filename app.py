@@ -732,15 +732,21 @@ def relatorio_aptidao():
 
     conn = get_conn()
     vermelho_rows = conn.execute(
-        "SELECT padrinho_id, motivo FROM advertencias WHERE tipo='vermelho' ORDER BY data DESC"
+        "SELECT padrinho_id, motivo, data FROM advertencias WHERE tipo='vermelho' ORDER BY data DESC"
     ).fetchall()
     conn.close()
     vermelho_map = {}
     for r in vermelho_rows:
         if r["padrinho_id"] not in vermelho_map:
-            vermelho_map[r["padrinho_id"]] = r["motivo"]
+            data_obj = None
+            if r["data"]:
+                try:
+                    data_obj = datetime.strptime(r["data"], "%Y-%m-%d").date()
+                except Exception:
+                    pass
+            vermelho_map[r["padrinho_id"]] = {"motivo": r["motivo"] or "—", "data": data_obj}
 
-    aprovados, reprovados, reportados = [], [], []
+    aprovados, reportados = [], []
     for p in padrinhos:
         status_dict = todos_status.get(p["id"], {"status": "apto", "amarelos": 0, "vermelhos": 0})
         status = status_dict["status"]
@@ -751,11 +757,11 @@ def relatorio_aptidao():
             "num_amarelos": status_dict["amarelos"],
         }
         if status == "inapto_vermelho":
-            row["motivo_vermelho"] = vermelho_map.get(p["id"], "—")
+            adv = vermelho_map.get(p["id"], {})
+            row["motivo_vermelho"] = adv.get("motivo", "—")
+            row["data_advertencia_grave"] = adv.get("data")
             reportados.append(row)
-        elif status == "inapto_amarelo":
-            reprovados.append(row)
-        else:
+        elif status in ("apto", "alerta"):
             aprovados.append(row)
 
     return render_template("pages/relatorio_aptidao_acg.html",
@@ -764,7 +770,6 @@ def relatorio_aptidao():
         total=len(padrinhos) or 1,
         total_reunioes_db=limite,
         aprovados=aprovados,
-        reprovados=reprovados,
         reportados=reportados,
     )
 
@@ -859,46 +864,6 @@ def relatorio_resumo():
         pct_trabalha_cal=pct_trabalha_cal,
     )
 
-
-@app.route("/relatorio/reportados")
-def relatorio_reportados():
-    padrinhos = get_todos_padrinhos()
-    limite = contar_reunioes()
-    todos_status = calcular_todos_status([p["id"] for p in padrinhos], limite)
-
-    conn = get_conn()
-    adv_rows = conn.execute(
-        "SELECT padrinho_id, motivo, data FROM advertencias WHERE tipo='vermelho' ORDER BY data DESC"
-    ).fetchall()
-    conn.close()
-    adv_map = {}
-    for r in adv_rows:
-        if r["padrinho_id"] not in adv_map:
-            adv_map[r["padrinho_id"]] = r
-
-    reportados = []
-    for p in padrinhos:
-        if todos_status.get(p["id"], {"status": "apto"})["status"] == "inapto_vermelho":
-            adv = adv_map.get(p["id"])
-            data_adv = None
-            if adv and adv["data"]:
-                try:
-                    data_adv = datetime.strptime(adv["data"], "%Y-%m-%d").date()
-                except Exception:
-                    pass
-            reportados.append({
-                "nome": p["nome"],
-                "matricula": p["matricula"],
-                "email": p["email"] or "—",
-                "motivo_vermelho": adv["motivo"] if adv else "—",
-                "data_advertencia_grave": data_adv,
-            })
-
-    return render_template("pages/relatorio_reportados.html",
-        config=CONFIG,
-        hoje=date.today(),
-        reportados=reportados,
-    )
 
 
 # ── Início do Semestre ────────────────────────────────────────────────────
