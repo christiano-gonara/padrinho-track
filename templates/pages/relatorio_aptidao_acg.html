@@ -93,6 +93,7 @@
             <th style="text-align:left;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:9px;color:#047857;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;width:90px;">Matrícula</th>
             <th style="text-align:left;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:9px;color:#047857;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;width:70px;">Turno</th>
             <th style="text-align:left;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:9px;color:#047857;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;">Email</th>
+            <th style="text-align:center;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:9px;color:#047857;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;width:80px;">Certificado</th>
           </tr>
         </thead>
         <tbody>
@@ -102,6 +103,10 @@
             <td style="padding:9px 14px;border-top:1px solid #e6e7ee;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#64748b;font-variant-numeric:tabular-nums;">{{ p.matricula }}</td>
             <td style="padding:9px 14px;border-top:1px solid #e6e7ee;color:#334155;">{{ p.turno }}</td>
             <td style="padding:9px 14px;border-top:1px solid #e6e7ee;color:#334155;font-size:11.5px;">{{ p.email }}</td>
+            <td style="padding:9px 14px;border-top:1px solid #e6e7ee;text-align:center;">
+              <a href="/relatorio/certificado/{{ p.id }}" target="_blank"
+                 style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:6px;background:#ecfdf5;color:#047857;border:1px solid #d1fae5;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;text-decoration:none;">Ver</a>
+            </td>
           </tr>
           {% endfor %}
         </tbody>

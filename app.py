@@ -752,6 +752,7 @@ def relatorio_aptidao():
         status_dict = todos_status.get(p["id"], {"status": "apto", "amarelos": 0, "vermelhos": 0})
         status = status_dict["status"]
         row = {
+            "id": p["id"],
             "nome": p["nome"], "matricula": p["matricula"],
             "turno": p["turno"] or "—",
             "email": p["email"] or "—",
@@ -772,6 +773,26 @@ def relatorio_aptidao():
         total_reunioes_db=limite,
         aprovados=aprovados,
         reportados=reportados,
+    )
+
+
+@app.route("/relatorio/certificado/<int:padrinho_id>")
+def relatorio_certificado(padrinho_id):
+    p = get_padrinho(padrinho_id)
+    if not p:
+        return "Padrinho não encontrado.", 404
+    limite = contar_reunioes()
+    todos_status = calcular_todos_status([padrinho_id], limite)
+    status = todos_status.get(padrinho_id, {"status": "apto"})["status"]
+    if status not in ("apto", "alerta"):
+        return "Este padrinho não está apto para receber certificado.", 403
+    total_padrinhos = len(get_todos_padrinhos())
+    return render_template("pages/certificado.html",
+        padrinho=p,
+        total_padrinhos=total_padrinhos,
+        semestre=CONFIG["semestre"],
+        config=CONFIG,
+        hoje=date.today(),
     )
 
 
