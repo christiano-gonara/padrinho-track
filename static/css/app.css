@@ -92,7 +92,7 @@ input, select, textarea { font-family: inherit; }
 .pt-app { display: flex; min-height: 100vh; background: var(--pt-bg); }
 .pt-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 .pt-content { display: flex; flex-direction: column; padding-bottom: 32px; }
-.pt-content-padded { padding: 0 32px; }
+.pt-content-padded { max-width: 1440px; margin: 0 auto; padding: 0 40px; }
 
 /* ---------- KNOT (logo) ----------------------------------------------------- */
 .pt-knot-tile {
@@ -567,6 +567,10 @@ body.pt-sidebar-collapsed .pt-nav-item:hover::after {
 .pt-table tbody tr { transition: background 120ms ease; }
 .pt-table tbody tr.is-clickable { cursor: pointer; }
 .pt-table tbody tr.is-clickable:hover { background: var(--pt-bg-alt); }
+[data-theme="dark"] .pt-table thead th { border-bottom-color: rgba(255,255,255,0.08); }
+[data-theme="dark"] .pt-table tbody td { color: rgba(255,255,255,0.9); border-bottom-color: rgba(255,255,255,0.08); }
+[data-theme="dark"] .pt-table .pt-td-muted { color: rgba(255,255,255,0.55); }
+[data-theme="dark"] .pt-table tbody tr.is-clickable:hover { background: rgba(255,255,255,0.04); }
 .pt-table .pt-td-right { text-align: right; }
 .pt-table .pt-td-muted {
   color: var(--pt-muted); font-family: var(--pt-font-mono);
