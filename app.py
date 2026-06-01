@@ -954,6 +954,16 @@ def inicio_importar_calouros():
         flash(f"Erro ao importar: {e}", "error")
     return redirect(url_for("inicio_semestre"))
 
+# ── Seed de demonstração ───────────────────────────────────────────────────
+
+@app.route("/seed-exemplo")
+def seed_exemplo():
+    if request.args.get("senha") != "PucMinas2026":
+        return "Acesso negado.", 403
+    from scripts.seed_exemplo import seed
+    seed()
+    return redirect(url_for("dashboard"))
+
 # ── Inicialização ──────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
