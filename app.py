@@ -33,6 +33,9 @@ if not _SECRET_KEY or not _APP_PASS:
     )
 app.secret_key = _SECRET_KEY
 
+with app.app_context():
+    init_db()
+
 app.jinja_env.filters['abreviar'] = abreviar_nome
 
 @app.template_filter('databr')
