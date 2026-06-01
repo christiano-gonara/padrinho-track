@@ -11,10 +11,11 @@ Instituição: PUC Minas · Eng. de Software · 2026/1
 
 ## Stack
 - Backend: Python + Flask
-- Banco: SQLite (instance/mentoria.db)
+- Banco: PostgreSQL (produção · Railway) / SQLite (local · instance/mentoria.db)
 - Frontend: HTML + Tailwind CSS + app.css (design system próprio) + Remix Icon
 - Gráficos: ApexCharts
-- Testes: pytest (53+ testes em tests/)
+- Testes: pytest (62 testes em tests/)
+- Deploy: Railway (NIXPACKS + gunicorn) — https://padrinho-track-production.up.railway.app/
 - Google Sheets: gspread (service account para leitura, OAuth2 para criação)
 
 ## Estrutura
@@ -34,7 +35,7 @@ padrinho-track/
 ├── static/
 │   ├── css/app.css         — design system completo com classes pt-
 │   └── *.svg               — logo e favicon
-├── tests/                  — pytest (53+ testes)
+├── tests/                  — pytest (62 testes)
 ├── scripts/
 │   ├── match.py            — script standalone de match via CSV
 │   ├── seed_exemplo.py     — dados fictícios para demo
@@ -114,7 +115,6 @@ Arquivo em static/css/app.css com prefixo pt-.
 - Tela de Início do Semestre (importação via Forms)
 - Limite de amarelos automático por número de reuniões
 - Handoff para próximo coordenador
-- Deploy no Fly.io
 
 ## Relatórios implementados
 4 relatórios gerados como páginas HTML/Jinja — usuário imprime via Ctrl+P → Salvar como PDF.
@@ -141,12 +141,13 @@ APP_USERNAME=admin
 APP_PASSWORD=sua_senha
 SECRET_KEY=uma_chave_secreta
 GEMINI_API_KEY=sua_chave_gemini
+DATABASE_URL=postgresql://...   # Railway injeta automaticamente; ausente = SQLite local
 
 ## Importante
-- Nunca quebrar os testes existentes (53+)
+- Nunca quebrar os testes existentes (62)
 - Manter dark mode em todos os templates
 - Sidebar sempre escura (#0f1424) independente do tema
-- Login está comentado temporariamente no before_request — descomentar antes do deploy
+- LOGIN DESATIVADO — before_request comentado em app.py; reativar antes de divulgar a URL de produção
 - scripts/seed.py e scripts/seed_calouros.py estão no .gitignore (dados reais)
 - config_semestre.json, credentials.json, client_secrets.json estão no .gitignore
 - Tailwind CDN convive com app.css — Tailwind para layout, app.css para componentes visuais

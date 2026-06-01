@@ -217,6 +217,7 @@ def _init_sqlite():
     CREATE INDEX IF NOT EXISTS idx_presencas_reuniao     ON presencas(reuniao_id);
     CREATE INDEX IF NOT EXISTS idx_tema_padrinhos_tema   ON tema_padrinhos(tema_id);
     CREATE INDEX IF NOT EXISTS idx_tema_padrinhos_padrinho ON tema_padrinhos(padrinho_id);
+    CREATE INDEX IF NOT EXISTS idx_logs_data             ON logs(data DESC);
     """)
     conn.commit()
 
@@ -335,6 +336,7 @@ _PG_SCHEMA = [
     "CREATE INDEX IF NOT EXISTS idx_presencas_reuniao       ON presencas(reuniao_id)",
     "CREATE INDEX IF NOT EXISTS idx_tema_padrinhos_tema     ON tema_padrinhos(tema_id)",
     "CREATE INDEX IF NOT EXISTS idx_tema_padrinhos_padrinho ON tema_padrinhos(padrinho_id)",
+    "CREATE INDEX IF NOT EXISTS idx_logs_data               ON logs(data DESC)",
 ]
 
 # Applied on top of the full schema to handle DBs created before certain columns existed.
