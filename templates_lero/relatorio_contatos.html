@@ -5,18 +5,31 @@
 <title>Lista de Contatos — Padrinho Track</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700;800&family=JetBrains+Mono:wght=400;500;600&display=swap" rel="stylesheet" />
 <style>
   @page { size: A4 portrait; margin: 0; }
   html, body { margin: 0; padding: 0; background: #e6e7ee; font-family: "Inter", system-ui, sans-serif; }
-  @media print { html, body { background: #fff; } * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }
+  @media print { html, body { background: #fff; } .pt-print-bar { display: none !important; } body { padding-top: 0 !important; } * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }
+  .pt-print-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: #0f172a; color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 10px 24px; font-size: 13px; gap: 12px; }
+  .pt-print-bar a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 12px; }
+  .pt-print-bar a:hover { color: #fff; }
+  .pt-print-btn { background: #7c5cff; color: #fff; border: none; border-radius: 8px; padding: 7px 16px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .pt-print-btn:hover { background: #6d4ef0; }
+  body { padding-top: 46px; }
 </style>
 </head>
 <body>
 
+<div class="pt-print-bar">
+  <span style="font-weight:600;">Lista de Contatos — {{ config.semestre }}</span>
+  <span style="display:flex;align-items:center;gap:12px;">
+    <a href="/match">← Voltar ao match</a>
+    <button class="pt-print-btn" onclick="window.print()">&#128438; Salvar como PDF</button>
+  </span>
+</div>
+
 <div style="width:794px;margin:24px auto;background:#ffffff;font-family:'Inter',system-ui,sans-serif;color:#0f172a;box-shadow:0 6px 20px rgba(15,23,42,0.08);">
 
-  <!-- ============== HEADER (compacto) ============== -->
   <div style="background:linear-gradient(120deg,#7c5cff 0%,#6d4ef0 100%);color:#ffffff;padding:16px 32px;">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
       <div style="display:flex;align-items:center;gap:10px;">
@@ -28,16 +41,15 @@
         <span style="font-size:15px;font-weight:700;letter-spacing:-0.01em;">Padrinho <span style="color:#d6ccff;">Track</span></span>
       </div>
       <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,0.82);letter-spacing:0.1em;text-transform:uppercase;">
-        01/06/2026 · Total de matches: 20
+        {{ hoje.strftime('%d/%m/%Y') }} · Total de matches: {{ rows|length }}
       </div>
     </div>
     <div style="margin-top:12px;">
-      <div style="font-size:18px;font-weight:700;letter-spacing:-0.01em;">Lista de Contatos — 2026/1</div>
-      <div style="margin-top:2px;font-size:11.5px;color:rgba(255,255,255,0.78);">Distribuição de calouros por padrinho · Engenharia de Software · PUC Minas</div>
+      <div style="font-size:18px;font-weight:700;letter-spacing:-0.01em;">Lista de Contatos — {{ config.semestre }}</div>
+      <div style="margin-top:2px;font-size:11.5px;color:rgba(255,255,255,0.78);">Distribuição de calouros por padrinho · {{ config.programa }} · {{ config.instituicao }}</div>
     </div>
   </div>
 
-  <!-- ============== CONTEÚDO ============== -->
   <div style="padding:22px 32px 14px;">
     <table style="width:100%;border-collapse:separate;border-spacing:0;border:1px solid #e6e7ee;border-radius:8px;overflow:hidden;font-size:11.5px;">
       <thead style="background:#eee9ff;">
@@ -49,47 +61,31 @@
         </tr>
       </thead>
       <tbody>
-        <!-- {% for c in contatos %} -->
-        <!-- Alice Mendonça -->
-        <tr style="background:#ffffff;"><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-weight:600;color:#0f172a;">Alice Mendonça</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#b45309;font-weight:500;">Manhã</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#334155;">Mateus Aguiar</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b;font-variant-numeric:tabular-nums;">31900001001</td></tr>
-        <tr style="background:#fafafd;"><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-weight:600;color:#0f172a;">Alice Mendonça</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#b45309;font-weight:500;">Manhã</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#334155;">Thiago Brandão</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b;font-variant-numeric:tabular-nums;">31900001011</td></tr>
-        <!-- Bruno Tavares -->
-        <tr style="background:#ffffff;"><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-weight:600;color:#0f172a;">Bruno Tavares</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#5b3df5;font-weight:500;">Noite</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#334155;">Carolina Salgado</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b;font-variant-numeric:tabular-nums;">31900001012</td></tr>
-        <tr style="background:#fafafd;"><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-weight:600;color:#0f172a;">Bruno Tavares</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#5b3df5;font-weight:500;">Noite</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#334155;">Larissa Peixoto</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b;font-variant-numeric:tabular-nums;">31900001002</td></tr>
-        <!-- Camila Rezende -->
-        <tr style="background:#ffffff;"><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-weight:600;color:#0f172a;">Camila Rezende</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#b45309;font-weight:500;">Manhã</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#334155;">Rafael Evangelista</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b;font-variant-numeric:tabular-nums;">31900001003</td></tr>
-        <tr style="background:#fafafd;"><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-weight:600;color:#0f172a;">Camila Rezende</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#b45309;font-weight:500;">Manhã</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#334155;">Vitor Sepúlveda</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b;font-variant-numeric:tabular-nums;">31900001013</td></tr>
-        <!-- Diego Fonseca -->
-        <tr style="background:#ffffff;"><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-weight:600;color:#0f172a;">Diego Fonseca</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#5b3df5;font-weight:500;">Noite</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#334155;">Beatriz Salomão</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b;font-variant-numeric:tabular-nums;">31900001004</td></tr>
-        <tr style="background:#fafafd;"><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-weight:600;color:#0f172a;">Diego Fonseca</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#5b3df5;font-weight:500;">Noite</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#334155;">Mariana Toledo</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b;font-variant-numeric:tabular-nums;">31900001014</td></tr>
-        <!-- Elisa Drummond -->
-        <tr style="background:#ffffff;"><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-weight:600;color:#0f172a;">Elisa Drummond</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#b45309;font-weight:500;">Manhã</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#334155;">Leonardo Bittencourt</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b;font-variant-numeric:tabular-nums;">31900001015</td></tr>
-        <tr style="background:#fafafd;"><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-weight:600;color:#0f172a;">Elisa Drummond</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#b45309;font-weight:500;">Manhã</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#334155;">Lucas Wanderley</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b;font-variant-numeric:tabular-nums;">31900001005</td></tr>
-        <!-- Felipe Quaresma -->
-        <tr style="background:#ffffff;"><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-weight:600;color:#0f172a;">Felipe Quaresma</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#5b3df5;font-weight:500;">Noite</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#334155;">Fernanda Azevedo</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b;font-variant-numeric:tabular-nums;">31900001006</td></tr>
-        <tr style="background:#fafafd;"><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-weight:600;color:#0f172a;">Felipe Quaresma</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#5b3df5;font-weight:500;">Noite</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#334155;">Stephanie Caldeira</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b;font-variant-numeric:tabular-nums;">31900001016</td></tr>
-        <!-- Gabriela Monteiro -->
-        <tr style="background:#ffffff;"><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-weight:600;color:#0f172a;">Gabriela Monteiro</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#b45309;font-weight:500;">Manhã</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#334155;">André Mascarenhas</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b;font-variant-numeric:tabular-nums;">31900001017</td></tr>
-        <tr style="background:#fafafd;"><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-weight:600;color:#0f172a;">Gabriela Monteiro</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#b45309;font-weight:500;">Manhã</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#334155;">Pedro Magalhães</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b;font-variant-numeric:tabular-nums;">31900001007</td></tr>
-        <!-- Henrique Lacerda -->
-        <tr style="background:#ffffff;"><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-weight:600;color:#0f172a;">Henrique Lacerda</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#5b3df5;font-weight:500;">Noite</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#334155;">Julia Paranhos</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b;font-variant-numeric:tabular-nums;">31900001008</td></tr>
-        <tr style="background:#fafafd;"><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-weight:600;color:#0f172a;">Henrique Lacerda</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#5b3df5;font-weight:500;">Noite</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#334155;">Natália Veríssimo</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b;font-variant-numeric:tabular-nums;">31900001018</td></tr>
-        <!-- Isabela Coutinho -->
-        <tr style="background:#ffffff;"><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-weight:600;color:#0f172a;">Isabela Coutinho</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#b45309;font-weight:500;">Manhã</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#334155;">Diego Canellas</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b;font-variant-numeric:tabular-nums;">31900001019</td></tr>
-        <tr style="background:#fafafd;"><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-weight:600;color:#0f172a;">Isabela Coutinho</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#b45309;font-weight:500;">Manhã</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#334155;">Guilherme Pacheco</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b;font-variant-numeric:tabular-nums;">31900001009</td></tr>
-        <!-- João Vasconcelos -->
-        <tr style="background:#ffffff;"><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-weight:600;color:#0f172a;">João Vasconcelos</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#5b3df5;font-weight:500;">Noite</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#334155;">Amanda Vilela</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b;font-variant-numeric:tabular-nums;">31900001010</td></tr>
-        <tr style="background:#fafafd;"><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-weight:600;color:#0f172a;">João Vasconcelos</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#5b3df5;font-weight:500;">Noite</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#334155;">Priscila Uchôa</td><td style="padding:8px 16px;border-top:1px solid #eef0f5;font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b;font-variant-numeric:tabular-nums;">31900001020</td></tr>
-        <!-- {% endfor %} -->
+        {% for row in rows %}
+        <tr style="background:{{ '#fafafd' if loop.index is odd else '#ffffff' }};">
+          <td style="padding:8px 16px;border-top:1px solid #eef0f5;font-weight:600;color:#0f172a;">{{ row.padrinho_nome }}</td>
+          <td style="padding:8px 16px;border-top:1px solid #eef0f5;font-weight:500;color:{{ '#b45309' if row.turno == 'Manhã' else '#5b3df5' if row.turno == 'Noite' else '#64748b' }};">
+            {{ row.turno or '—' }}
+          </td>
+          <td style="padding:8px 16px;border-top:1px solid #eef0f5;color:#334155;">{{ row.calouro_nome }}</td>
+          <td style="padding:8px 16px;border-top:1px solid #eef0f5;font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b;font-variant-numeric:tabular-nums;">
+            {{ row.telefone or '—' }}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="4" style="padding:32px 16px;text-align:center;color:#94a3b8;font-size:12px;background:#ffffff;">
+            Nenhum match gerado ainda.
+          </td>
+        </tr>
+        {% endfor %}
       </tbody>
     </table>
   </div>
 
-  <!-- ============== RODAPÉ ============== -->
   <div style="position:relative;margin-top:8px;">
-    <div style="height:2px;width:100%;background:linear-gradient(90deg,#5b3df5,#8b6dff 50%,#5b3df5);"></div>
+    <div style="height:2px;width:100%;background:linear-gradient(90deg,#5b3df5,#8b6dff 50%,#5b3df5);"><div style="display:none;"></div></div>
     <div style="padding:14px 32px;background:#fafafd;display:flex;align-items:center;justify-content:space-between;gap:16px;">
-      <!-- marca -->
       <div style="display:flex;align-items:center;gap:9px;">
         <div style="width:24px;height:24px;border-radius:7px;background:linear-gradient(150deg,#8b6dff,#5b3df5);display:inline-flex;align-items:center;justify-content:center;">
           <svg width="18" height="18" viewBox="2 2 28 28" fill="none">
@@ -98,19 +94,17 @@
         </div>
         <div style="display:flex;flex-direction:column;line-height:1.3;">
           <span style="font-size:11px;font-weight:700;color:#0f172a;letter-spacing:-0.01em;">Padrinho Track</span>
-          <span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;color:#94a3b8;letter-spacing:0.06em;text-transform:uppercase;">PUC Minas · Eng. Software</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;color:#94a3b8;letter-spacing:0.06em;text-transform:uppercase;">{{ config.instituicao }} · {{ config.programa }}</span>
         </div>
       </div>
-      <!-- github -->
       <div style="display:flex;align-items:center;gap:6px;color:#64748b;">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7c5cff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
         </svg>
         <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#64748b;letter-spacing:0.02em;">christiano-gonara/padrinho-track</span>
       </div>
-      <!-- meta -->
       <div style="text-align:right;line-height:1.4;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#5b3df5;letter-spacing:0.08em;text-transform:uppercase;font-weight:600;">Lista de Contatos · 2026/1</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#5b3df5;letter-spacing:0.08em;text-transform:uppercase;font-weight:600;">Lista de Contatos · {{ config.semestre }}</div>
         <div style="font-family:'JetBrains Mono',monospace;font-size:8.5px;color:#94a3b8;letter-spacing:0.06em;text-transform:uppercase;">Pág. 1/1 · Christiano Gonçalves</div>
       </div>
     </div>
