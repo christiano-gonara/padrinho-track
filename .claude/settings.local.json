@@ -41,7 +41,20 @@
       "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\Pexy0\\\\padrinho-track\\\\scripts\" -ErrorAction SilentlyContinue | Select-Object Name; if \\(-not \\(Test-Path \"C:\\\\Users\\\\Pexy0\\\\padrinho-track\\\\scripts\"\\)\\) { Write-Host \"scripts/ nao existe\" })",
       "Bash(git check-ignore *)",
       "PowerShell(Start-Process python -ArgumentList \"app.py\" -WorkingDirectory \"C:\\\\Users\\\\Pexy0\\\\padrinho-track\" -WindowStyle Hidden)",
-      "Bash(Remove-Item -Force \"instance\\\\mentoria.db\" -ErrorAction SilentlyContinue)"
+      "Bash(Remove-Item -Force \"instance\\\\mentoria.db\" -ErrorAction SilentlyContinue)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://127.0.0.1:5000/)",
+      "Bash(python -m flask --app app run --no-reload)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://127.0.0.1:5000/relatorio)",
+      "Read(//tmp/**)",
+      "Bash(netstat -tlnp)",
+      "Bash(pkill -f \"flask\")",
+      "Bash(curl -v http://127.0.0.1:5000/relatorio)",
+      "Bash(curl -s http://127.0.0.1:5000/padrinhos/1 -o /dev/null -w \"%{http_code}\\\\n\")",
+      "Bash(pkill -f \"flask\\\\|python.*app\")",
+      "PowerShell(Out-Null *)",
+      "PowerShell(Receive-Job *)",
+      "Bash(Get-ChildItem -Recurse flask/)",
+      "Bash(Select-Object FullName)"
     ]
   }
 }

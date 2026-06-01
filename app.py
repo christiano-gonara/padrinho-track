@@ -787,9 +787,13 @@ def relatorio_certificado(padrinho_id):
     if status not in ("apto", "alerta"):
         return "Este padrinho não está apto para receber certificado.", 403
     total_padrinhos = len(get_todos_padrinhos())
+    conn = get_conn()
+    total_calouros = conn.execute("SELECT COUNT(*) FROM calouros").fetchone()[0]
+    conn.close()
     return render_template("pages/certificado.html",
         padrinho=p,
         total_padrinhos=total_padrinhos,
+        total_calouros=total_calouros,
         semestre=CONFIG["semestre"],
         config=CONFIG,
         hoje=date.today(),

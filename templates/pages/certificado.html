@@ -5,17 +5,94 @@
 <title>Certificado — {{ padrinho.nome }} — Padrinho Track</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
 <style>
-  @page { size: A4 portrait; margin: 0; }
+  @page { size: A4 landscape; margin: 0; }
+  * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; background: #e6e7ee; font-family: "Inter", system-ui, sans-serif; }
-  @media print { html, body { background: #fff; } .pt-print-bar { display: none !important; } body { padding-top: 0 !important; } * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }
-  .pt-print-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: #0f172a; color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 10px 24px; font-size: 13px; gap: 12px; }
+
+  /* Barra de ação (somente tela) */
+  .pt-print-bar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: #0f172a; color: #fff;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 24px; font-size: 13px; gap: 12px;
+  }
   .pt-print-bar a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 12px; }
   .pt-print-bar a:hover { color: #fff; }
-  .pt-print-btn { background: #7c5cff; color: #fff; border: none; border-radius: 8px; padding: 7px 16px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .pt-print-btn {
+    background: #7c5cff; color: #fff; border: none; border-radius: 8px;
+    padding: 7px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
   .pt-print-btn:hover { background: #6d4ef0; }
   body { padding-top: 46px; }
+
+  /* Folha do certificado */
+  .cert-sheet {
+    width: 1040px; height: 735px;
+    margin: 28px auto;
+    background:
+      radial-gradient(circle at 12% 12%, #f4f1ff 0%, rgba(244,241,255,0) 38%),
+      radial-gradient(circle at 88% 88%, #f1edff 0%, rgba(241,237,255,0) 38%),
+      #ffffff;
+    box-shadow: 0 16px 50px rgba(15, 23, 42, 0.16);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Faixas violeta nos cantos superior/inferior */
+  .cert-band-top {
+    position: absolute; top: 0; left: 0; right: 0; height: 8px;
+    background: linear-gradient(90deg, #5b3df5 0%, #8b6dff 50%, #5b3df5 100%);
+  }
+  .cert-band-bottom {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 8px;
+    background: linear-gradient(90deg, #5b3df5 0%, #8b6dff 50%, #5b3df5 100%);
+  }
+
+  /* Moldura dupla */
+  .cert-frame {
+    position: absolute; inset: 26px;
+    border: 1.5px solid #d7ccff;
+    border-radius: 6px;
+  }
+  .cert-frame::before {
+    content: ''; position: absolute; inset: 6px;
+    border: 1px solid #ece6ff; border-radius: 3px;
+  }
+
+  /* Ornamentos de canto */
+  .cert-corner {
+    position: absolute; width: 26px; height: 26px;
+    border-color: #7c5cff; border-style: solid; border-width: 0;
+  }
+  .cert-corner.tl { top: 34px; left: 34px; border-top-width: 2px; border-left-width: 2px; border-top-left-radius: 4px; }
+  .cert-corner.tr { top: 34px; right: 34px; border-top-width: 2px; border-right-width: 2px; border-top-right-radius: 4px; }
+  .cert-corner.bl { bottom: 34px; left: 34px; border-bottom-width: 2px; border-left-width: 2px; border-bottom-left-radius: 4px; }
+  .cert-corner.br { bottom: 34px; right: 34px; border-bottom-width: 2px; border-right-width: 2px; border-bottom-right-radius: 4px; }
+
+  /* Marca d'água */
+  .cert-watermark {
+    position: absolute; right: -60px; bottom: -70px;
+    opacity: 0.04; pointer-events: none;
+  }
+
+  .cert-content {
+    position: relative; z-index: 2;
+    height: 100%;
+    padding: 56px 86px 48px;
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center;
+  }
+
+  @media print {
+    html, body { background: #fff; }
+    .pt-print-bar { display: none !important; }
+    body { padding-top: 0 !important; }
+    .cert-sheet { margin: 0; box-shadow: none; }
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  }
 </style>
 </head>
 <body>
@@ -28,85 +105,111 @@
   </span>
 </div>
 
-<div style="width:794px;margin:24px auto;background:#ffffff;font-family:'Inter',system-ui,sans-serif;color:#0f172a;box-shadow:0 6px 20px rgba(15,23,42,0.08);">
+<div class="cert-sheet">
 
-  <!-- ============== HEADER ============== -->
-  <div style="background:#7c5cff;color:#ffffff;padding:14px 40px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <div style="width:26px;height:26px;border-radius:7px;background:rgba(255,255,255,0.18);overflow:hidden;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
-            <path d="M10 22 C5 22, 5 12, 10 12 C14 12, 16 20, 22 20 C27 20, 27 10, 22 10 C18 10, 16 18, 10 18" stroke="#ffffff" stroke-width="3.4" stroke-linecap="round" fill="none" />
-          </svg>
-        </div>
-        <span style="font-size:13px;font-weight:700;letter-spacing:0.02em;">Padrinho <span style="color:#c4b5fd;">Track</span></span>
-      </div>
-      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,0.72);letter-spacing:0.08em;">CERTIFICADO · {{ hoje.strftime('%d/%m/%Y') }}</span>
-    </div>
-  </div>
+  <div class="cert-band-top"></div>
+  <div class="cert-band-bottom"></div>
+  <div class="cert-frame"></div>
+  <div class="cert-corner tl"></div>
+  <div class="cert-corner tr"></div>
+  <div class="cert-corner bl"></div>
+  <div class="cert-corner br"></div>
 
-  <!-- ============== CORPO DO CERTIFICADO ============== -->
-  <div style="padding:56px 60px 48px;text-align:center;">
+  <!-- Marca d'água (knot grande) -->
+  <svg class="cert-watermark" width="420" height="420" viewBox="2 2 28 28" fill="none">
+    <path d="M10 22 C5 22, 5 12, 10 12 C14 12, 16 20, 22 20 C27 20, 27 10, 22 10 C18 10, 16 18, 10 18" stroke="#5b3df5" stroke-width="2.2" stroke-linecap="round" fill="none" />
+  </svg>
 
-    <!-- Ícone decorativo -->
-    <div style="margin-bottom:28px;display:flex;justify-content:center;">
-      <div style="width:72px;height:72px;border-radius:18px;background:linear-gradient(135deg,#7c5cff,#a78bfa);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(124,92,255,0.28);">
-        <svg width="38" height="38" viewBox="0 0 32 32" fill="none">
+  <div class="cert-content">
+
+    <!-- Cabeçalho marca -->
+    <div style="display:flex;align-items:center;gap:9px;margin-bottom:30px;">
+      <div style="width:30px;height:30px;border-radius:8px;background:linear-gradient(150deg,#8b6dff,#5b3df5);display:inline-flex;align-items:center;justify-content:center;box-shadow:0 6px 16px -6px rgba(91,61,245,0.5);">
+        <svg width="20" height="20" viewBox="2 2 28 28" fill="none">
           <path d="M10 22 C5 22, 5 12, 10 12 C14 12, 16 20, 22 20 C27 20, 27 10, 22 10 C18 10, 16 18, 10 18" stroke="#ffffff" stroke-width="3" stroke-linecap="round" fill="none" />
         </svg>
       </div>
+      <span style="font-size:15px;font-weight:700;letter-spacing:-0.01em;color:#0f172a;">Padrinho <span style="color:#5b3df5;">Track</span></span>
     </div>
 
     <!-- Rótulo -->
-    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#94a3b8;letter-spacing:0.22em;text-transform:uppercase;margin-bottom:14px;">Certificado de Participação</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#8b6dff;letter-spacing:0.34em;text-transform:uppercase;font-weight:600;margin-bottom:8px;">Certificado de Participação</div>
+    <div style="font-family:'Inter',sans-serif;font-size:13px;color:#94a3b8;letter-spacing:0.04em;margin-bottom:22px;">Este certificado é concedido a</div>
 
-    <!-- Nome do padrinho -->
-    <div style="font-size:34px;font-weight:800;color:#0f172a;letter-spacing:-0.02em;line-height:1.15;margin-bottom:10px;">{{ padrinho.nome }}</div>
+    <!-- Nome -->
+    <div style="font-family:'Playfair Display',Georgia,serif;font-size:52px;font-weight:600;color:#0f172a;letter-spacing:-0.01em;line-height:1.05;margin-bottom:16px;">{{ padrinho.nome }}</div>
 
-    <!-- Matrícula e turno -->
-    <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#64748b;letter-spacing:0.06em;margin-bottom:32px;">
-      {{ padrinho.matricula }} &nbsp;·&nbsp; Turno {{ padrinho.turno or '—' }}
+    <!-- Turno (pílula) -->
+    <div style="display:inline-flex;align-items:center;gap:7px;padding:5px 14px;border-radius:999px;background:#eee9ff;border:1px solid #ddd4ff;margin-bottom:26px;">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#5b3df5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        {% if padrinho.turno == 'Manhã' %}
+          <circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+        {% else %}
+          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+        {% endif %}
+      </svg>
+      <span style="font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;color:#5b3df5;letter-spacing:0.01em;">Turno {{ padrinho.turno or '—' }}</span>
     </div>
 
-    <!-- Divisor decorativo -->
-    <div style="width:56px;height:3px;border-radius:2px;background:linear-gradient(to right,#7c5cff,#a78bfa);margin:0 auto 36px;"></div>
+    <!-- Divisor decorativo com losango -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;width:280px;margin-bottom:26px;">
+      <div style="flex:1;height:1px;background:linear-gradient(to right,rgba(124,92,255,0),#c4b5fd);"></div>
+      <div style="width:7px;height:7px;background:#7c5cff;transform:rotate(45deg);border-radius:1px;"></div>
+      <div style="flex:1;height:1px;background:linear-gradient(to left,rgba(124,92,255,0),#c4b5fd);"></div>
+    </div>
 
     <!-- Texto do certificado -->
-    <p style="font-size:14px;color:#334155;line-height:1.8;max-width:540px;margin:0 auto 48px;">
-      participou como <strong style="color:#0f172a;">Padrinho Voluntário</strong> no programa de
-      Mentoria Acadêmica — Engenharia de Software · PUC Minas,
-      Semestre <strong style="color:#0f172a;">{{ semestre }}</strong>, contribuindo com a formação
-      acadêmica de calouros do curso junto a uma equipe de
-      <strong style="color:#0f172a;">{{ total_padrinhos }} padrinhos</strong>.
+    <p style="font-size:14.5px;color:#334155;line-height:1.85;max-width:680px;margin:0 0 auto;">
+      atuou como <strong style="color:#0f172a;">Mentor Voluntário</strong> no programa de
+      <strong style="color:#0f172a;">Mentoria Acadêmica</strong> da Engenharia de Software · PUC Minas,
+      no semestre <strong style="color:#0f172a;">{{ semestre }}</strong> — um dos
+      <strong style="color:#0f172a;">{{ total_padrinhos }} mentores</strong> que auxiliaram
+      <strong style="color:#0f172a;">{{ total_calouros }} calouros</strong> do 1º período em sua adaptação
+      à vida universitária. Iniciativa voluntária reconhecida com
+      <strong style="color:#0f172a;">4 horas</strong> de Atividade Complementar (ACG).
     </p>
 
-    <!-- Assinaturas -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;max-width:460px;margin:0 auto 40px;">
-      <div>
-        <div style="border-top:1.5px solid #cbd5e1;padding-top:10px;font-size:13px;font-weight:600;color:#0f172a;">Prof. Laerte Xavier</div>
-        <div style="font-size:11px;color:#64748b;margin-top:3px;">Professor Coordenador</div>
+    <!-- Selo + coordenação -->
+    <div style="display:flex;flex-direction:column;align-items:center;margin-top:30px;">
+
+      <!-- Selo / medalhão -->
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div style="position:relative;width:72px;height:72px;">
+          <!-- aro externo serrilhado -->
+          <div style="position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,#8b6dff,#5b3df5,#8b6dff,#5b3df5,#8b6dff);"></div>
+          <div style="position:absolute;inset:5px;border-radius:50%;background:#ffffff;"></div>
+          <div style="position:absolute;inset:9px;border-radius:50%;background:linear-gradient(150deg,#8b6dff,#5b3df5);display:flex;align-items:center;justify-content:center;box-shadow:inset 0 2px 6px rgba(0,0,0,0.12);">
+            <svg width="34" height="34" viewBox="2 2 28 28" fill="none">
+              <path d="M10 22 C5 22, 5 12, 10 12 C14 12, 16 20, 22 20 C27 20, 27 10, 22 10 C18 10, 16 18, 10 18" stroke="#ffffff" stroke-width="3" stroke-linecap="round" fill="none" />
+            </svg>
+          </div>
+        </div>
+        <!-- fitas -->
+        <div style="display:flex;gap:5px;margin-top:-4px;">
+          <div style="width:9px;height:20px;background:#5b3df5;clip-path:polygon(0 0,100% 0,100% 100%,50% 78%,0 100%);"></div>
+          <div style="width:9px;height:20px;background:#8b6dff;clip-path:polygon(0 0,100% 0,100% 100%,50% 78%,0 100%);"></div>
+        </div>
       </div>
-      <div>
-        <div style="border-top:1.5px solid #cbd5e1;padding-top:10px;font-size:13px;font-weight:600;color:#0f172a;">Ana Santos</div>
-        <div style="font-size:11px;color:#64748b;margin-top:3px;">Coordenadora Geral</div>
+
+      <!-- Coordenação -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:5px;margin-top:18px;">
+        <div style="font-size:13px;color:#0f172a;"><span style="font-weight:600;">Prof. Laerte Xavier</span> <span style="color:#cbd5e1;">·</span> <span style="color:#64748b;">Professor Coordenador</span></div>
+        <div style="font-size:13px;color:#0f172a;"><span style="font-weight:600;">Ana Santos</span> <span style="color:#cbd5e1;">·</span> <span style="color:#64748b;">Coordenadora Geral</span></div>
       </div>
     </div>
 
     <!-- Data de emissão -->
-    <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#94a3b8;letter-spacing:0.06em;">
-      Emitido em {{ hoje.strftime('%d/%m/%Y') }} · {{ config.instituicao }}
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#94a3b8;letter-spacing:0.08em;margin-top:24px;">
+      EMITIDO EM {{ hoje.strftime('%d/%m/%Y') }} · {{ config.instituicao }}
+    </div>
+
+    <!-- Crédito -->
+    <div style="display:flex;align-items:center;gap:7px;margin-top:10px;font-size:10.5px;color:#b8bdc9;">
+      <span>Desenvolvido por</span>
+      <span style="color:#7c5cff;font-weight:600;">Christiano Gonçalves</span>
     </div>
 
   </div>
-
-  <!-- ============== RODAPÉ ============== -->
-  <div style="padding:12px 40px;border-top:1px solid #e6e7ee;background:#fafafd;font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#64748b;letter-spacing:0.06em;text-transform:uppercase;">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <span>Padrinho Track · {{ config.instituicao }}</span>
-      <span>Certificado de Participação · {{ semestre }}</span>
-    </div>
-  </div>
-
 </div>
 
 </body>

@@ -130,3 +130,4 @@ A qualquer momento, acesse **Configurações → Exportar backup do banco** para
 | `config_handoff.json` | Links e chaves do próximo semestre |
 | `.env` | Usuário, senha e chave secreta |
 | `instance/mentoria.db` | Banco de dados |
+RRR

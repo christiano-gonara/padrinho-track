@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 64" width="640" height="128">
   <g transform="translate(0,0)">
-    <path d="M20 44 C10 44, 10 24, 20 24 C28 24, 32 40, 44 40 C54 40, 54 20, 44 20 C36 20, 32 36, 20 36" stroke="#c4b5fd" stroke-width="6" stroke-linecap="round" fill="none"></path>
+    <path d="M21 46 C11 46, 11 22, 21 22 C29 22, 33 42, 45 42 C55 42, 55 18, 45 18 C37 18, 33 38, 21 38" stroke="#c4b5fd" stroke-width="5" stroke-linecap="round" fill="none"></path>
   </g>
-  <text x="80" y="42" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="32" font-weight="700" letter-spacing="-0.5" fill="#ffffff">Padrinho <tspan fill="#c4b5fd">Track</tspan></text>
+  <text x="84" y="42" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="32" font-weight="700" letter-spacing="-0.5" fill="#ffffff">Padrinho <tspan fill="#c4b5fd">Track</tspan></text>
 </svg>
