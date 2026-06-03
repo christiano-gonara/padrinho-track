@@ -845,7 +845,12 @@ def relatorio_resumo():
     temas = []
     for item in temas_raw:
         t = item["tema"]
-        resp = ", ".join(" ".join(p["nome"].split()[:2]) for p in item["padrinhos"]) or "—"
+        _prepos = {"de", "da", "do", "dos", "das"}
+        resp = ", ".join(
+            " ".join([pts[0]] + [t for t in pts[1:] if t.lower() not in _prepos][:1])
+            for p in item["padrinhos"]
+            for pts in [p["nome"].split()]
+        ) or "—"
         data_limite = None
         if t["data_limite"]:
             try:
