@@ -1330,19 +1330,10 @@ def seed_real():
         (date.today().isoformat(),),
     )
 
-    diag = {
-        "padrinhos":      conn.execute("SELECT COUNT(*) FROM padrinhos").fetchone()[0],
-        "advertencias":   conn.execute("SELECT COUNT(*) FROM advertencias").fetchone()[0],
-        "presencas":      conn.execute("SELECT COUNT(*) FROM presencas").fetchone()[0],
-        "reunioes":       conn.execute("SELECT COUNT(*) FROM reunioes").fetchone()[0],
-        "temas_entregues": conn.execute("SELECT COUNT(*) FROM temas WHERE situacao='entregue'").fetchone()[0],
-    }
-
     conn.commit()
     conn.close()
 
-    from flask import jsonify
-    return jsonify(diag)
+    return redirect(url_for("dashboard"))
 
 # ── Inicialização ──────────────────────────────────────────────────────────
 
