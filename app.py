@@ -970,12 +970,305 @@ def seed_real():
     if request.args.get("senha") != "PucMinas2026":
         return "Acesso negado.", 403
 
-    from scripts.seed import seed_padrinhos
-    from scripts.seed_calouros import seed_calouros
-    seed_padrinhos()
-    seed_calouros()
+    _padrinhos = [
+        ("Aléxia Andrade",                            "904175",   "afaandrade@sga.pucminas.br",               "31982716174",  "Noite"),
+        ("Amanda Bicalho Silva",                       "1440377",  "amandabicalho.silva2004@gmail.com",        "31995748757",  "Noite"),
+        ("Anny Victorya Azevedo Oliveira",             "899228",   "anny.azevedo@sga.pucminas.br",             "99984180594",  "Manhã"),
+        ("Arthur Chaves Viana Leão",                   "890357",   "arthurcvleao@gmail.com",                   "31920086721",  "Noite"),
+        ("Arthur Henrique Teixeira e Silva Bacelete",  "859123",   "abacelete@sga.pucminas.br",                "31992412598",  "Noite"),
+        ("Caio Alves Kfuri",                           "882124",   "caio.kfuri@sga.pucminas.br",               "31998933914",  "Noite"),
+        ("Charles Henrique de Paula Santos",           "901364",   "charles.santos@sga.pucminas.br",           "31971823055",  "Manhã"),
+        ("Daniel Bony Costa Garcia",                   "891941",   "danielbony2105@gmail.com",                 "31980253599",  "Noite"),
+        ("Diogo Augusto Magalhães Marques",            "902663",   "",                                         "31972266383",  "Noite"),
+        ("Eli Júnior Domingos Dias",                   "892002",   "ejddias@sga.pucminas.br",                  "34997766769",  "Noite"),
+        ("Fillipe Gabriel Costa Araujo",               "891942",   "",                                         "31972544985",  "Noite"),
+        ("Gabriel Bruno da Cruz",                      "897952",   "",                                         "31999513818",  "Manhã"),
+        ("Gabriel Chagas Lage",                        "803292",   "gabriel.lage.1197972@sga.pucminas.br",     "31980303049",  "Noite"),
+        ("Gabriel Santos Martins",                     "885155",   "",                                         "31995289088",  "Manhã"),
+        ("Giovana Lott Riquetti",                      "885433",   "",                                         "31987033048",  "Manhã"),
+        ("Guilherme de Almeida Santos",                "800877",   "guilherme.santos.1439116@sga.pucminas.br", "31988442004",  "Noite"),
+        ("Gustavo Azi Prehl Gama",                     "754737",   "gustavoprehl976@gmail.com",                "31971290021",  "Noite"),
+        ("Gustavo Rodrigues Barbara Moreira",          "898623",   "grbmoreira@sga.pucminas.br",               "33999131666",  "Manhã"),
+        ("Henrique Pereira Resende Rocha",             "893029",   "",                                         "31998608267",  "Manhã"),
+        ("Igor Augusto Amaral Luz",                    "873059",   "igoraugusto.contato1@gmail.com",           "31998852227",  "Noite"),
+        ("Italo Eduardo Carneiro da Silva",            "898961",   "italo.carneiro@sga.pucminas.br",           "31995387581",  "Noite"),
+        ("João Paulo Gobira Lopes Costa",              "859611",   "joao.costa.1520911@sga.pucminas.br",       "33987632175",  "Noite"),
+        ("João Pedro Lima de Andrade",                 "8853177",  "joao.andrade.1554805@sga.pucminas.br",     "31995112602",  "Manhã"),
+        ("João Pedro Lisboa Augusto De Brito",         "878899",   "joao.augusto@sga.pucminas.br",             "31996690693",  "Noite"),
+        ("João Pedro Moura Santos",                    "815677",   "joaopedros639@gmail.com",                  "31989206085",  "Noite"),
+        ("João Vitor Tolentino",                       "838850",   "joaovitornll@gmail.com",                   "31985689938",  "Noite"),
+        ("Joaquim Antonio Soares Camargos Souza",      "895700",   "joaquim.antonio.camargos@gmail.com",       "33998640504",  "Manhã"),
+        ("Karen Joilly Araújo",                        "874309",   "karenjoilly@gmail.com",                    "31975684844",  "Manhã"),
+        ("Laura Noronha Lara",                         "885231",   "",                                         "31975712192",  "Manhã"),
+        ("Leonardo de Freitas Viana",                  "802807",   "",                                         "31984407033",  "Noite"),
+        ("Lucas Batista Duarte",                       "880789",   "lucas.duarte.1548875@sga.pucminas.br",     "31982678631",  "Noite"),
+        ("Lucas Moraes Rocha Spiazzi",                 "1594433",  "",                                         "31999104670",  "Manhã"),
+        ("Luiz Felipe Ribeiro Souza",                  "888443",   "",                                         "31988890952",  "Manhã"),
+        ("Mateus Marcal Ribas Marques",                "883531",   "mateus.marques.1583479@sga.pucminas.br",   "31994026879",  "Noite"),
+        ("Matheus Barbosa",                            "889685",   "",                                         "31983954435",  "Noite"),
+        ("Matheus Caetano Rocha",                      "838392",   "matheuscaetanorocha@gmail.com",            "31987746222",  "Noite"),
+        ("Murilo Duarte Moura de Almeida",             "874486",   "",                                         "31993557359",  "Noite"),
+        ("Pedro Henrique Pires Rodrigues",             "816373",   "",                                         "31984537619",  "Noite"),
+        ("Pedro Rodrigues Duarte",                     "802915",   "artedudurty@gmail.com",                    "31975744647",  "Manhã"),
+        ("Rafael Abras Lessa Freitas",                 "886358",   "rafaellessa2006@gmail.com",                "31985913087",  "Noite"),
+        ("Rayssa Pierre da Silva Ramiro",              "828701",   "",                                         "31992674951",  "Noite"),
+        ("Thomás Ramos Oliveira",                      "846130",   "thomas.oliveira@sga.pucminas.br",          "37999756056",  "Noite"),
+        ("Vinícius Matos Oliveira Rocha",              "898073",   "vnmatoz33@gmail.com",                      "31981160375",  "Manhã"),
+        ("Vitor de Roma Honório",                      "890180",   "",                                         "31975029406",  "Noite"),
+        ("Vitor Veiga Silva",                          "857595",   "",                                         "31997388713",  "Noite"),
+        ("João Felipe da Silva Prado",                 "856240",   "joaofprado13@gmail.com",                   "31973086408",  "Noite"),
+    ]
+
+    _matches = [
+        ("Aléxia Andrade", [
+            ("Maria Luiza Aparecida Trindade de Meneses", "31971650966"),
+            ("Sophia de Fátima Simões Almeida", "31984618347"),
+        ]),
+        ("Amanda Bicalho Silva", [
+            ("Ana ayla Pires Reis", "31971156263"),
+            ("Luiza Morais Braga", "31998992307"),
+        ]),
+        ("Anny Victorya Azevedo Oliveira", [
+            ("Larissa Fineli", "31997991668"),
+            ("Fernando Pereira de Vasconcellos", "31999958706"),
+            ("Estêvão de Castro Jung", "31993968896"),
+            ("Giovana Faria Martins", "31985873475"),
+            ("Priscilla Louzada Nesio", "31984543660"),
+        ]),
+        ("Arthur Chaves Viana Leão", [
+            ("Lucca Marinho Eterovik Tavares Pereira", "31993840016"),
+            ("Maria Fernanda Melo e Reis", "31986867777"),
+        ]),
+        ("Arthur Henrique Teixeira e Silva Bacelete", [
+            ("Marcelo Esteves Bernardi", "31988577070"),
+            ("Vítor Augusto de Souza", "31982266757"),
+        ]),
+        ("Caio Alves Kfuri", [
+            ("Francisco Filipe da Cunha Oliveira", "31984548894"),
+            ("Leonardo Federici Pettersen", "31986906362"),
+        ]),
+        ("Charles Henrique de Paula Santos", [
+            ("João Victor Martins Pascoalon", "31987614784"),
+            ("Pedro Henrique Soares Silva", "31984671221"),
+            ("Tais Ribeiro Pereira Dias", "31973638071"),
+            ("Vinicius Eduardo de Souza Matos Silva", "31995368328"),
+        ]),
+        ("Daniel Bony Costa Garcia", [
+            ("Francisco de Castro Côrtes Netto", "31982853225"),
+            ("Giovanna Marques Freire Barbosa", "31981179112"),
+        ]),
+        ("Diogo Augusto Magalhães Marques", [
+            ("Lucas Gomes Esteves Da Silva", "31989277570"),
+            ("Gabriel Mota Valério", "31986512527"),
+        ]),
+        ("Eli Júnior Domingos Dias", [
+            ("Luís Gustavo Ribeiro Carvalho", "37998592749"),
+            ("Gabriel de Oliveira Costa", "31988420928"),
+            ("Arthur Moreira", "31993598577"),
+        ]),
+        ("Fillipe Gabriel Costa Araujo", [
+            ("Gabriel Oliveira Gonzaga Araujo", "31998118684"),
+            ("Gabriel Henrique de Souza Rodrigues", "31975616619"),
+        ]),
+        ("Gabriel Bruno da Cruz", [
+            ("Lukas Nathan Matos Candeia", "31988378504"),
+            ("Gabriel Cédric Carvalho Damazio", "31996814818"),
+            ("Guilherme Ferreira Valadares", "33999657071"),
+            ("Vinícius Marx Galvão", "31983768220"),
+        ]),
+        ("Gabriel Chagas Lage", [
+            ("Paulo César Silva Monteiro", "31997046525"),
+            ("Pedro Henrique Rocha", "31990702211"),
+        ]),
+        ("Gabriel Santos Martins", [
+            ("Henrique de Freitas Issa", "31997756990"),
+            ("Armando Schoenstatt Rodrigues e Moreira", "31971831645"),
+            ("Henrique Victor de Figueiredo Coelho", "31994175572"),
+            ("Giovanni Arenare Mota", "31996985853"),
+        ]),
+        ("Giovana Lott Riquetti", [
+            ("Letícia Xavier Abreu", "31996559598"),
+            ("Carolina Almeida Mendes de Souza", "73999667676"),
+            ("Pedro Henrique Da Silva Fonseca", "31994181185"),
+            ("Isaque de Jesus Marra", "31972342069"),
+            ("Rafael Lima Pais", "31992528311"),
+        ]),
+        ("Guilherme de Almeida Santos", [
+            ("Kaique Rodrigues do Vale", "31990797242"),
+            ("Rafael Mota Azevedo", "31997009509"),
+        ]),
+        ("Gustavo Azi Prehl Gama", [
+            ("Gabriel Vinícius Soares Doti", "31971333671"),
+            ("Frederico Marcos de Paula Marques", "31975960380"),
+            ("Victor Corradi", "37984128754"),
+        ]),
+        ("Gustavo Rodrigues Barbara Moreira", [
+            ("Igor Pereira Apolinário", "31998558453"),
+            ("Mateus Evaristo Melo", "31998053708"),
+            ("Pedro Henrique Alves Ferreira", "31991577033"),
+            ("Kemily Eduardo da Luz", "31985956350"),
+        ]),
+        ("Henrique Pereira Resende Rocha", [
+            ("Lucas Abijaode Alvarenga", "31999770483"),
+            ("Lucca Lourenço Theophilo", "31998709146"),
+            ("João Pedro Silva Dantas", "37991705517"),
+            ("Arthur Moraes Braga Araujo", "31998386531"),
+        ]),
+        ("Igor Augusto Amaral Luz", [
+            ("Felipe Gabriel Nogueira Aquino", "31991633214"),
+            ("Mateus Ribeiro Paixão", "31984256316"),
+        ]),
+        ("Italo Eduardo Carneiro da Silva", [
+            ("Daniel Gomes Rolando", "31985395309"),
+            ("Crystian Marcondes Oliveira Nascimento", "31991425827"),
+        ]),
+        ("João Paulo Gobira Lopes Costa", [
+            ("Igor Bruno Rodrigues da Cruz", "31997050133"),
+            ("Filipe Mota Coelho", "38984057711"),
+        ]),
+        ("João Pedro Lima de Andrade", [
+            ("Crispim Bruno Da Silva Junior", "32999842588"),
+            ("Patrick Augusto de Oliveira", "32984917743"),
+            ("Guilherme Miranda Presot", "31995406158"),
+            ("Victor Reis Silva de Paula", "31997777135"),
+            ("Pietro Reis Lopes Melo", "31996751315"),
+        ]),
+        ("João Pedro Lisboa Augusto De Brito", [
+            ("Leonardo Martins Macedo", "31987451563"),
+            ("Sophia Nicole Ferreira Reis Gonçalves", "31996200585"),
+        ]),
+        ("João Pedro Moura Santos", [
+            ("Rafael Ferreira Torres Modesto", "31989790048"),
+            ("Guilherme Luiz Santos Chebile", "31994683419"),
+        ]),
+        ("João Vitor Tolentino", [
+            ("Guilherme Enzo Almeida Ferreira", "31999640753"),
+            ("Rodrigo Ventura Teixeira", "31999921261"),
+        ]),
+        ("Joaquim Antonio Soares Camargos Souza", [
+            ("Nathan Junquer de Almeida Castro", "31993638194"),
+            ("Luis Fernando de Sousa Dias", "37999295615"),
+            ("Beatriz Almeida", "31999270708"),
+            ("Fernando Gomes Reis de Resende", "32998416568"),
+        ]),
+        ("Karen Joilly Araújo", [
+            ("Maria Luiza Queiroz Martins da Silva", "31971866380"),
+            ("Erick Calixto David Silva", "37999340513"),
+            ("Pedro Henrique Silva Oliveira", "31992095958"),
+            ("Samuel Ferreira Guimarães", "38999380823"),
+        ]),
+        ("Laura Noronha Lara", [
+            ("Maria Clara Soalheiro Bessa", "33987161752"),
+            ("Matheus Possemato Lopes", "31996190072"),
+            ("Thiago Guerra de Araujo", "31995788144"),
+            ("Larissa Cravo Carvalho Câmara Santos", "31982320889"),
+        ]),
+        ("Leonardo de Freitas Viana", [
+            ("Lucas Dutra Figueiredo", "31984822660"),
+            ("João Paulo de Castro", "31982707359"),
+        ]),
+        ("Lucas Batista Duarte", [
+            ("Emanuel Phillipe Ribeiro Ferreira de Carvalho", "31982205685"),
+            ("Lucas Franco Baia", "31996441678"),
+            ("Victor Dante Fonseca Oliveira", "31723341700"),
+        ]),
+        ("Lucas Moraes Rocha Spiazzi", [
+            ("Gabriel de Souza Junqueira Hermont", "31992021581"),
+            ("Jorge Lucas Vieira", "31999769734"),
+            ("Marcos Henrique Santos Lacerda", "37999346661"),
+            ("Daniell Oliveira Cardoso de Sá", "31998007228"),
+        ]),
+        ("Luiz Felipe Ribeiro Souza", [
+            ("Fernando De Oliveira Palheiros", "31989542063"),
+            ("Abner Cordeiro de Almeida", "37998601606"),
+            ("Davi Martins Alves", "33933006617"),
+            ("Enzo Fernandes Alcântara", "31995612833"),
+        ]),
+        ("Mateus Marcal Ribas Marques", [
+            ("Patrick da Lomba Fernandes de Souza", "31985220688"),
+            ("Gabriel Sousa Aguiar", "31998231403"),
+        ]),
+        ("Matheus Barbosa", [
+            ("Victhor Gabriel Freire de Oliveira", "38998668922"),
+            ("Nicolas De Almeida", "33999100110"),
+        ]),
+        ("Matheus Caetano Rocha", [
+            ("Isaque Eduardo Gonçalves de Paiva", "31993822133"),
+            ("Vitor Ladeia Sepulveda", "31992855442"),
+        ]),
+        ("Murilo Duarte Moura de Almeida", [
+            ("Yudy Samuell Magalhães Ramos", "31995762905"),
+            ("Bernardo Guedes da Silveira", "31997161366"),
+        ]),
+        ("Pedro Henrique Pires Rodrigues", [
+            ("Leonardo de Freitas Ávila", "31993290606"),
+            ("Theo Goulart Cardoso Vasconcelos", "31984383189"),
+        ]),
+        ("Pedro Rodrigues Duarte", [
+            ("Bernardo Arruda Leite", "37999261209"),
+            ("Gabriel do Carmo Assis", "31988874742"),
+            ("Mayra Luíza Santos da Silva", "38988667147"),
+            ("Lucas Dias Melo", "37999477715"),
+        ]),
+        ("Rafael Abras Lessa Freitas", [
+            ("Daniel Costa Alves da Cunha", "31986963894"),
+            ("Pedro Henrique Nascimento Cezar", "31993951910"),
+        ]),
+        ("Rayssa Pierre da Silva Ramiro", [
+            ("Núbia Torres de Oliveira", "31982515007"),
+            ("Gabriela Pinheiro Pierazolli", "31971431230"),
+        ]),
+        ("Thomás Ramos Oliveira", [
+            ("Gabriel Luiz Drumond Oliveira", "31993531529"),
+            ("Maria Fernanda Ferreira Rangel", "31973164969"),
+        ]),
+        ("Vinícius Matos Oliveira Rocha", [
+            ("Kaio Vinicius Souza Santos", "31997270759"),
+            ("David Aurélio Pedrosa", "31983273314"),
+            ("José Uliana", "31999646327"),
+            ("Saul de Castro Macedo", "31982720660"),
+            ("Paulo Henrique Pereira de Souza", "31999865670"),
+        ]),
+        ("Vitor de Roma Honório", [
+            ("Hector Paulo Nogueira Xavier", "31987241720"),
+            ("Italo Alves Machado", "31975460413"),
+        ]),
+        ("Vitor Veiga Silva", [
+            ("Gabriel Rodrigues Lima", "31991760528"),
+            ("Samuel Ricardo Rodrigues Silva", "31973653483"),
+        ]),
+    ]
 
     conn = get_conn()
+
+    for nome, matricula, email, telefone, turno in _padrinhos:
+        try:
+            conn.execute(
+                "INSERT OR IGNORE INTO padrinhos (nome, matricula, email, telefone, turno) VALUES (?, ?, ?, ?, ?)",
+                (nome, matricula, email, telefone, turno),
+            )
+        except Exception:
+            pass
+
+    for nome_padrinho, calouros in _matches:
+        padrinho = conn.execute(
+            "SELECT id FROM padrinhos WHERE nome LIKE ?",
+            (f"%{nome_padrinho.split()[0]}%{nome_padrinho.split()[-1]}%",),
+        ).fetchone()
+        if not padrinho:
+            continue
+        for nome_calouro, telefone in calouros:
+            try:
+                cur = conn.execute(
+                    "INSERT INTO calouros (nome, telefone) VALUES (?, ?)",
+                    (nome_calouro, telefone),
+                )
+                conn.execute(
+                    "INSERT INTO matches (padrinho_id, calouro_id) VALUES (?, ?)",
+                    (padrinho["id"], cur.lastrowid),
+                )
+            except Exception:
+                pass
 
     cur1 = conn.execute(
         "INSERT INTO reunioes (data, tema, descricao) VALUES (?, ?, ?)",
@@ -988,8 +1281,7 @@ def seed_real():
     )
     reuniao2_id = cur2.lastrowid
 
-    padrinhos = conn.execute("SELECT id FROM padrinhos WHERE ativo = 1").fetchall()
-    for p in padrinhos:
+    for p in conn.execute("SELECT id FROM padrinhos WHERE ativo = 1").fetchall():
         for rid in (reuniao1_id, reuniao2_id):
             conn.execute(
                 """INSERT INTO presencas (reuniao_id, padrinho_id, presente, justificada)
