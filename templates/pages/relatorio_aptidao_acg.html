@@ -85,12 +85,13 @@
           {{ aprovados|length }} padrinho{{ 's' if aprovados|length != 1 }}
         </div>
       </div>
+      {% set _has_turno = aprovados | rejectattr('turno', 'equalto', '—') | list | length > 0 %}
       <table style="width:100%;border-collapse:separate;border-spacing:0;border:1px solid #e6e7ee;border-radius:8px;overflow:hidden;font-size:11.5px;">
         <thead style="background:#ecfdf5;">
           <tr>
             <th style="text-align:left;padding:9px 14px;font-family:'JetBrains Mono',monospace;font-size:9px;color:#047857;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;">Nome</th>
             <th style="text-align:left;padding:9px 14px;font-family:'JetBrains Mono',monospace;font-size:9px;color:#047857;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;width:82px;">Matrícula</th>
-            <th style="text-align:left;padding:9px 14px;font-family:'JetBrains Mono',monospace;font-size:9px;color:#047857;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;width:70px;">Turno</th>
+            {% if _has_turno %}<th style="text-align:left;padding:9px 14px;font-family:'JetBrains Mono',monospace;font-size:9px;color:#047857;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;width:70px;">Turno</th>{% endif %}
             <th style="text-align:left;padding:9px 14px;font-family:'JetBrains Mono',monospace;font-size:9px;color:#047857;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;">Email</th>
             <th style="text-align:right;padding:9px 14px;font-family:'JetBrains Mono',monospace;font-size:9px;color:#047857;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;width:84px;">Certificado</th>
           </tr>
@@ -100,7 +101,7 @@
           <tr style="background:{{ '#fafafd' if loop.index is odd else '#ffffff' }};">
             <td style="padding:8px 14px;border-top:1px solid #e6e7ee;font-weight:600;color:#0f172a;">{{ p.nome }}</td>
             <td style="padding:8px 14px;border-top:1px solid #e6e7ee;font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b;font-variant-numeric:tabular-nums;">{{ p.matricula }}</td>
-            <td style="padding:8px 14px;border-top:1px solid #e6e7ee;color:#334155;">{{ p.turno }}</td>
+            {% if _has_turno %}<td style="padding:8px 14px;border-top:1px solid #e6e7ee;color:#334155;">{{ p.turno }}</td>{% endif %}
             <td style="padding:8px 14px;border-top:1px solid #e6e7ee;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#5b3df5;">{{ p.email }}</td>
             <td style="padding:8px 14px;border-top:1px solid #e6e7ee;text-align:right;">
               <a href="/relatorio/certificado/{{ p.id }}" target="_blank"

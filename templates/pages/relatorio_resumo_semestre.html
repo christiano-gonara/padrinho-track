@@ -101,34 +101,38 @@
     </div>
 
     <!-- Faixa de estatísticas de perfil -->
+    {% set _show_turno_pad = turno_data %}
+    {% set _show_turno_cal = turno_data_cal %}
+    {% set _show_demo_pad = pct_bolsista or pct_bh or pct_trabalha %}
+    {% set _show_demo_cal = pct_bolsista_cal or pct_bh_cal or pct_trabalha_cal %}
+    {% if _show_turno_pad or _show_turno_cal or _show_demo_pad or _show_demo_cal %}
     <div style="border:1px solid #e6e7ee;border-radius:8px;padding:14px 18px;margin-bottom:24px;display:flex;flex-direction:column;gap:9px;">
+      {% if _show_turno_pad %}
       <div style="display:flex;align-items:center;gap:14px;font-size:12px;color:#334155;">
         <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#64748b;letter-spacing:0.12em;text-transform:uppercase;width:140px;flex-shrink:0;">Padrinhos por turno</span>
         <span>
-          {% if turno_data %}
-            {% for item in turno_data %}
-              {% if not loop.first %}<span style="color:#cbd5e1;margin:0 5px;">·</span>{% endif %}
-              {{ item.turno }}: <strong style="color:#0f172a;">{{ item.qtd }}</strong> <span style="color:#7c5cff;">({{ item.pct }}%)</span>
-            {% endfor %}
-          {% else %}
-            <span style="color:#94a3b8;">—</span>
-          {% endif %}
+          {% for item in turno_data %}
+            {% if not loop.first %}<span style="color:#cbd5e1;margin:0 5px;">·</span>{% endif %}
+            {{ item.turno }}: <strong style="color:#0f172a;">{{ item.qtd }}</strong> <span style="color:#7c5cff;">({{ item.pct }}%)</span>
+          {% endfor %}
         </span>
       </div>
+      {% endif %}
+      {% if _show_turno_cal %}
       <div style="display:flex;align-items:center;gap:14px;font-size:12px;color:#334155;">
         <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#64748b;letter-spacing:0.12em;text-transform:uppercase;width:140px;flex-shrink:0;">Calouros por turno</span>
         <span>
-          {% if turno_data_cal %}
-            {% for item in turno_data_cal %}
-              {% if not loop.first %}<span style="color:#cbd5e1;margin:0 5px;">·</span>{% endif %}
-              {{ item.turno }}: <strong style="color:#0f172a;">{{ item.qtd }}</strong> <span style="color:#7c5cff;">({{ item.pct }}%)</span>
-            {% endfor %}
-          {% else %}
-            <span style="color:#94a3b8;">—</span>
-          {% endif %}
+          {% for item in turno_data_cal %}
+            {% if not loop.first %}<span style="color:#cbd5e1;margin:0 5px;">·</span>{% endif %}
+            {{ item.turno }}: <strong style="color:#0f172a;">{{ item.qtd }}</strong> <span style="color:#7c5cff;">({{ item.pct }}%)</span>
+          {% endfor %}
         </span>
       </div>
+      {% endif %}
+      {% if (_show_turno_pad or _show_turno_cal) and (_show_demo_pad or _show_demo_cal) %}
       <div style="height:1px;background:#eef0f5;margin:2px 0;"></div>
+      {% endif %}
+      {% if _show_demo_pad %}
       <div style="display:flex;align-items:center;gap:14px;font-size:12px;color:#334155;">
         <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#64748b;letter-spacing:0.12em;text-transform:uppercase;width:140px;flex-shrink:0;">Padrinhos</span>
         <span>Bolsistas: <strong style="color:#0f172a;">{{ pct_bolsista }}%</strong></span>
@@ -137,6 +141,8 @@
         <span style="color:#cbd5e1;">·</span>
         <span>Trabalha: <strong style="color:#0f172a;">{{ pct_trabalha }}%</strong></span>
       </div>
+      {% endif %}
+      {% if _show_demo_cal %}
       <div style="display:flex;align-items:center;gap:14px;font-size:12px;color:#334155;">
         <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#64748b;letter-spacing:0.12em;text-transform:uppercase;width:140px;flex-shrink:0;">Calouros</span>
         <span>Bolsistas: <strong style="color:#0f172a;">{{ pct_bolsista_cal }}%</strong></span>
@@ -145,7 +151,9 @@
         <span style="color:#cbd5e1;">·</span>
         <span>Trabalha: <strong style="color:#0f172a;">{{ pct_trabalha_cal }}%</strong></span>
       </div>
+      {% endif %}
     </div>
+    {% endif %}
 
     <!-- Cronograma de temas -->
     <div style="margin-bottom:24px;">
