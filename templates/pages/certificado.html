@@ -87,11 +87,11 @@
   }
 
   @media print {
-    html, body { background: #fff; margin: 0; padding: 0; }
+    @page { size: A4 landscape; margin: 0; }
+    * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    html, body { background: #fff; margin: 0; padding: 0; width: 297mm; height: 210mm; }
     .pt-print-bar { display: none !important; }
-    body { padding-top: 0 !important; }
-    .cert-sheet { margin: 0; box-shadow: none; width: 100%; height: 100%; }
-    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    .cert-sheet { width: 297mm; height: 210mm; margin: 0; box-shadow: none; }
   }
 </style>
 </head>
