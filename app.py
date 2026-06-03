@@ -1338,6 +1338,28 @@ def seed_real():
 
     return redirect(url_for("dashboard"))
 
+@app.route("/debug-status")
+def debug_status():
+    from models import get_todos_padrinhos, calcular_status, contar_reunioes
+    from flask import jsonify
+    padrinhos = get_todos_padrinhos()
+    total_reunioes = contar_reunioes()
+    resultados = []
+    for p in padrinhos[:5]:
+        s = calcular_status(p["id"])
+        resultados.append({
+            "nome": p["nome"],
+            "status": s["status"],
+            "amarelos": s["amarelos"],
+            "vermelhos": s["vermelhos"],
+        })
+    return jsonify({
+        "total_padrinhos": len(padrinhos),
+        "total_reunioes": total_reunioes,
+        "amostra": resultados,
+    })
+
+
 # ── Inicialização ──────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
