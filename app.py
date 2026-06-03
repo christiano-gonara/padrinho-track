@@ -1259,9 +1259,11 @@ def seed_real():
 
     conn = get_conn()
 
-    for tbl in ("matches", "calouros", "presencas", "advertencias",
-                "tema_padrinhos", "temas", "reunioes", "padrinhos"):
-        conn.execute(f"DELETE FROM {tbl}")
+    conn.execute(
+        "TRUNCATE matches, calouros, presencas, advertencias,"
+        " tema_padrinhos, temas, reunioes, padrinhos"
+        " RESTART IDENTITY CASCADE"
+    )
 
     for nome, matricula, email, telefone, turno in _padrinhos:
         conn.execute(
