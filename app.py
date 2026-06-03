@@ -845,7 +845,7 @@ def relatorio_resumo():
     temas = []
     for item in temas_raw:
         t = item["tema"]
-        resp = ", ".join(p["nome"].split()[0] for p in item["padrinhos"]) or "—"
+        resp = ", ".join(" ".join(p["nome"].split()[:2]) for p in item["padrinhos"]) or "—"
         data_limite = None
         if t["data_limite"]:
             try:
@@ -960,6 +960,14 @@ def inicio_importar_calouros():
 def seed_exemplo():
     if request.args.get("senha") != "PucMinas2026":
         return "Acesso negado.", 403
+    conn1 = get_conn()
+    conn1.execute(
+        "TRUNCATE matches, calouros, presencas, advertencias,"
+        " tema_padrinhos, temas, reunioes, padrinhos"
+        " RESTART IDENTITY CASCADE"
+    )
+    conn1.commit()
+    conn1.close()
     from scripts.seed_exemplo import seed
     seed()
     return redirect(url_for("dashboard"))
@@ -1337,28 +1345,6 @@ def seed_real():
     conn.close()
 
     return redirect(url_for("dashboard"))
-
-@app.route("/debug-status")
-def debug_status():
-    from models import get_todos_padrinhos, calcular_status, contar_reunioes
-    from flask import jsonify
-    padrinhos = get_todos_padrinhos()
-    total_reunioes = contar_reunioes()
-    resultados = []
-    for p in padrinhos[:5]:
-        s = calcular_status(p["id"])
-        resultados.append({
-            "nome": p["nome"],
-            "status": s["status"],
-            "amarelos": s["amarelos"],
-            "vermelhos": s["vermelhos"],
-        })
-    return jsonify({
-        "total_padrinhos": len(padrinhos),
-        "total_reunioes": total_reunioes,
-        "amostra": resultados,
-    })
-
 
 # ── Inicialização ──────────────────────────────────────────────────────────
 
