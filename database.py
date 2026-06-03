@@ -129,6 +129,7 @@ def init_db():
 # ── SQLite initialisation ────────────────────────────────────────────────────
 
 def _init_sqlite():
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
     conn.executescript("""
     CREATE TABLE IF NOT EXISTS padrinhos (
