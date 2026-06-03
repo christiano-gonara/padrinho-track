@@ -1239,16 +1239,51 @@ def seed_real():
         ]),
     ]
 
+    _temas = [
+        ("Boas vindas e Setup",            "2026-03-23", "2026-03-27", ["Amanda Bicalho", "Pedro Rodrigues Duarte", "Igor Augusto"]),
+        ("Lógica digital",                 "2026-03-27", "2026-04-06", ["Guilherme de Almeida", "João Vitor Tolentino", "Charles Henrique"]),
+        ("Python 1: Entradas e saídas",    "2026-04-06", "2026-04-09", ["Gabriel Chagas", "Daniel Bony", "Fillipe Gabriel"]),
+        ("Python 2: Condicionais",         "2026-04-10", "2026-04-16", ["Henrique Pereira", "Diogo Augusto", "Pedro Henrique Pires"]),
+        ("Base numérica: conversão",       "2026-04-17", "2026-04-23", ["Gustavo Rodrigues Barbara", "Anny Victorya", "Matheus Barbosa"]),
+        ("Base numérica: soma e subtração","2026-04-24", "2026-04-30", ["Arthur Henrique Teixeira", "João Paulo Gobira", "João Pedro Lisboa"]),
+        ("Python 3: Laço while",           "2026-05-04", "2026-05-07", ["Joaquim Antonio", "Luiz Felipe Ribeiro", "Laura Noronha"]),
+        ("Python 3: Laço for",             "2026-05-08", "2026-05-14", ["Gabriel Santos Martins", "João Pedro Lima de Andrade", "Gabriel Bruno"]),
+        ("Python 5: funções",              "2026-05-15", "2026-05-21", ["Vitor Veiga", "Thomás Ramos", "Gustavo Azi Prehl"]),
+        ("JavaScript Básico",              "2026-05-22", "2026-05-28", ["Aléxia Andrade", "João Pedro Moura", "Leonardo de Freitas"]),
+        ("Git e boas práticas",            "2026-05-29", "2026-06-04", ["Lucas Batista", "Rafael Abras", "Italo Eduardo"]),
+        ("HTML semântico e CSS Flexbox",   "2026-06-05", "2026-06-11", ["Mateus Marcal", "Caio Alves Kfuri", "Karen Joilly"]),
+        ("Dom e Eventos",                  "2026-06-12", "2026-06-18", ["João Pedro Lisboa", "Arthur Chaves", "Eli Júnior"]),
+        ("Carreira e LinkedIn",            "2026-06-19", "2026-06-25", ["Vitor de Roma", "Murilo Duarte"]),
+        ("Como funcionam as horas de ACG", "2026-06-26", "2026-07-02", ["Giovana Lott", "Rayssa Pierre", "Lucas Moraes Rocha"]),
+    ]
+
     conn = get_conn()
 
+    for tbl in ("matches", "calouros", "presencas", "advertencias",
+                "tema_padrinhos", "temas", "reunioes", "padrinhos"):
+        conn.execute(f"DELETE FROM {tbl}")
+
     for nome, matricula, email, telefone, turno in _padrinhos:
-        try:
-            conn.execute(
-                "INSERT OR IGNORE INTO padrinhos (nome, matricula, email, telefone, turno) VALUES (?, ?, ?, ?, ?)",
-                (nome, matricula, email, telefone, turno),
-            )
-        except Exception:
-            pass
+        conn.execute(
+            "INSERT INTO padrinhos (nome, matricula, email, telefone, turno) VALUES (?, ?, ?, ?, ?)",
+            (nome, matricula, email, telefone, turno),
+        )
+
+    for titulo, data_aviso, data_limite, nomes in _temas:
+        cur = conn.execute(
+            "INSERT INTO temas (titulo, data_aviso, data_limite) VALUES (?, ?, ?)",
+            (titulo, data_aviso, data_limite),
+        )
+        tema_id = cur.lastrowid
+        for nome_parcial in nomes:
+            row = conn.execute(
+                "SELECT id FROM padrinhos WHERE nome LIKE ?", (f"%{nome_parcial}%",)
+            ).fetchone()
+            if row:
+                conn.execute(
+                    "INSERT OR IGNORE INTO tema_padrinhos (tema_id, padrinho_id) VALUES (?, ?)",
+                    (tema_id, row["id"]),
+                )
 
     for nome_padrinho, calouros in _matches:
         padrinho = conn.execute(
@@ -1258,17 +1293,14 @@ def seed_real():
         if not padrinho:
             continue
         for nome_calouro, telefone in calouros:
-            try:
-                cur = conn.execute(
-                    "INSERT INTO calouros (nome, telefone) VALUES (?, ?)",
-                    (nome_calouro, telefone),
-                )
-                conn.execute(
-                    "INSERT INTO matches (padrinho_id, calouro_id) VALUES (?, ?)",
-                    (padrinho["id"], cur.lastrowid),
-                )
-            except Exception:
-                pass
+            cur = conn.execute(
+                "INSERT INTO calouros (nome, telefone) VALUES (?, ?)",
+                (nome_calouro, telefone),
+            )
+            conn.execute(
+                "INSERT INTO matches (padrinho_id, calouro_id) VALUES (?, ?)",
+                (padrinho["id"], cur.lastrowid),
+            )
 
     cur1 = conn.execute(
         "INSERT INTO reunioes (data, tema, descricao) VALUES (?, ?, ?)",
