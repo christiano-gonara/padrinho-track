@@ -118,6 +118,8 @@ def get_conn():
 
 
 def init_db():
+    print("DATABASE_URL exists:", bool(os.environ.get("DATABASE_URL")))
+    print("Calling:", "PostgreSQL" if os.environ.get("DATABASE_URL") else "SQLite")
     if os.environ.get("DATABASE_URL", ""):
         _init_pg()
     else:
