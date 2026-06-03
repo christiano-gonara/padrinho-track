@@ -964,6 +964,51 @@ def seed_exemplo():
     seed()
     return redirect(url_for("dashboard"))
 
+
+@app.route("/seed-real")
+def seed_real():
+    if request.args.get("senha") != "PucMinas2026":
+        return "Acesso negado.", 403
+
+    from scripts.seed import seed_padrinhos
+    from scripts.seed_calouros import seed_calouros
+    seed_padrinhos()
+    seed_calouros()
+
+    conn = get_conn()
+
+    cur1 = conn.execute(
+        "INSERT INTO reunioes (data, tema, descricao) VALUES (?, ?, ?)",
+        ("2026-03-15", "Apresentação do Programa", "Reunião inaugural"),
+    )
+    reuniao1_id = cur1.lastrowid
+    cur2 = conn.execute(
+        "INSERT INTO reunioes (data, tema, descricao) VALUES (?, ?, ?)",
+        ("2026-06-20", "Encerramento e ACG", "Reunião de encerramento"),
+    )
+    reuniao2_id = cur2.lastrowid
+
+    padrinhos = conn.execute("SELECT id FROM padrinhos WHERE ativo = 1").fetchall()
+    for p in padrinhos:
+        for rid in (reuniao1_id, reuniao2_id):
+            conn.execute(
+                """INSERT INTO presencas (reuniao_id, padrinho_id, presente, justificada)
+                   VALUES (?, ?, 1, 0)
+                   ON CONFLICT(reuniao_id, padrinho_id)
+                   DO UPDATE SET presente = 1, justificada = 0""",
+                (rid, p["id"]),
+            )
+
+    conn.execute(
+        "UPDATE temas SET situacao = 'entregue', data_entrega = ?",
+        (date.today().isoformat(),),
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for("dashboard"))
+
 # ── Inicialização ──────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
