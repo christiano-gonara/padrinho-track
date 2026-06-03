@@ -1257,13 +1257,16 @@ def seed_real():
         ("Como funcionam as horas de ACG", "2026-06-26", "2026-07-02", ["Giovana Lott", "Rayssa Pierre", "Lucas Moraes Rocha"]),
     ]
 
-    conn = get_conn()
-
-    conn.execute(
+    conn1 = get_conn()
+    conn1.execute(
         "TRUNCATE matches, calouros, presencas, advertencias,"
         " tema_padrinhos, temas, reunioes, padrinhos"
         " RESTART IDENTITY CASCADE"
     )
+    conn1.commit()
+    conn1.close()
+
+    conn = get_conn()
 
     for nome, matricula, email, telefone, turno in _padrinhos:
         conn.execute(
