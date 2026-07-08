@@ -2,30 +2,112 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<title>Resumo do Semestre — Padrinho Track</title>
+<title>Resumo do Semestre — Programa de Apadrinhamento</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet" />
 <style>
   @page { size: A4 portrait; margin: 0; }
-  html, body { margin: 0; padding: 0; background: #e6e7ee; font-family: "Inter", system-ui, sans-serif; }
-  @media print { 
-    html, body { background: #fff; } 
-    .pt-print-bar { display: none !important; } 
-    body { padding-top: 0 !important; } 
-    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } 
-  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #e6e7ee; color: #0f172a; font-family: "Inter", system-ui, sans-serif; }
+  body { padding-top: 46px; }
   .pt-print-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: #0f172a; color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 10px 24px; font-size: 13px; gap: 12px; }
   .pt-print-bar a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 12px; }
   .pt-print-bar a:hover { color: #fff; }
-  .pt-print-btn { background: #7c5cff; color: #fff; border: none; border-radius: 8px; padding: 7px 16px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
-  .pt-print-btn:hover { background: #6d4ef0; }
-  body { padding-top: 46px; }
+  .pt-print-btn { background: #7c5cff; color: #fff; border: 0; border-radius: 8px; padding: 7px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .page { width: 794px; min-height: 1123px; margin: 24px auto; background: #fff; box-shadow: 0 6px 20px rgba(15,23,42,0.08); display: flex; flex-direction: column; page-break-after: always; break-after: page; }
+  .page:last-of-type { page-break-after: auto; break-after: auto; }
+  .header { background: linear-gradient(120deg,#7c5cff 0%,#6d4ef0 100%); color: #fff; padding: 14px 30px; }
+  .topline, .footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; }
+  .mark { width: 28px; height: 28px; border-radius: 8px; background: rgba(255,255,255,0.18); display: inline-flex; align-items: center; justify-content: center; }
+  .doc-code, .label, .mini-meta, .foot-sub, .foot-mid, .foot-page { font-family: "Sora", "Inter", system-ui, sans-serif; }
+  .doc-code { font-size: 9.5px; color: rgba(255,255,255,0.82); letter-spacing: .08em; text-transform: uppercase; font-variant-numeric: lining-nums tabular-nums; }
+  .title { margin-top: 12px; font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+  .subtitle { margin-top: 2px; font-size: 11.5px; color: rgba(255,255,255,0.78); }
+  .coord { margin-top: 12px; padding: 11px 14px; border-radius: 9px; background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.18); display: grid; grid-template-columns: 190px 1fr; gap: 20px; align-items: start; }
+  .label { font-size: 8.5px; letter-spacing: .12em; text-transform: uppercase; font-weight: 600; }
+  .coord .label { color: rgba(255,255,255,0.7); }
+  .coord-value { margin-top: 3px; font-size: 12px; color: #fff; font-weight: 600; line-height: 1.4; }
+  .coord-group { min-width: 0; }
+  .coord-list { display: flex; flex-wrap: wrap; gap: 2px 0; margin-top: 4px; font-size: 11.5px; font-weight: 600; line-height: 1.45; color: #fff; }
+  .coord-name { display: inline-flex; align-items: center; white-space: nowrap; }
+  .coord-name:not(:last-child)::after { content: "·"; margin: 0 8px; color: rgba(255,255,255,0.48); }
+  .content { padding: 20px 30px 10px; flex: 1 0 auto; }
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+  .metric, .profile, .result-card, .info-card { border: 1px solid #e6e7ee; border-radius: 8px; padding: 14px; }
+  .metric .label, .info-card .label { color: #64748b; }
+  .metric-number { margin-top: 5px; font-size: 32px; font-weight: 700; line-height: 1; letter-spacing: -0.025em; font-variant-numeric: tabular-nums; }
+  .hint { margin-top: 5px; font-size: 11px; color: #64748b; }
+  .profile { padding: 12px 16px; margin-bottom: 18px; display: flex; flex-direction: column; gap: 8px; }
+  .profile-row { display: flex; align-items: center; gap: 14px; font-size: 12px; color: #334155; }
+  .profile-row .label { width: 140px; color: #64748b; flex-shrink: 0; }
+  .divider { height: 1px; background: #eef0f5; }
+  .meeting-list { border: 1px solid #e6e7ee; border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
+  .meeting-row { display: grid; grid-template-columns: 74px 142px 1fr; gap: 12px; padding: 9px 12px; border-top: 1px solid #e6e7ee; font-size: 11.5px; color: #334155; align-items: start; }
+  .meeting-row:first-child { border-top: 0; }
+  .meeting-title { font-weight: 700; color: #0f172a; }
+  .meeting-desc { line-height: 1.35; color: #475569; }
+  .section-title { display: flex; align-items: center; gap: 10px; margin: 0 0 11px; font-size: 13.5px; font-weight: 700; }
+  .section-title::before { content: ""; width: 5px; height: 16px; border-radius: 3px; background: #7c5cff; }
+  .section-title.dark::before { background: #0f172a; }
+  .section-count { margin-left: 2px; font-family: "Sora", "Inter", system-ui, sans-serif; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #7c5cff; font-variant-numeric: lining-nums tabular-nums; }
+  table { width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid #e6e7ee; border-radius: 8px; overflow: hidden; font-size: 11.5px; }
+  thead { background: #eee9ff; }
+  th { text-align: left; padding: 8px 12px; font-family: "Sora", "Inter", system-ui, sans-serif; font-size: 8.5px; color: #5b3df5; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; }
+  td { padding: 8px 12px; border-top: 1px solid #e6e7ee; color: #334155; vertical-align: top; }
+  tbody tr:nth-child(even) { background: #fafafd; }
+  .strong { font-weight: 600; color: #0f172a; }
+  .mono { font-family: "Inter", system-ui, sans-serif; font-size: 10.5px; color: #64748b; font-variant-numeric: lining-nums tabular-nums; }
+  .badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 999px; font-size: 10.5px; font-weight: 600; white-space: nowrap; }
+  .ok { background: #ecfdf5; color: #047857; border: 1px solid #d1fae5; }
+  .warn { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+  .bad { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+  .results { display: grid; grid-template-columns: 1.35fr 1fr 1fr; gap: 12px; }
+  .result-card .label { color: inherit; }
+  .result-number { margin-top: 6px; font-size: 32px; font-weight: 700; line-height: 1; letter-spacing: -0.025em; font-variant-numeric: tabular-nums; }
+  .green { background: #ecfdf5; border-color: #b7f4d7; color: #047857; }
+  .orange { background: #fff7ed; border-color: #fed7aa; color: #c2410c; }
+  .neutral { background: #f7f7ff; border-color: #ddd4ff; color: #5b3df5; }
+  .red { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+  .mini-header { padding: 12px 30px; border-bottom: 1px solid #e6e7ee; display: flex; align-items: center; justify-content: space-between; }
+  .mini-title { font-size: 13px; font-weight: 700; color: #0f172a; }
+  .mini-meta { font-size: 9px; color: #7c5cff; letter-spacing: .08em; text-transform: uppercase; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 18px; }
+  .info-card { background: #fbfcff; border-color: #dfe5f2; }
+  .info-card strong { display: block; margin-top: 5px; font-size: 14px; color: #0f172a; }
+  .info-card span { display: block; margin-top: 4px; font-size: 11px; color: #64748b; line-height: 1.45; }
+  .turn-group { break-inside: avoid; margin-top: 10px; }
+  .turn-heading { display: flex; align-items: baseline; gap: 8px; padding-bottom: 5px; border-bottom: 1px solid #e6e7ee; font-size: 11.5px; font-weight: 700; color: #0f172a; }
+  .turn-heading span { font-family: "Sora", "Inter", system-ui, sans-serif; font-size: 8.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #7c5cff; font-variant-numeric: lining-nums tabular-nums; }
+  .name-list { columns: 2; column-gap: 22px; margin: 8px 0 0; padding-left: 22px; font-size: 9.6px; line-height: 1.32; color: #334155; }
+  .name-list li { break-inside: avoid; padding: 2px 0 2px 4px; }
+  .name-list li::marker { font-family: "Inter", system-ui, sans-serif; font-size: 9px; color: #7c5cff; font-variant-numeric: lining-nums tabular-nums; }
+  .footer-wrap { margin-top: auto; }
+  .footer-line { height: 2px; background: linear-gradient(90deg,#5b3df5,#8b6dff 50%,#5b3df5); }
+  .footer { padding: 12px 30px; background: #fafafd; }
+  .foot-brand { display: flex; align-items: center; gap: 9px; }
+  .foot-mark { width: 24px; height: 24px; border-radius: 7px; background: linear-gradient(150deg,#8b6dff,#5b3df5); display: inline-flex; align-items: center; justify-content: center; }
+  .foot-title { font-size: 11px; font-weight: 700; color: #0f172a; }
+  .foot-sub, .foot-mid, .foot-page { font-size: 8.5px; color: #94a3b8; letter-spacing: .06em; text-transform: uppercase; }
+  .foot-mid { color: #64748b; text-transform: none; letter-spacing: .02em; }
+  .foot-page { text-align: right; line-height: 1.4; }
+  .foot-page strong { color: #5b3df5; }
+  @media print {
+    html, body { background: #fff; width: 210mm; }
+    body { padding-top: 0; }
+    .pt-print-bar { display: none !important; }
+    .page { width: 210mm; height: 297mm; min-height: 0; margin: 0; box-shadow: none; overflow: hidden; }
+    .page:last-of-type { page-break-after: auto; break-after: auto; }
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    tr, thead { break-inside: avoid; page-break-inside: avoid; }
+    thead { display: table-header-group; }
+  }
 </style>
 </head>
 <body>
 
-<!-- Barra de Impressão Dinâmica -->
 <div class="pt-print-bar">
   <span style="font-weight:600;">Resumo do Semestre — {{ config.semestre }}</span>
   <span style="display:flex;align-items:center;gap:12px;">
@@ -34,229 +116,194 @@
   </span>
 </div>
 
-<div style="width:794px;margin:24px auto;background:#ffffff;font-family:'Inter',system-ui,sans-serif;color:#0f172a;box-shadow:0 6px 20px rgba(15,23,42,0.08);">
-
-  <!-- ============== HEADER (Compacto & Dinâmico) ============== -->
-  <div style="background:linear-gradient(120deg,#7c5cff 0%,#6d4ef0 100%);color:#ffffff;padding:16px 32px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.18);display:inline-flex;align-items:center;justify-content:center;">
-          <svg width="22" height="22" viewBox="2 2 28 28" fill="none">
-            <path d="M10 22 C5 22, 5 12, 10 12 C14 12, 16 20, 22 20 C27 20, 27 10, 22 10 C18 10, 16 18, 10 18" stroke="#ffffff" stroke-width="3" stroke-linecap="round" fill="none" />
-          </svg>
+<section class="page">
+  <header class="header">
+    <div class="topline">
+      <div class="brand">
+        <span class="mark"><svg width="22" height="22" viewBox="2 2 28 28" fill="none"><path d="M10 22 C5 22, 5 12, 10 12 C14 12, 16 20, 22 20 C27 20, 27 10, 22 10 C18 10, 16 18, 10 18" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none" /></svg></span>
+        <span>Programa de <span style="color:#d6ccff;">Apadrinhamento</span></span>
+      </div>
+      <div class="doc-code">RESUMO-001/{{ hoje.year }} · {{ hoje.strftime('%d/%m/%Y') }}</div>
+    </div>
+    <div class="title">Resumo do Semestre — {{ config.semestre }}</div>
+    <div class="subtitle">Engenharia de Software · {{ config.instituicao }}</div>
+    <div class="coord">
+      {% if config.professor_coordenador %}
+      <div class="coord-group"><div class="label">Coordenador do Programa</div><div class="coord-value">{{ config.professor_coordenador }}</div></div>
+      {% endif %}
+      {% if config.coordenadora_geral or config.coordenadores %}
+      <div class="coord-group">
+        <div class="label">Coordenação</div>
+        <div class="coord-list">
+          {% if config.coordenadora_geral %}<span class="coord-name">{{ config.coordenadora_geral }}</span>{% endif %}
+          {% if config.coordenadores %}{% for nome in config.coordenadores %}<span class="coord-name">{{ nome }}</span>{% endfor %}{% endif %}
         </div>
-        <span style="font-size:15px;font-weight:700;letter-spacing:-0.01em;">Padrinho <span style="color:#d6ccff;">Track</span></span>
       </div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,0.82);letter-spacing:0.1em;text-transform:uppercase;">
-        RESUMO-001/{{ hoje.year }} · {{ hoje.strftime('%d/%m/%Y') }}
-      </div>
+      {% endif %}
     </div>
-    <div style="margin-top:12px;">
-      <div style="font-size:18px;font-weight:700;letter-spacing:-0.01em;">Resumo do Semestre — {{ config.semestre }}</div>
-      <div style="margin-top:2px;font-size:11.5px;color:rgba(255,255,255,0.78);">{{ config.programa }} · {{ config.instituicao }}</div>
-    </div>
+  </header>
 
-    <!-- Faixa de coordenação -->
-    <div style="margin-top:14px;padding:12px 14px;border-radius:9px;background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.18);display:grid;grid-template-columns:auto auto 1fr;gap:20px;align-items:start;">
-      <div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(255,255,255,0.7);letter-spacing:0.12em;text-transform:uppercase;">Prof. Coordenador</div>
-        <div style="font-size:12px;color:#ffffff;font-weight:600;margin-top:3px;">{{ config.professor_coordenador }}</div>
-      </div>
-      <div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(255,255,255,0.7);letter-spacing:0.12em;text-transform:uppercase;">Coord. Geral</div>
-        <div style="font-size:12px;color:#ffffff;font-weight:600;margin-top:3px;">{{ config.coordenadora_geral }}</div>
-      </div>
-      <div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(255,255,255,0.7);letter-spacing:0.12em;text-transform:uppercase;">Coordenadores da Monitoria</div>
-        <div style="font-size:12px;color:#ffffff;font-weight:600;margin-top:3px;line-height:1.4;">{{ config.coordenadores | join(' · ') }}</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ============== CONTEÚDO ============== -->
-  <div style="padding:24px 32px 12px;">
-
-    <!-- Cards de contagem -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
-      <div style="border:1px solid #e6e7ee;border-radius:8px;padding:16px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#64748b;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;">Padrinhos</div>
-        <div style="font-size:34px;font-weight:700;color:#0f172a;letter-spacing:-0.025em;margin-top:6px;line-height:1;font-variant-numeric:tabular-nums;">{{ total_padrinhos }}</div>
-        <div style="font-size:11px;color:#64748b;margin-top:5px;">inscritos no semestre</div>
-      </div>
-      <div style="border:1px solid #e6e7ee;border-radius:8px;padding:16px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#64748b;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;">Calouros</div>
-        <div style="font-size:34px;font-weight:700;color:#0f172a;letter-spacing:-0.025em;margin-top:6px;line-height:1;font-variant-numeric:tabular-nums;">{{ total_calouros }}</div>
-        <div style="font-size:11px;color:#64748b;margin-top:5px;">acompanhados</div>
-      </div>
-      <div style="border:1px solid #e6e7ee;border-radius:8px;padding:16px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#64748b;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;">Reuniões</div>
-        <div style="font-size:34px;font-weight:700;color:#0f172a;letter-spacing:-0.025em;margin-top:6px;line-height:1;font-variant-numeric:tabular-nums;">{{ total_reunioes }}</div>
-        <div style="font-size:11px;color:#64748b;margin-top:5px;">realizadas até hoje</div>
-      </div>
-      <div style="border:1px solid #e6e7ee;border-radius:8px;padding:16px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#64748b;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;">Temas</div>
-        <div style="font-size:34px;font-weight:700;color:#0f172a;letter-spacing:-0.025em;margin-top:6px;line-height:1;font-variant-numeric:tabular-nums;">{{ temas|length }}</div>
-        <div style="font-size:11px;color:#64748b;margin-top:5px;">no cronograma</div>
-      </div>
+  <main class="content">
+    <div class="metrics">
+      <div class="metric"><div class="label">Padrinhos</div><div class="metric-number">{{ total_padrinhos }}</div><div class="hint">participantes</div></div>
+      <div class="metric"><div class="label">Calouros</div><div class="metric-number">{{ total_calouros }}</div><div class="hint">acompanhados</div></div>
+      <div class="metric"><div class="label">Reuniões</div><div class="metric-number">{{ total_reunioes }}</div><div class="hint">realizadas</div></div>
+      <div class="metric"><div class="label">Temas</div><div class="metric-number">{{ temas|length }}</div><div class="hint">conduzidos</div></div>
     </div>
 
-    <!-- Faixa de estatísticas de perfil -->
     {% set _show_turno_pad = turno_data %}
     {% set _show_turno_cal = turno_data_cal %}
     {% set _show_demo_pad = pct_bolsista or pct_bh or pct_trabalha %}
     {% set _show_demo_cal = pct_bolsista_cal or pct_bh_cal or pct_trabalha_cal %}
     {% if _show_turno_pad or _show_turno_cal or _show_demo_pad or _show_demo_cal %}
-    <div style="border:1px solid #e6e7ee;border-radius:8px;padding:14px 18px;margin-bottom:24px;display:flex;flex-direction:column;gap:9px;">
+    <div class="profile">
       {% if _show_turno_pad %}
-      <div style="display:flex;align-items:center;gap:14px;font-size:12px;color:#334155;">
-        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#64748b;letter-spacing:0.12em;text-transform:uppercase;width:140px;flex-shrink:0;">Padrinhos por turno</span>
-        <span>
-          {% for item in turno_data %}
-            {% if not loop.first %}<span style="color:#cbd5e1;margin:0 5px;">·</span>{% endif %}
-            {{ item.turno }}: <strong style="color:#0f172a;">{{ item.qtd }}</strong> <span style="color:#7c5cff;">({{ item.pct }}%)</span>
-          {% endfor %}
-        </span>
-      </div>
+      <div class="profile-row"><span class="label">Padrinhos por turno</span><span>{% for item in turno_data %}{% if not loop.first %}<span style="color:#cbd5e1;margin:0 6px;">·</span>{% endif %}{{ item.turno }}: <strong>{{ item.qtd }}</strong> <span style="color:#7c5cff;">({{ item.pct }}%)</span>{% endfor %}</span></div>
       {% endif %}
       {% if _show_turno_cal %}
-      <div style="display:flex;align-items:center;gap:14px;font-size:12px;color:#334155;">
-        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#64748b;letter-spacing:0.12em;text-transform:uppercase;width:140px;flex-shrink:0;">Calouros por turno</span>
-        <span>
-          {% for item in turno_data_cal %}
-            {% if not loop.first %}<span style="color:#cbd5e1;margin:0 5px;">·</span>{% endif %}
-            {{ item.turno }}: <strong style="color:#0f172a;">{{ item.qtd }}</strong> <span style="color:#7c5cff;">({{ item.pct }}%)</span>
-          {% endfor %}
-        </span>
-      </div>
+      <div class="profile-row"><span class="label">Calouros por turno</span><span>{% for item in turno_data_cal %}{% if not loop.first %}<span style="color:#cbd5e1;margin:0 6px;">·</span>{% endif %}{{ item.turno }}: <strong>{{ item.qtd }}</strong> <span style="color:#7c5cff;">({{ item.pct }}%)</span>{% endfor %}</span></div>
       {% endif %}
-      {% if (_show_turno_pad or _show_turno_cal) and (_show_demo_pad or _show_demo_cal) %}
-      <div style="height:1px;background:#eef0f5;margin:2px 0;"></div>
-      {% endif %}
+      {% if (_show_turno_pad or _show_turno_cal) and (_show_demo_pad or _show_demo_cal) %}<div class="divider"></div>{% endif %}
       {% if _show_demo_pad %}
-      <div style="display:flex;align-items:center;gap:14px;font-size:12px;color:#334155;">
-        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#64748b;letter-spacing:0.12em;text-transform:uppercase;width:140px;flex-shrink:0;">Padrinhos</span>
-        <span>Bolsistas: <strong style="color:#0f172a;">{{ pct_bolsista }}%</strong></span>
-        <span style="color:#cbd5e1;">·</span>
-        <span>Grande BH: <strong style="color:#0f172a;">{{ pct_bh }}%</strong></span>
-        <span style="color:#cbd5e1;">·</span>
-        <span>Trabalha: <strong style="color:#0f172a;">{{ pct_trabalha }}%</strong></span>
-      </div>
+      <div class="profile-row"><span class="label">Padrinhos</span><span>Bolsistas: <strong>{{ pct_bolsista }}%</strong> <span style="color:#cbd5e1;margin:0 10px;">·</span> Grande BH: <strong>{{ pct_bh }}%</strong> <span style="color:#cbd5e1;margin:0 10px;">·</span> Trabalha: <strong>{{ pct_trabalha }}%</strong></span></div>
       {% endif %}
       {% if _show_demo_cal %}
-      <div style="display:flex;align-items:center;gap:14px;font-size:12px;color:#334155;">
-        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#64748b;letter-spacing:0.12em;text-transform:uppercase;width:140px;flex-shrink:0;">Calouros</span>
-        <span>Bolsistas: <strong style="color:#0f172a;">{{ pct_bolsista_cal }}%</strong></span>
-        <span style="color:#cbd5e1;">·</span>
-        <span>Grande BH: <strong style="color:#0f172a;">{{ pct_bh_cal }}%</strong></span>
-        <span style="color:#cbd5e1;">·</span>
-        <span>Trabalha: <strong style="color:#0f172a;">{{ pct_trabalha_cal }}%</strong></span>
-      </div>
+      <div class="profile-row"><span class="label">Calouros</span><span>Bolsistas: <strong>{{ pct_bolsista_cal }}%</strong> <span style="color:#cbd5e1;margin:0 10px;">·</span> Grande BH: <strong>{{ pct_bh_cal }}%</strong> <span style="color:#cbd5e1;margin:0 10px;">·</span> Trabalha: <strong>{{ pct_trabalha_cal }}%</strong></span></div>
       {% endif %}
     </div>
     {% endif %}
 
-    <!-- Cronograma de temas -->
-    <div style="margin-bottom:24px;">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:11px;">
-        <div style="width:5px;height:16px;border-radius:3px;background:#7c5cff;"></div>
-        <div style="font-size:13.5px;font-weight:700;color:#0f172a;letter-spacing:-0.01em;">Cronograma de temas</div>
+    {% if reunioes %}
+    <h2 class="section-title">Reuniões realizadas</h2>
+    <div class="meeting-list">
+      {% for reuniao in reunioes %}
+      <div class="meeting-row">
+        <div class="mono">{{ reuniao.data.strftime('%d/%m') if reuniao.data else '—' }}</div>
+        <div class="meeting-title">{{ reuniao.tema }}</div>
+        <div class="meeting-desc">{{ reuniao.descricao }}</div>
       </div>
-      <table style="width:100%;border-collapse:separate;border-spacing:0;border:1px solid #e6e7ee;border-radius:8px;overflow:hidden;font-size:11.5px;">
-        <thead style="background:#eee9ff;">
-          <tr>
-            <th style="text-align:left;padding:9px 14px;font-family:'JetBrains Mono',monospace;font-size:9px;color:#5b3df5;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;">Tema</th>
-            <th style="text-align:left;padding:9px 14px;font-family:'JetBrains Mono',monospace;font-size:9px;color:#5b3df5;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;width:74px;">Prazo</th>
-            <th style="text-align:left;padding:9px 14px;font-family:'JetBrains Mono',monospace;font-size:9px;color:#5b3df5;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;">Responsáveis</th>
-            <th style="text-align:right;padding:9px 14px;font-family:'JetBrains Mono',monospace;font-size:9px;color:#5b3df5;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;width:100px;">Situação</th>
-          </tr>
-        </thead>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <h2 class="section-title dark">Resultado final do semestre</h2>
+    <div class="results">
+      <div class="result-card green"><div class="label">Certificados ACG</div><div class="result-number">{{ total_aptos_acg }}</div><div class="hint" style="color:inherit;opacity:.8;">padrinhos aptos à emissão</div></div>
+      <div class="result-card orange"><div class="label">Sem certificado</div><div class="result-number">{{ total_nao_aptos }}</div><div class="hint" style="color:inherit;opacity:.8;">não aptos pelas regras</div></div>
+      <div class="result-card neutral"><div class="label">Aptidão geral</div><div class="result-number" style="color:#0f172a;">{{ taxa_aptidao }}%</div><div class="hint">dos participantes</div></div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card"><div class="label">Responsáveis por tema</div><strong>{{ ((temas|sum(attribute='qtd_responsaveis')) / (temas|length))|round(1) if temas|length else 0 }} padrinhos</strong><span>Média de padrinhos envolvidos em cada tema do cronograma.</span></div>
+      <div class="info-card"><div class="label">Acompanhamento médio</div><strong>{{ (total_calouros / total_padrinhos)|round(1) if total_padrinhos else 0 }} calouros/padrinho</strong><span>Média de calouros acompanhados por padrinho participante.</span></div>
+    </div>
+
+    {% if total_reportados > 0 %}
+    <div class="info-grid" style="grid-template-columns:1fr;margin-top:10px;">
+      <div class="info-card red"><div class="label" style="color:#991b1b;">Encaminhamento ao professor</div><strong style="color:#991b1b;">{{ total_reportados }} caso{{ 's' if total_reportados != 1 }} reportado{{ 's' if total_reportados != 1 }}</strong><span style="color:#991b1b;">Detalhamento disponível no relatório de aptidão ACG.</span></div>
+    </div>
+    {% endif %}
+  </main>
+
+  {% set page_label = 'Pag. 1' %}
+  {% include "pages/partials/relatorio_footer.html" ignore missing %}
+</section>
+
+<section class="page">
+  <div class="mini-header">
+    <div class="mini-title">Cronograma de temas</div>
+    <div class="mini-meta">Resumo do Semestre · {{ config.semestre }}</div>
+  </div>
+  <main class="content">
+    <h2 class="section-title">Temas e responsáveis</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Tema</th>
+          <th style="width:74px;">Prazo</th>
+          <th>Responsáveis</th>
+          <th style="width:100px;text-align:right;">Situação</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for tema in temas %}
+        <tr>
+          <td class="strong">{{ tema.titulo }}</td>
+          <td class="mono">{{ tema.data_limite.strftime('%d/%m') if tema.data_limite else '—' }}</td>
+          <td>{{ tema.responsaveis }}</td>
+          <td style="text-align:right;">
+            {% if tema.situacao == 'entregue' %}
+              <span class="badge ok">Entregue</span>
+            {% elif tema.situacao in ('atrasado', 'atraso') %}
+              <span class="badge bad">Atrasado</span>
+            {% else %}
+              <span class="badge warn">{{ tema.situacao|capitalize }}</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="info-grid">
+      <div class="info-card"><div class="label">Temas conduzidos</div><strong>{{ temas|length }}</strong><span>Cronograma registrado no semestre.</span></div>
+      <div class="info-card"><div class="label">Participação média</div><strong>{{ ((temas|sum(attribute='qtd_responsaveis')) / (temas|length))|round(1) if temas|length else 0 }}</strong><span>Responsáveis por tema.</span></div>
+    </div>
+  </main>
+
+  {% set page_label = 'Pag. 2' %}
+  {% include "pages/partials/relatorio_footer.html" ignore missing %}
+</section>
+
+<section class="page">
+  <div class="mini-header">
+    <div class="mini-title">Fechamento ACG</div>
+    <div class="mini-meta">Resumo do Semestre · {{ config.semestre }}</div>
+  </div>
+  <main class="content">
+    <h2 class="section-title">Acompanhamento final</h2>
+    <div class="two-col">
+      <table>
+        <thead><tr><th>Grupo</th><th style="width:74px;text-align:right;">Qtd.</th></tr></thead>
         <tbody>
-          {% for tema in temas %}
-          {% set bg = '#ffffff' if loop.index is odd else '#fafafd' %}
-          <tr style="background:{{ bg }};">
-            <td style="padding:10px 14px;border-top:1px solid #e6e7ee;font-weight:600;color:#0f172a;">{{ tema.titulo }}</td>
-            <td style="padding:10px 14px;border-top:1px solid #e6e7ee;font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b;font-variant-numeric:tabular-nums;">
-              {{ tema.data_limite.strftime('%d/%m') if tema.data_limite else '—' }}
-            </td>
-            <td style="padding:10px 14px;border-top:1px solid #e6e7ee;color:#334155;">{{ tema.responsaveis }}</td>
-            <td style="padding:10px 14px;border-top:1px solid #e6e7ee;text-align:right;">
-              {% if tema.situacao == 'entregue' %}
-                <span style="display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;background:#ecfdf5;color:#047857;border:1px solid #d1fae5;font-size:10.5px;font-weight:600;">Entregue</span>
-              {% elif tema.situacao == 'atrasado' %}
-                <span style="display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;background:#fef2f2;color:#991b1b;border:1px solid #fecaca;font-size:10.5px;font-weight:600;">Atrasado</span>
-              {% else %}
-                <span style="display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;background:#fffbeb;color:#b45309;border:1px solid #fde68a;font-size:10.5px;font-weight:600;">Pendente</span>
-              {% endif %}
-            </td>
-          </tr>
-          {% endfor %}
+          <tr><td class="strong">Aptos sem observação</td><td class="mono" style="text-align:right;">{{ total_aprovados }}</td></tr>
+          <tr><td class="strong">Aptos com observação interna</td><td class="mono" style="text-align:right;">{{ total_alerta }}</td></tr>
+          <tr><td class="strong">Não aptos ao certificado</td><td class="mono" style="text-align:right;">{{ total_nao_aptos }}</td></tr>
+          {% if total_reportados > 0 %}<tr><td class="strong">Reportes ao professor</td><td class="mono" style="text-align:right;">{{ total_reportados }}</td></tr>{% endif %}
+        </tbody>
+      </table>
+      <table>
+        <thead><tr><th>Indicador</th><th style="width:94px;text-align:right;">Resultado</th></tr></thead>
+        <tbody>
+          <tr><td class="strong">Taxa de aptidão ACG</td><td class="mono" style="text-align:right;">{{ taxa_aptidao }}%</td></tr>
+          <tr><td class="strong">Temas registrados</td><td class="mono" style="text-align:right;">{{ temas|length }}</td></tr>
+          <tr><td class="strong">Reuniões realizadas</td><td class="mono" style="text-align:right;">{{ total_reunioes }}</td></tr>
+          <tr><td class="strong">Calouros por padrinho</td><td class="mono" style="text-align:right;">{{ (total_calouros / total_padrinhos)|round(1) if total_padrinhos else 0 }}</td></tr>
         </tbody>
       </table>
     </div>
 
-    <!-- Resultado final -->
-    <div style="margin-bottom:8px;">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:11px;">
-        <div style="width:5px;height:16px;border-radius:3px;background:#0f172a;"></div>
-        <div style="font-size:13.5px;font-weight:700;color:#0f172a;letter-spacing:-0.01em;">Resultado final do semestre</div>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
-        <div style="border:1px solid #d1fae5;background:#ecfdf5;border-radius:8px;padding:16px;">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#047857;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;">Aprovados</div>
-          <div style="font-size:32px;font-weight:700;color:#047857;letter-spacing:-0.025em;margin-top:6px;line-height:1;font-variant-numeric:tabular-nums;">{{ total_aprovados if total_aprovados is defined else '7' }}</div>
-          <div style="font-size:11px;color:#047857;margin-top:5px;opacity:0.8;">aptos para ACG</div>
-        </div>
-        <div style="border:1px solid #fde68a;background:#fffbeb;border-radius:8px;padding:16px;">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#b45309;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;">Em alerta</div>
-          <div style="font-size:32px;font-weight:700;color:#b45309;letter-spacing:-0.025em;margin-top:6px;line-height:1;font-variant-numeric:tabular-nums;">{{ total_alerta if total_alerta is defined else '2' }}</div>
-          <div style="font-size:11px;color:#b45309;margin-top:5px;opacity:0.8;">próximo do limite</div>
-        </div>
-        <div style="border:1px solid #fed7aa;background:#fff7ed;border-radius:8px;padding:16px;">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#c2410c;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;">Reprovados</div>
-          <div style="font-size:32px;font-weight:700;color:#c2410c;letter-spacing:-0.025em;margin-top:6px;line-height:1;font-variant-numeric:tabular-nums;">{{ total_reprovados if total_reprovados is defined else '0' }}</div>
-          <div style="font-size:11px;color:#c2410c;margin-top:5px;opacity:0.8;">limite de faltas</div>
-        </div>
-        <div style="border:1px solid #fecaca;background:#fef2f2;border-radius:8px;padding:16px;">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#991b1b;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;">Reportados</div>
-          <div style="font-size:32px;font-weight:700;color:#991b1b;letter-spacing:-0.025em;margin-top:6px;line-height:1;font-variant-numeric:tabular-nums;">{{ total_reportados if total_reportados is defined else '1' }}</div>
-          <div style="font-size:11px;color:#991b1b;margin-top:5px;opacity:0.8;">ao prof. coord.</div>
-        </div>
-      </div>
+    <div class="info-grid">
+      <div class="info-card"><div class="label">Para certificado</div><strong>{{ total_aptos_acg }} nomes</strong><span>Elegíveis para geração individual do certificado.</span></div>
+      <div class="info-card"><div class="label">Fechamento</div><strong>{{ total_nao_aptos }} não apto{{ 's' if total_nao_aptos != 1 }}</strong><span>Casos sem emissão de certificado por regra do programa.</span></div>
     </div>
-  </div>
 
-  <!-- ============== RODAPÉ ============== -->
-  <div style="position:relative;margin-top:8px;">
-    <div style="height:2px;width:100%;background:linear-gradient(90deg,#5b3df5,#8b6dff 50%,#5b3df5);"/>
-    <div style="padding:14px 32px;background:#fafafd;display:flex;align-items:center;justify-content:space-between;gap:16px;">
-      <!-- marca -->
-      <div style="display:flex;align-items:center;gap:9px;">
-        <div style="width:24px;height:24px;border-radius:7px;background:linear-gradient(150deg,#8b6dff,#5b3df5);display:inline-flex;align-items:center;justify-content:center;">
-          <svg width="18" height="18" viewBox="2 2 28 28" fill="none">
-            <path d="M10 22 C5 22, 5 12, 10 12 C14 12, 16 20, 22 20 C27 20, 27 10, 22 10 C18 10, 16 18, 10 18" stroke="#ffffff" stroke-width="3" stroke-linecap="round" fill="none" />
-          </svg>
-        </div>
-        <div style="display:flex;flex-direction:column;line-height:1.3;">
-          <span style="font-size:11px;font-weight:700;color:#0f172a;letter-spacing:-0.01em;">Padrinho Track</span>
-          <span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;color:#94a3b8;letter-spacing:0.06em;text-transform:uppercase;">PUC MINAS · ENG. SOFTWARE</span>
-        </div>
-      </div>
-      <!-- github -->
-      <div style="display:flex;align-items:center;gap:6px;color:#64748b;">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7c5cff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
-        </svg>
-        <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#64748b;letter-spacing:0.02em;">christiano-gonara/padrinho-track</span>
-      </div>
-      <!-- meta -->
-      <div style="text-align:right;line-height:1.4;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#5b3df5;letter-spacing:0.08em;text-transform:uppercase;font-weight:600;">Resumo · {{ config.semestre }}</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:8.5px;color:#94a3b8;letter-spacing:0.06em;text-transform:uppercase;">Pág. 1/1 · Christiano Gonçalves</div>
-      </div>
+    <h2 class="section-title" style="margin-top:18px;">Participantes registrados por turno <span class="section-count">{{ total_padrinhos }} participantes</span></h2>
+    {% for grupo in padrinhos_por_turno %}
+    <div class="turn-group">
+      <div class="turn-heading">{{ grupo.turno }} <span>{{ grupo.qtd }} participante{{ 's' if grupo.qtd != 1 }}</span></div>
+      <ol class="name-list">
+        {% for nome in grupo.nomes %}
+        <li>{{ nome }}</li>
+        {% endfor %}
+      </ol>
     </div>
-  </div>
+      {% endfor %}
+  </main>
 
-</div>
+  {% set page_label = 'Pag. 3' %}
+  {% include "pages/partials/relatorio_footer.html" ignore missing %}
+</section>
 
 </body>
 </html>

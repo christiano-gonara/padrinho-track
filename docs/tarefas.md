@@ -1,146 +1,103 @@
 # Tarefas
 
-> Antes de começar qualquer tarefa, leia o CLAUDE.md.
-> O modo de operação e as regras do projeto estão lá.
->
-> ⚠️ LOGIN DESATIVADO — reativar before_request em app.py
-> antes de divulgar a URL de produção:
-> https://padrinho-track-production.up.railway.app/
+## Próxima prioridade — produção segura
 
----
+### 1. Revisar segredos
+- Revogar e gerar nova `GEMINI_API_KEY` se ela tiver sido compartilhada fora da máquina.
+- Conferir `.gitignore` para manter `.env`, `client_secrets.json` e credenciais fora do Git.
+- Usar `SECRET_KEY` e `APP_PASSWORD` fortes em produção.
 
-## Tarefa 1 — Lista negra de padrinhos reportados
+### 2. PostgreSQL em produção
+- Manter SQLite para desenvolvimento local.
+- Usar `DATABASE_URL` no Railway/produção.
+- Testar fluxo completo com PostgreSQL:
+  - importação de padrinhos
+  - importação de calouros
+  - reuniões/presenças
+  - temas/entregas
+  - relatórios
+  - certificados em ZIP
 
-Padrinho que recebe advertência vermelha é adicionado
-automaticamente à lista negra — não pode ser importado
-como padrinho em semestres futuros.
+### 3. Repositories mais completos
+- Continuar removendo SQL direto de services e integrações.
+- Priorizar:
+  - `integrations/importers.py`
+  - `services/match_algorithm.py`
+  - testes que ainda montam dados com SQL manual
+- Manter `models.py` apenas como fachada temporária.
+- Depois remover imports de `models.py` nos services e routes.
 
-### Implementação
-- Nova tabela no banco: lista_negra (id, matricula, nome,
-  motivo, semestre, data)
-- Ao emitir advertência vermelha, inserir automaticamente
-  na lista_negra
-- Na importação via Forms (importar_padrinhos_sheets()),
-  verificar se a matrícula está na lista_negra e ignorar
-  com aviso: "X candidatos ignorados por histórico de
-  ocorrência grave: Nome (matrícula)"
-- Na tela de Início do Semestre, exibir os ignorados
-  no relatório de importação
-- Página de visualização da lista negra em Configurações
-  com opção de remover manualmente (caso excepcional)
+### 4. Entidades de domínio
+- Criar dataclasses simples quando fizer sentido:
+  - `Padrinho`
+  - `Calouro`
+  - `Tema`
+  - `StatusACG`
+- Usar primeiro em services novos, sem tentar migrar tudo de uma vez.
 
-Roda os 62 testes e commita:
-git add .
-git commit -m "feat: lista negra de padrinhos reportados"
-git push
+### 5. Logs e suporte
+- Melhorar mensagens de erro para importações.
+- Registrar erros inesperados com contexto suficiente para suporte.
+- Criar tela simples de diagnóstico:
+  - banco conectado
+  - total de padrinhos
+  - total de calouros
+  - total de reuniões
+  - total de temas
+  - últimos erros
 
----
+## Testes
 
-## Tarefa 2 — Envio de certificados por email
+### 6. Atualizar cobertura por camada
+- Preferir testes de services/repositories em vez de testar wrappers de `models.py`.
+- Manter testes de integração para rotas principais.
+- Adicionar testes para:
+  - login obrigatório
+  - nomes de arquivos gerados
+  - ZIP com padrinhos e coordenação
+  - relatório de aptidão com múltiplas páginas
 
-Botão "Enviar certificados por email" na página de relatórios:
-- Gera PDF de cada certificado via weasyprint
-- Envia para o email cadastrado de cada padrinho aprovado
-- Corpo do email:
-  "Olá, [Nome]! Parabéns pela participação como Mentor
-   Voluntário. Segue em anexo seu certificado. Atenciosamente,
-   Coordenação da Monitoria — Eng. de Software · PUC Minas"
-- Variáveis no .env: GMAIL_USER e GMAIL_APP_PASSWORD
-  (senha de app gerada no Google — não a senha da conta)
+### 7. Remover testes obsoletos
+- Remover testes que validem rotas legadas já apagadas.
+- Evitar testes que dependam de implementação interna antiga.
+- Manter testes que representem regras reais do programa.
 
-Roda os 62 testes e commita:
-git add .
-git commit -m "feat: envio de certificados por email"
-git push
+## Experiência e responsividade
 
----
+### 8. Telas com tabelas grandes
+- Melhorar visualização mobile/tablet de:
+  - padrinhos
+  - calouros
+  - presenças
+  - aptidão ACG
+- Usar scroll horizontal ou cards responsivos quando necessário.
 
-## Tarefa 3 — Níveis de permissão
+### 9. Relatórios PDF
+- Garantir que cada relatório:
+  - não corte conteúdo no meio
+  - tenha header/footer consistentes
+  - tenha nomes e datas legíveis
+  - funcione bem com muitos participantes
 
-Adicionar dois níveis de acesso ao sistema:
+## Futuro
 
-**Coordenador** (acesso padrão):
-- Lançar presença, sincronizar Forms
-- Adicionar advertências manuais
-- Ver relatórios
+### 10. Automação de certificados sem email por enquanto
+- Manter geração em ZIP.
+- Melhorar organização interna do ZIP:
+  - `padrinhos/`
+  - `coordenacao/`
+  - nomes curtos e padronizados
+- Deixar envio automático por email para etapa futura.
 
-**Coordenador Chefe** (acesso total — senha extra):
-- Tudo do coordenador
-- Remover padrinho do programa
-- Editar dados de padrinho
-- Limpar logs
-- Exportar backup do banco
-- Enviar certificados
+### 11. Estudo de versão Flutter
+- Não reescrever tudo agora.
+- Caminho recomendado:
+  - manter backend Flask
+  - criar endpoints JSON
+  - fazer Flutter consumir a API
+  - deixar PDF/certificados no backend
 
-### Implementação
-- Dois campos no .env: APP_USERNAME, APP_PASSWORD (já existe)
-  e ADMIN_PASSWORD (novo — para ações críticas)
-- Modal de confirmação de senha antes de ações críticas
-- Não requer sessão separada — só confirmação pontual
-
-Roda os 62 testes e commita:
-git add .
-git commit -m "feat: níveis de permissão por ação"
-git push
-
----
-
-## Tarefa 4 — README com demonstração visual
-
-Adicionar seção de demonstração no README.md com GIFs
-mostrando o sistema em ação:
-
-1. Dashboard com cards de status
-2. Sincronizar presença via Forms
-3. Relatório de aptidão sendo gerado
-4. Início do semestre importando padrinhos
-
-Ferramentas recomendadas: ScreenToGif (Windows) — gratuito.
-GIFs de 10-15 segundos cada, hospedados no próprio repositório
-em docs/images/.
-
----
-
-## Opcional — Bot do Telegram
-
-Cria bot.py com python-telegram-bot integrado ao banco.
-Agrega no portfólio mas não é essencial pro programa.
-
-### Consultas
-- /status — resumo de aptos/alertas/inaptos
-- /faltas — faltas da última reunião
-- /alerta — padrinhos com 1 amarelo + telefone
-
-### Ações de tema
-- /entregue <nome do tema> — marca tema como entregue
-- /nao_entregue <nome do tema> — marca tema como não entregue
-
-### Relatórios
-- /relatorio acg — manda link do relatório de aptidão
-- /relatorio resumo — manda link do resumo do semestre
-
-### Alertas automáticos
-- Tema com prazo vencido sem entrega registrada
-- Padrinho que atingiu o limite de amarelos
-- Lembrete de reunião próxima
-
-Mantém os 62 testes passando.
-
----
-
-## Opcional — Integração com Claude API (Anthropic)
-
-Agrega no portfólio mas não é essencial pro programa.
-
-### Análise de risco por padrinho
-Botão "Analisar com IA" no detalhe do padrinho — gera parágrafo
-curto de análise de risco baseado no histórico. Máximo 3 frases.
-
-### Resumo do semestre em linguagem natural
-No Resumo do Semestre, parágrafo gerado pela IA resumindo
-o desempenho geral. Máximo 4 frases, tom profissional.
-
-### Implementação
-- ANTHROPIC_API_KEY no .env
-- Modelo: claude-sonnet-4-20250514
-- Tratamento de erro — se API falhar, exibe campo vazio
+### 12. Lista negra de ocorrências graves
+- Criar tabela de histórico para padrinhos reportados.
+- Bloquear reimportação automática em semestres futuros.
+- Permitir remoção manual apenas em caso excepcional.

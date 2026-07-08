@@ -46,6 +46,8 @@ def client(tmp_path, monkeypatch):
     from app import app as flask_app
     flask_app.config["TESTING"] = True
     with flask_app.test_client() as c:
+        with c.session_transaction() as sess:
+            sess["logged_in"] = True
         yield c
 
 

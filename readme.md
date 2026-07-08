@@ -1,198 +1,206 @@
 # Padrinho Track
 
-> Sistema web interno para gestão do programa de mentoria acadêmica da PUC Minas — Engenharia de Software.
+Sistema web interno para gestão do Programa de Apadrinhamento de Calouros da
+PUC Minas, Engenharia de Software.
 
----
+O projeto centraliza o acompanhamento de padrinhos/madrinhas, calouros,
+reuniões, presenças, temas, advertências, relatórios finais e certificados ACG.
 
-## Sobre o projeto
+## Estado Atual
 
-O **Padrinho Track** nasceu de uma necessidade real: o programa de mentoria da PUC Minas não tinha forma estruturada de registrar presenças, controlar entregas ou aplicar advertências. Tudo ficava disperso no WhatsApp e em planilhas manuais.
-
-O sistema centraliza a gestão de **50 padrinhos** (veteranos voluntários) e **127 calouros**, automatizando as regras de advertência que definem quem está aprovado para receber horas ACG ao final do semestre. Foi desenvolvido do zero por um coordenador do próprio programa, a partir de uma necessidade real identificada durante o semestre.
-
----
-
-## Sobre o programa
-
-**Programa de Mentoria Acadêmica — Engenharia de Software**
-PUC Minas · Semestre 2026/1
-
-- **Professor Coordenador:** Prof. Laerte Xavier
-- **Coordenadora Geral:** Ana Santos
-- **Coordenadores:** Christiano Gonçalves, Perciliana, Giovanna, Zaine, Luiz
-
----
+- Login simples por usuário e senha configurados no `.env`.
+- Rotas modularizadas com Blueprints.
+- Regras de negócio separadas em `services/`.
+- Consultas principais isoladas em `repositories/`.
+- `models.py` mantido apenas como fachada de compatibilidade.
+- Banco local em SQLite e suporte a PostgreSQL via `DATABASE_URL`.
+- Relatórios finais em HTML prontos para gerar PDF pelo navegador.
+- Certificados individuais e ZIP com PDFs de padrinhos/madrinhas e coordenação.
+- Testes automatizados com pytest.
 
 ## Funcionalidades
 
-**Gestão de padrinhos e calouros**
-- Cadastro de padrinhos com turno, email, telefone e dados demográficos
-- Match padrinho-calouro com algoritmo de compatibilidade por turno e perfil
-- Redistribuição de calouros ao remover padrinho do programa
-- Histórico individual — presenças, temas e advertências
+### Padrinhos, Calouros e Match
 
-**Presenças e reuniões**
-- Registro manual de presença por reunião
-- Sincronização automática via Google Forms/Sheets
-- Advertência automática para faltas sem justificativa
+- Cadastro e edição de padrinhos/madrinhas.
+- Cadastro e importação de calouros.
+- Algoritmo de match por compatibilidade de turno e perfil.
+- Lista de contatos entre padrinhos/madrinhas e calouros.
+- Redistribuição de calouros ao remover um padrinho do programa.
 
-**Temas informativos**
-- Controle de entrega de temas em grupo
-- Advertência automática por atraso ou não entrega
-- Advertência manual (amarela ou grave) para comportamentos inadequados
+### Reuniões e Presenças
 
-**Relatórios e aptidão ACG**
-- Dashboard com visão geral — aprovados, em alerta, reprovados, reportados
-- Gráficos de distribuição de status e presenças por reunião
-- Relatório de Aptidão ACG — impressão via browser (Ctrl+P → PDF)
-- Resumo do Semestre — impressão via browser
-- Reportados ao Professor Coordenador — impressão via browser
-- Lista de contatos padrinho-calouro — impressão via browser
+- Cadastro de reuniões.
+- Registro manual de presenças.
+- Sincronização de presenças via Google Forms/Sheets.
+- Advertência automática para falta sem justificativa.
 
-**Interface**
-- Design system próprio com identidade visual da marca
-- Sidebar colapsável com animação suave
-- Dark mode com toggle e preferência salva
-- Busca em tempo real na lista de padrinhos
-- Toast notifications nas ações
-- Logs de auditoria de todas as ações
+### Temas
 
----
+- Cadastro de temas e responsáveis.
+- Sincronização de responsáveis via Google Sheets.
+- Registro de entrega.
+- Advertência automática por atraso ou não entrega.
 
-## Sistema de advertências
+### ACG, Relatórios e Certificados
 
-| Situação | Tipo | Consequência |
-|---|---|---|
-| Falta sem justificativa em reunião | Advertência | — |
-| Atraso na entrega de tema (manual) | Advertência | — |
-| Faltas em todas as reuniões do semestre | — | Reprovado para ACG |
-| Não entrega de tema | Advertência Grave | Reprovado + reportar professor |
-| Comportamento inadequado (manual) | Advertência Grave | Reprovado + reportar professor |
+- Relatório de aptidão ACG.
+- Resumo final do semestre.
+- Lista de contatos.
+- Certificado individual de padrinho/madrinha.
+- Certificado de coordenação.
+- Download em ZIP com certificados em PDF.
 
-## Status dos padrinhos
+## Regras de ACG
 
-| Status | Cor | Significado |
-|---|---|---|
-| **Aprovado** | 🟢 Verde | Elegível para receber horas ACG |
-| **Em alerta** | 🟡 Âmbar | Próximo do limite de advertências |
-| **Reprovado** | 🟠 Laranja | Limite atingido — sem ACG |
-| **Reportado** | 🔴 Vermelho | Advertência grave — reportar ao professor |
+| Situação | Consequência |
+|---|---|
+| Sem advertência grave e dentro do limite de faltas | Apto para ACG |
+| Uma advertência amarela antes do limite | Em alerta |
+| Faltas em todas as reuniões | Não apto |
+| Advertência vermelha | Reportado ao coordenador do programa |
+| Não entrega de tema | Advertência vermelha |
+| Entrega de tema com atraso relevante | Advertência conforme regra do sistema |
 
----
+## Arquitetura
 
-## Stack
-
-- **Backend:** Python + Flask
-- **Banco de dados:** SQLite
-- **Frontend:** HTML + Tailwind CSS + design system próprio (app.css)
-- **Ícones:** Remix Icon
-- **Gráficos:** ApexCharts
-- **Testes:** pytest — 29 testes cobrindo regras de advertência, aptidão e idempotência
-- **Integrações:** Google Sheets API (gspread) para sincronização de presenças
-
----
-
-## Estrutura
-
-```
+```text
 padrinho-track/
-├── app.py                  # Flask: configuração e rotas
-├── database.py             # Conexão e criação do banco SQLite
-├── models.py               # Funções de leitura e escrita no banco
-├── config_semestre.json    # Configurações do semestre (gitignore)
-├── credentials.json        # Service account Google Cloud (gitignore)
-├── client_secrets.json     # OAuth2 Google Cloud (gitignore)
-├── requirements.txt
-├── README.md
-├── tests/                  # Testes automatizados com pytest
-├── templates/              # Páginas HTML
-│   ├── base.html
-│   ├── components/         # Modais reutilizáveis
-│   └── pages/              # Páginas principais
-├── static/
-│   ├── css/app.css         # Design system completo
-│   └── *.svg               # Logo e favicon
-├── instance/               # Banco de dados local (gitignore)
-├── scripts/
-│   ├── seed_exemplo.py     # Dados fictícios para demonstração
-│   ├── seed.py             # Seed com dados reais (gitignore)
-│   ├── seed_calouros.py    # Seed de calouros reais (gitignore)
-│   └── match.py            # Script standalone de match via CSV
-└── docs/
-    ├── CLAUDE.md           # Contexto do projeto para Claude Code
-    ├── tarefas.md          # Tarefas pendentes
-    └── APRENDIZADOS.md     # Lições aprendidas
+├── app.py                    # Criação do Flask, login, dashboard e rotas gerais
+├── database.py               # Conexão SQLite/PostgreSQL e inicialização
+├── database_schema.py        # Schemas e migrações
+├── models.py                 # Fachada temporária de compatibilidade
+├── routes/                   # Blueprints por domínio
+├── services/                 # Regras de negócio
+├── repositories/             # Consultas e escrita no banco
+├── integrations/             # Importações Google Sheets/CSV
+├── templates/                # HTML do sistema e relatórios
+├── static/                   # CSS, logos e imagens
+├── scripts/                  # Seeds e scripts auxiliares
+├── tests/                    # Testes automatizados
+└── docs/                     # Tarefas e aprendizados
 ```
 
----
+### Camadas
 
-## Como rodar
+- `routes/`: recebem requisições HTTP e chamam services.
+- `services/`: aplicam regras do programa.
+- `repositories/`: concentram SQL.
+- `integrations/`: conversam com Google Sheets, CSV e fontes externas.
+- `templates/`: exibem dados; não devem conter regra pesada.
 
-**1. Clone o repositório**
+## Configuração Local
+
+### 1. Criar ambiente e instalar dependências
+
 ```bash
-git clone https://github.com/christiano-gonara/padrinho-track.git
-cd padrinho-track
-```
-
-**2. Instale as dependências**
-```bash
+python -m venv .venv
+.venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-**3. Configure as variáveis de ambiente**
-```bash
-cp .env.example .env
-```
-Edite `.env` com suas credenciais:
+### 2. Criar `.env`
+
+Use `.env.example` como base:
+
 ```env
 APP_USERNAME=admin
-APP_PASSWORD=sua_senha_aqui
-SECRET_KEY=chave_secreta_longa_e_aleatoria
-GEMINI_API_KEY=sua_chave_gemini
+APP_PASSWORD=troque_esta_senha
+SECRET_KEY=uma_chave_longa_e_aleatoria
+
+# Opcional: se definido, usa PostgreSQL em vez de SQLite local.
+DATABASE_URL=
+
+# Opcional: usado apenas nas funcionalidades que dependem de IA.
+GEMINI_API_KEY=
 ```
 
-**4. Popule o banco com dados de exemplo**
-```bash
-python scripts/seed_exemplo.py
-```
+### 3. Rodar o sistema
 
-**5. Rode o servidor**
 ```bash
 python app.py
 ```
 
-**6. Acesse no navegador**
-```
+Acesse:
+
+```text
 http://127.0.0.1:5000
 ```
 
-O banco de dados é criado automaticamente na primeira execução dentro da pasta `instance/`.
+## Dados Locais
 
-**Rodar os testes**
-```bash
-python -m pytest tests/ -v
+Arquivos com dados reais ficam fora do Git:
+
+```text
+scripts/seed.py
+scripts/seed_calouros.py
+config_semestre.json
+credentials.json
+client_secrets.json
+authorized_user.json
+.env
+instance/
 ```
 
----
+Para popular o banco local com dados reais, mantenha os seeds localmente e rode:
 
-## Roadmap
+```bash
+python scripts/seed.py
+python scripts/seed_calouros.py
+```
 
-- [x] Sistema de advertências automáticas
-- [x] Sincronização de presenças via Google Forms/Sheets
-- [x] Relatórios HTML para impressão/PDF via browser
-- [x] Login com autenticação
-- [x] Design system com identidade visual própria
-- [x] Logs de auditoria
-- [x] Match padrinho-calouro com algoritmo de compatibilidade
-- [x] Dados demográficos e distribuição por turno
-- [ ] Tela de início do semestre (importação via Forms)
-- [ ] Deploy no Fly.io
-- [ ] Bot do Telegram para a coordenação
+## Testes
 
----
+Rodar a suite completa:
+
+```bash
+pytest -q -p no:cacheprovider --basetemp=tmp_pytest_run tests
+```
+
+Estado atual:
+
+```text
+62 passed
+```
+
+## Produção
+
+O projeto está preparado para Railway:
+
+- `Procfile`
+- `railway.json`
+- suporte a `DATABASE_URL`
+- `gunicorn` nas dependências
+
+Antes de divulgar uma URL de produção:
+
+- usar senha forte em `APP_PASSWORD`;
+- usar `SECRET_KEY` forte;
+- confirmar que `.env` e credenciais Google não foram versionados;
+- testar geração de relatórios e ZIP de certificados;
+- testar importações Google Sheets no ambiente de produção.
+
+## Próximos Passos
+
+As pendências estão em [docs/tarefas.md](docs/tarefas.md).
+
+Prioridades atuais:
+
+1. Revisar segredos e configuração de produção.
+2. Testar PostgreSQL ponta a ponta.
+3. Reduzir SQL restante em `integrations/importers.py`.
+4. Criar entidades/dataclasses quando fizer sentido.
+5. Melhorar responsividade de telas com tabelas grandes.
+6. Ampliar testes para ZIP, PDF e login obrigatório.
+
+## Observação Sobre Flutter
+
+Flutter não reaproveita diretamente os templates HTML atuais. A abordagem mais
+realista seria manter este backend Flask e criar, no futuro, um frontend Flutter
+consumindo endpoints JSON. Relatórios, certificados, regras de ACG e importações
+continuariam no backend Python.
 
 ## Autor
 
-**Christiano Gonçalves**
-Coordenador da Monitoria — Engenharia de Software · PUC Minas
-[LinkedIn](https://linkedin.com/in/christiano-gonara) · [GitHub](https://github.com/christiano-gonara)
+Christiano Gonçalves  
+Engenharia de Software - PUC Minas

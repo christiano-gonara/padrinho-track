@@ -8,7 +8,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from database import init_db, get_conn
 import database as db_module
-from models import rodar_match, cadastrar_padrinho
+from repositories import padrinho_repository
+from services.match_algorithm import rodar_match
 
 
 @pytest.fixture(autouse=True)
@@ -27,13 +28,13 @@ class TestRodarMatch:
         assert resultado["sem_match"] == []
 
     def test_padrinho_sem_calouros_retorna_lista_vazia(self):
-        cadastrar_padrinho("Padrinho X", "111001", "x@x.com", "31900000000", "Noite")
+        padrinho_repository.cadastrar("Padrinho X", "111001", "x@x.com", "31900000000", "Noite")
         resultado = rodar_match()
         assert len(resultado["resultado"]) == 1
         assert resultado["resultado"][0]["total"] == 0
 
     def test_match_com_padrinho_e_calouro_cria_atribuicao(self):
-        cadastrar_padrinho("Padrinho Y", "222001", "y@y.com", "31900000000", "Noite")
+        padrinho_repository.cadastrar("Padrinho Y", "222001", "y@y.com", "31900000000", "Noite")
         conn = get_conn()
         conn.execute(
             "INSERT INTO calouros (nome, telefone, turno, genero) VALUES (?,?,?,?)",
@@ -45,8 +46,8 @@ class TestRodarMatch:
         assert resultado["resultado"][0]["total"] == 1
 
     def test_turno_igual_aumenta_score(self):
-        cadastrar_padrinho("Padrinho Manhã", "333001", "m@m.com", "31900000000", "Manhã")
-        cadastrar_padrinho("Padrinho Noite", "333002", "n@n.com", "31900000000", "Noite")
+        padrinho_repository.cadastrar("Padrinho Manhã", "333001", "m@m.com", "31900000000", "Manhã")
+        padrinho_repository.cadastrar("Padrinho Noite", "333002", "n@n.com", "31900000000", "Noite")
         conn = get_conn()
         conn.execute(
             "INSERT INTO calouros (nome, telefone, turno, genero) VALUES (?,?,?,?)",

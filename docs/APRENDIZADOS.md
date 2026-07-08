@@ -1,104 +1,69 @@
-# Lições aprendidas — Padrinho Track
+# Aprendizados e fundamentos
 
-## O que eu faria diferente
+Este projeto começou como uma solução prática para acompanhar o Programa de
+Apadrinhamento de Calouros. Para os próximos ciclos, a meta é manter o sistema
+mais fácil de manter, mais seguro e mais simples para outras pessoas usarem.
 
-### 1. Design antes do código
-Antes de escrever uma linha de HTML, criar o design system completo no Claude Design.
-Exportar o app.css com todos os tokens, classes e componentes.
-Só depois começar os templates.
+## Princípios para continuar
 
-**Por quê:** Refatorar visual depois que o sistema já funciona é muito mais trabalhoso do que construir em cima de uma base visual sólida.
+### Modularização
+- Rotas devem receber requisições e chamar serviços.
+- Services devem concentrar regras de negócio.
+- Repositories devem concentrar consultas SQL.
+- Templates devem apenas exibir dados.
+- Evitar arquivos grandes demais, principalmente `app.py` e `models.py`.
 
-### 2. Escolher uma só abordagem de CSS
-Não misturar Tailwind + CSS customizado. Escolher um e seguir até o fim.
-- Tailwind — mais flexível, bom pra protótipos rápidos
-- Design system próprio (app.css) — mais consistente, melhor pra projetos com identidade visual
+### Segurança
+- Proteger rotas com login.
+- Nunca versionar segredos, tokens ou arquivos sensíveis.
+- Validar uploads de CSV/Sheets antes de importar.
+- Fazer backup do banco antes de importações grandes.
+- Evitar expor nomes, matrículas, emails e telefones fora do contexto correto.
 
-### 3. CLAUDE.md desde o início
-Criar o arquivo CLAUDE.md na raiz antes de qualquer sessão do Claude Code.
-Economiza tokens e evita reexplicar o projeto a cada sessão.
+### Eficiência
+- Automatizar tarefas repetitivas, como geração de certificados em PDF/ZIP.
+- Manter testes para regras críticas: ACG, advertências, match, relatórios e certificados.
+- Usar SQLite para desenvolvimento local e PostgreSQL para produção.
+- Só otimizar performance depois de identificar gargalos reais.
 
-### 4. tarefas.md para sequências longas
-Quando tiver 3+ tarefas em sequência, criar um tarefas.md e mandar o Claude Code executar em ordem.
-Mais eficiente que mandar prompt por prompt.
+### Responsividade e uso
+- Tabelas grandes precisam funcionar bem em telas menores.
+- Páginas de relatório devem paginar corretamente em PDF.
+- Mensagens de erro devem explicar o que aconteceu e como corrigir.
+- Fluxos importantes devem exigir poucos cliques: importar, conferir, gerar relatório e gerar certificados.
 
-### 5. Componentes reutilizáveis desde o início
-Identificar o que vai se repetir (cards de métricas, badges de status, modais) e criar em templates/components/ logo no começo.
-Evita ter que refatorar depois.
+### Adaptabilidade
+- Semestre, carga horária, coordenação e textos de certificado devem ser configuráveis.
+- Critérios de aptidão ACG devem ficar fáceis de revisar a cada semestre.
+- O sistema deve funcionar com dados reais sem depender de edição manual no código.
 
-### 6. Seed de exemplo público desde o início
-Criar o seed_exemplo.py com dados fictícios antes de começar a desenvolver.
-Facilita os testes e a demonstração do sistema.
+### Suporte a outras pessoas
+- README deve explicar como rodar, configurar e atualizar o projeto.
+- `docs/tarefas.md` deve guardar pendências e decisões.
+- O sistema precisa ser compreensível para outro coordenador continuar usando.
 
-### 7. Deploy antes de features avançadas
-Hospedar o sistema cedo — mesmo que simples — antes de implementar features complexas.
-Feedback real de uso vale mais que funcionalidades não testadas.
+## Ordem recomendada de melhorias
 
-### 8. Definir relatórios antes de implementar
-Mapear quais relatórios o sistema precisa entregar antes de começar o desenvolvimento.
-Cada relatório tem um destinatário e um objetivo claro — isso define quais dados precisam estar no banco.
+1. Autenticação e proteção das rotas.
+2. Configurações editáveis de semestre, horas, coordenação e textos.
+3. Mais repositories para reduzir SQL espalhado.
+4. Melhor responsividade das telas com tabelas grandes.
+5. Envio automático de certificados por email.
+6. PostgreSQL em produção.
 
----
+## Decisões que funcionaram bem
 
-## O que funcionou bem
+- Usar Flask, porque deixou o sistema simples de desenvolver.
+- Criar testes com pytest.
+- Separar rotas por domínio com Blueprints.
+- Criar services para relatórios, certificados, temas, reuniões e match.
+- Gerar relatórios e certificados a partir dos dados reais do banco.
+- Usar ZIP de PDFs para reduzir trabalho manual no fechamento do semestre.
 
-- Pytest desde o início — os 18 testes salvaram várias vezes
-- Separar modelos (models.py) das rotas (app.py) desde o começo
-- Dark mode implementado cedo — difícil de adicionar depois
-- Seed de exemplo público — qualquer pessoa consegue rodar o projeto
-- CLAUDE.md e tarefas.md — economizam muito token nas sessões longas
-- config_semestre.json — configurações do semestre num lugar só
-- app.css com design system completo — consistência visual garantida
+## Atenção para o próximo semestre
 
----
-
-## Stack recomendada para próximos projetos
-
-**Backend:** Python + Flask (simples) ou FastAPI (mais moderno)
-**Banco:** SQLite para projetos locais, PostgreSQL para deploy
-**Frontend:** Design system próprio com CSS variables + Inter + JetBrains Mono
-**Testes:** pytest desde o primeiro dia
-**IA:** Claude Code com CLAUDE.md configurado antes de começar
-
----
-
-## Relatórios do sistema
-
-### Padrão visual dos relatórios
-Os relatórios PDF devem seguir a mesma identidade visual do sistema:
-- Cores de status: verde #10b981 (apto), âmbar #f59e0b (alerta), laranja #f97316 (inapto), vermelho #dc2626 (inapto grave)
-- Tipografia: Inter para títulos e corpo, JetBrains Mono para matrículas e números
-- Logo do sistema no cabeçalho: padrinho-track-lockup.svg
-- Paleta de fundo: branco #ffffff com bordas #e6e7ee
-- Badges de status com tint colorido — mesmo padrão do sistema web
-- Rodapé: "Gerado automaticamente pelo Padrinho Track · PUC Minas · Eng. de Software"
-
-### Relatório 1 — Aptidão ACG
-Destinatário: secretaria / coordenação do curso
-Objetivo: liberar horas ACG para os padrinhos aprovados
-
-Conteúdo:
-- Cabeçalho: programa, semestre, professor coordenador, data de geração
-- Resumo: total inscritos, total aptos, total inaptos
-- Tabela de aptos: nome completo, matrícula, turno, presenças/total reuniões
-- Rodapé com campo para assinatura do coordenador
-
-### Relatório 2 — Resumo do semestre
-Destinatário: arquivo interno / coordenação
-Objetivo: documentar o que foi realizado no semestre
-
-Conteúdo:
-- Resumo geral: total padrinhos, total calouros, total reuniões realizadas
-- Cronograma de temas: título, data, responsáveis, situação de entrega
-- Resultado geral: aptos X / inaptos Y / inaptos graves Z
-- Gráfico de presença por reunião
-
-### Relatório 3 — Inaptos graves
-Destinatário: professor coordenador
-Objetivo: comunicar formalmente os casos que precisam de ação
-
-Conteúdo:
-- Cabeçalho formal com programa e semestre
-- Tabela: nome completo, matrícula, email, motivo, data da advertência grave
-- Total de casos
-- Campo para assinatura do coordenador
+- Exigir email válido dos padrinhos no formulário inicial.
+- Coletar turno, bolsa, trabalho e dados úteis já no Forms.
+- Definir desde o começo quais relatórios serão entregues.
+- Padronizar os nomes de arquivos gerados.
+- Registrar reuniões e temas durante o semestre, não só no fechamento.
