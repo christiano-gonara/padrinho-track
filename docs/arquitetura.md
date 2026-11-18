@@ -1,199 +1,45 @@
 # Arquitetura do Sistema — Padrinho Track
 
-Documento descritivo da arquitetura, fluxo de processos e modelagem de dados do **Padrinho Track**.
+Resumo de como o projeto está dividido entre interface (`web/`), servidor (`backend/`) e publicação estática no GitHub Pages.
 
 ---
 
-## 1. Visão Geral
-
-O **Padrinho Track** adota uma arquitetura modular em camadas sobre **Python 3 / Flask**, separando estritamente a interface web, as rotas de transporte (Blueprints), a lógica de domínio do programa de apadrinhamento (Services) e a persistência de dados (Repositories).
+## 1. Visão geral em camadas
 
 ```mermaid
 graph TD
-    subgraph Cliente["Navegador / Cliente"]
-        UI["Templates Jinja2 + CSS Puro (RemixIcon / Google Fonts)"]
-        Landing["Landing Page (Pública / GitHub Pages)"]
-    end
-
-    subgraph Web["Camada Web & Transporte (Flask)"]
-        App["app.py (App Factory & Middlewares)"]
-        BPs["routes/ (Blueprints Modulares: dashboard, padrinhos, reunioes, etc.)"]
-    end
-
-    subgraph Dominio["Camada de Negócio (Services)"]
-        StatusSvc["status_service.py (Cálculo de Status ACG)"]
-        MatchSvc["match_service.py / match_algorithm.py (Algoritmo de Compatibilidade)"]
-        RelatorioSvc["relatorio_service.py (Resumos e Balanço)"]
-        CertSvc["certificado_service.py (Certificados e ZIP)"]
-        OutrosSvc["presenca_service, tema_service, padrinho_service, reuniao_service"]
-    end
-
-    subgraph Persistencia["Camada de Dados (Repositories)"]
-        Repos["repositories/ (padrinho_repo, reuniao_repo, presenca_repo, advertencia_repo...)"]
-        DB["database.py & database_schema.py"]
-    end
-
-    subgraph Armazenamento["Storage & Integrações"]
-        SQLite["SQLite Local (instance/mentoria.db)"]
-        Postgres["PostgreSQL Remoto (DATABASE_URL)"]
-        GoogleSheets["Google Sheets / Forms (CSV/API)"]
-    end
-
-    UI --> App
-    Landing --> App
-    App --> BPs
-    BPs --> Dominio
-    Dominio --> Persistencia
-    Persistencia --> DB
-    DB --> SQLite
-    DB --> Postgres
-    Dominio --> GoogleSheets
+    UI["Frontend React + TypeScript (web/src/)"] --> API["API REST JSON (/api/*)"]
+    Print["Templates A4 / PDF (web/templates/)"] --> Routes["Rotas Flask (backend/routes/)"]
+    API --> Services["Regras de negócio (backend/services/)"]
+    Routes --> Services
+    Services --> Repos["Consultas SQL (backend/repositories/)"]
+    Repos --> DB["SQLite (local) / PostgreSQL (produção)"]
+    Services --> Sheets["Google Sheets / CSV (backend/integrations/)"]
 ```
 
 ---
 
-## 2. Ciclo de Vida Semestral (Fluxo do Programa)
+## 2. Onde fica cada parte
 
-O ciclo de vida da mentoria é automatizado de ponta a ponta:
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Coord as Coordenação
-    participant Sis as Padrinho Track
-    participant Match as Algoritmo de Match
-    participant Regras as Engine de Regras (ACG)
-    actor Padrinho as Padrinho / Calouro
-
-    Coord->>Sis: 1. Configura semestre e importa inscrições (Google Sheets/Manual)
-    Sis->>Match: 2. Executa cruzamento por turno e perfil
-    Match-->>Sis: Matrizes de afinidade e distribuição de calouros
-    Coord->>Sis: 3. Valida e exporta lista de contatos
-    loop Reuniões e Temas ao longo do Semestre
-        Padrinho-->>Coord: Participação e entregas
-        Coord->>Sis: Lança presenças da reunião ou entrega de tema
-        Sis->>Regras: Processa faltas não justificadas e atrasos
-        Regras-->>Sis: Emite advertências amarelas ou vermelhas automaticamente
-    end
-    Coord->>Sis: 4. Solicita fechamento do semestre
-    Sis->>Regras: Calcula aptidão final ao certificado
-    Regras-->>Coord: Relatório de Aptidão ACG + Resumo Executivo
-    Coord->>Sis: 5. Emite certificados individuais e baixa pacote ZIP
-```
-
----
-
-## 3. Modelo de Entidades e Relacionamentos (ERD)
-
-A base de dados suporta tanto **SQLite** (ambiente de desenvolvimento) quanto **PostgreSQL** (produção via `DATABASE_URL`).
-
-```mermaid
-erDiagram
-    PADRINHOS ||--o{ MATCHES : "recebe"
-    CALOUROS ||--o{ MATCHES : "atribuido a"
-    PADRINHOS ||--o{ PRESENCAS : "registra"
-    REUNIOES ||--o{ PRESENCAS : "contem"
-    PADRINHOS ||--o{ TEMA_PADRINHOS : "responde por"
-    TEMAS ||--o{ TEMA_PADRINHOS : "distribuido para"
-    PADRINHOS ||--o{ ADVERTENCIAS : "acumula"
-    CONFIG_SEMESTRE ||--o{ LOGS : "audita"
-
-    PADRINHOS {
-        int id PK
-        string nome
-        string matricula
-        string email
-        string telefone
-        string turno
-        boolean ativo
-        datetime criado_em
-    }
-
-    CALOUROS {
-        int id PK
-        string nome
-        string telefone
-        string turno
-        string genero
-        int primeiro_periodo
-    }
-
-    MATCHES {
-        int id PK
-        int padrinho_id FK
-        int calouro_id FK
-        datetime data_match
-    }
-
-    REUNIOES {
-        int id PK
-        date data
-        string tema
-        string descricao
-    }
-
-    PRESENCAS {
-        int id PK
-        int reuniao_id FK
-        int padrinho_id FK
-        int presente
-        int justificada
-        string motivo_justificativa
-    }
-
-    TEMAS {
-        int id PK
-        string titulo
-        date data_aviso
-        date data_limite
-        string situacao
-        date data_entrega
-    }
-
-    ADVERTENCIAS {
-        int id PK
-        int padrinho_id FK
-        string tipo
-        string origem
-        string motivo
-        date data
-    }
-
-    LOGS {
-        int id PK
-        string acao
-        string detalhe
-        datetime data_hora
-    }
-```
-
----
-
-## 4. Estrutura de Diretórios e Responsabilidades
-
-| Diretório / Arquivo | Responsabilidade |
+| Pasta / Arquivo | O que faz |
 |---|---|
-| `app.py` | Ponto de entrada leve para servidor WSGI/Gunicorn (`gunicorn app:app`) |
-| `backend/app.py` | Fábrica de aplicação Flask, registro de Blueprints, filtros Jinja2 e controle de sessão |
-| `backend/database.py` | Camada de conexão compatível com SQLite e PostgreSQL (com pools de conexão seguros) |
-| `backend/database_schema.py` | Definição de tabelas, índices e rotinas de migração de schema |
-| `backend/routes/` | Controladores HTTP desacoplados por módulo (dashboard, padrinhos, reunioes, match, etc.) |
-| `backend/services/` | Regras de negócio puras (cálculo de status ACG, algoritmo de match, geração de PDF) |
-| `backend/repositories/` | Consultas SQL isoladas por entidade, prevenindo SQL Injection e abstraindo queries |
-| `backend/integrations/` | Importadores e sincronizadores de Google Sheets e formulários externos |
-| `web/src/` | Aplicação **React + TypeScript + Vite** (HTML/TSX separado do CSS, tema claro e cenários de uso) |
-| `web/templates/` | Templates Jinja divididos em `pages/` (telas e documentos A4/PDF) e `components/` |
-| `web/static/` | Folhas de estilo (`css/`), identidade visual (`brand/`) e imagens (`images/`) |
-| `scripts/` | Script estático do GitHub Pages (`build_site.py`), seeds de exemplo e utilitários |
-| `tests/` | Suíte de testes concisa cobrindo regras de negócio, algoritmo de match e segurança de rotas |
+| `app.py` | Ponto de entrada leve para iniciar o servidor (`gunicorn app:app`) |
+| `backend/app.py` | Configura o Flask, registra as rotas e protege o acesso com login |
+| `backend/routes/api.py` | Endpoints REST em JSON consumidos pelo frontend React + TypeScript |
+| `backend/services/` | Regras de ACG, algoritmo de match, resumo do semestre e geração de PDFs/ZIP |
+| `backend/repositories/` | Consultas SQL separadas por entidade (compatível com SQLite e PostgreSQL) |
+| `backend/integrations/` | Leitura e sincronização de planilhas do Google Forms/Sheets e CSV |
+| `web/src/` | Interface em React + TypeScript + Vite, com CSS separado e cenários de uso |
+| `web/templates/` | Templates HTML A4 usados para imprimir relatórios e gerar certificados em PDF |
+| `scripts/build_site.py` | Junta o build React com os exemplos A4 em `docs/site/` para o GitHub Pages |
+| `tests/` | Testes automatizados com `pytest` para regras de ACG, match, rotas e API |
 
 ---
 
-## 5. Publicação Estática no GitHub Pages
+## 3. Como funciona o GitHub Pages
 
-Embora a aplicação de gestão seja dinâmica (Flask + banco de dados), a **Landing Page** de apresentação do programa de mentoria é construída automaticamente para o GitHub Pages através do script `scripts/build_site.py` e da action `.github/workflows/pages.yml`:
+O GitHub Pages hospeda arquivos estáticos, então `scripts/build_site.py`:
 
-- Gera `docs/site/index.html` renderizando `web/templates/pages/landing.html` com caminhos estáticos em tema claro.
-- Gera exemplos navegáveis em `docs/site/exemplos/` (`relatorio-aptidao.html`, `resumo-semestre.html` e `certificado.html`).
-- Copia os assets de `web/static/` (marcas, imagens, estilos).
-- Publica no endereço: **`https://christiano-gonara.github.io/padrinho-track/`**.
+1. Copia o build de `web/dist/` (React + TypeScript em tema claro, com os 3 cenários de uso clicáveis).
+2. Renderiza exemplos reais em A4 (`relatorio-aptidao.html`, `resumo-semestre.html` e `certificado.html`) dentro de `docs/site/exemplos/`.
+3. Publica automaticamente a cada push na branch `main` via `.github/workflows/pages.yml`.

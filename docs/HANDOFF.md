@@ -1,133 +1,91 @@
-# Guia de Handoff — Padrinho Track
+# Guia de Transição — Padrinho Track
 
-Guia para o próximo coordenador configurar o sistema para um novo semestre.
-
----
-
-## Pré-requisitos
-
-- Python 3.11+ instalado
-- Acesso ao repositório GitHub
-- Conta Google com acesso ao Google Cloud Console
-- Banco de dados do semestre anterior (`instance/mentoria.db`) fornecido pelo coordenador anterior
+Passo a passo simples para o próximo coordenador preparar o sistema para um novo semestre.
 
 ---
 
-## Passo 1 — Clonar o repositório
+## O que você precisa antes de começar
+
+- Python 3.11+ e Node.js 20+ instalados
+- Acesso ao repositório no GitHub
+- Acesso à conta Google Cloud do projeto (para ler as planilhas do Forms)
+- Arquivo de backup do semestre anterior (`instance/mentoria.db`), se quiser manter o histórico
+
+---
+
+## 1. Baixar o projeto e instalar dependências
 
 ```bash
 git clone https://github.com/christiano-gonara/padrinho-track.git
 cd padrinho-track
+
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
+
+npm install --prefix web
 ```
 
 ---
 
-## Passo 2 — Configurar credenciais Google Cloud
+## 2. Configurar as credenciais do Google Sheets
 
-O sistema usa uma **service account** para leitura de planilhas (presenças, inscrições, importação de padrinhos e calouros).
+1. Acesse o [Google Cloud Console](https://console.cloud.google.com/) e selecione o projeto `padrinho-track`.
+2. Em **IAM & Admin → Service Accounts**, abra `padrinho-track@padrinho-track.iam.gserviceaccount.com`.
+3. Crie e baixe uma chave JSON e salve na raiz do projeto como `credentials.json` (esse arquivo é ignorado pelo Git).
+4. Compartilhe as planilhas vinculadas aos formulários do novo semestre com esse mesmo e-mail (papel **Editor**).
 
-1. Acesse o [Google Cloud Console](https://console.cloud.google.com/)
-2. Selecione o projeto `padrinho-track` (ou crie um novo)
-3. Em **IAM & Admin → Service Accounts**, localize `padrinho-track@padrinho-track.iam.gserviceaccount.com`
-4. Clique em **Manage Keys → Add Key → Create new key → JSON**
-5. Salve o arquivo baixado como `credentials.json` na raiz do projeto
-
-> O `credentials.json` **nunca deve ser commitado** — já está no `.gitignore`.
+> Dica: garanta no Google Forms que o campo de **e-mail institucional** dos padrinhos seja obrigatório, pois ele vai direto para o relatório de ACG.
 
 ---
 
-## Passo 3 — Preencher `config_handoff.json`
+## 3. Preencher links das planilhas (`config_handoff.json`)
 
-Na raiz do projeto existe o arquivo `config_handoff.json`. Preencha com os links das planilhas do novo semestre:
+Na raiz do projeto, crie ou preencha `config_handoff.json` (também ignorado pelo Git):
 
 ```json
 {
   "semestre": "2026/2",
   "google": {
-    "planilha_presencas_url":  "URL da planilha vinculada ao Forms de presença",
-    "planilha_inscricoes_url": "URL da planilha vinculada ao Forms de inscrição em temas",
-    "forms_padrinhos_url":     "URL da planilha vinculada ao Forms de cadastro de padrinhos",
-    "forms_calouros_url":      "URL da planilha vinculada ao Forms de cadastro de calouros"
+    "planilha_presencas_url": "URL da planilha de presença",
+    "planilha_inscricoes_url": "URL da planilha de inscrição em temas",
+    "forms_padrinhos_url": "URL da planilha de cadastro de padrinhos",
+    "forms_calouros_url": "URL da planilha de cadastro de calouros"
   }
 }
 ```
 
-**Cada planilha precisa ser compartilhada com a service account:**
-`padrinho-track@padrinho-track.iam.gserviceaccount.com` (papel: Editor)
-
-> O `config_handoff.json` **nunca deve ser commitado** — já está no `.gitignore`.
-
----
-
-## Passo 4 — Rodar o script de configuração
+Depois rode:
 
 ```bash
 python scripts/setup_handoff.py
 ```
 
-Saída esperada:
-```
-[OK] Sistema configurado para o novo semestre.
-```
-
-Isso grava os links das planilhas no banco de dados local (`instance/mentoria.db`).
-
 ---
 
-## Passo 5 — Restaurar o banco do semestre anterior (opcional)
+## 4. Restaurar ou iniciar o banco de dados
 
-Se o coordenador anterior forneceu um backup do banco:
-
-1. Copie o arquivo `mentoria.db` recebido para `instance/mentoria.db`
-2. O banco já contém padrinhos, advertências e histórico do semestre anterior
-3. Use a página **Início do Semestre** para importar os novos padrinhos e calouros
-
-Se estiver começando do zero (banco novo):
+- **Com backup do semestre anterior**: copie o arquivo recebido para `instance/mentoria.db`.
+- **Começando do zero**:
 
 ```bash
-python -c "from database import init_db; init_db()"
+python -c "from backend.database import init_db; init_db()"
 ```
 
 ---
 
-## Passo 6 — Configurar o semestre
+## 5. Configurar senha de acesso (`.env`)
 
-Na interface web, acesse **Configurações** e atualize:
-
-- Nome do semestre (ex: `2026/2`)
-- Professor coordenador
-- Datas de início e fim
-- Coordenadores da monitoria
-
----
-
-## Passo 7 — Variáveis de ambiente
-
-Crie um arquivo `.env` na raiz:
-
-```
+```env
 APP_USERNAME=admin
 APP_PASSWORD=senha_escolhida
 SECRET_KEY=chave_aleatoria_longa
 ```
 
----
-
-## Exportar backup do banco
-
-A qualquer momento, acesse **Configurações → Exportar backup do banco** para baixar o `mentoria.db` atual. Faça isso antes de encerrar o semestre e envie ao próximo coordenador.
+Ao entrar na interface web, abra **Configurações** para atualizar o nome do semestre (`2026/2`), professor coordenador, datas e equipe de monitoria.
 
 ---
 
-## Estrutura de arquivos sensíveis (nunca commitar)
+## Exportar backup ao fim do semestre
 
-| Arquivo | Conteúdo |
-|---|---|
-| `credentials.json` | Service account Google Cloud |
-| `client_secrets.json` | OAuth2 Google Cloud |
-| `config_semestre.json` | Configurações do semestre atual |
-| `config_handoff.json` | Links e chaves do próximo semestre |
-| `.env` | Usuário, senha e chave secreta |
-| `instance/mentoria.db` | Banco de dados |
-RRR
+Antes de passar a coordenação adiante, acesse **Configurações → Exportar backup (.db)** para baixar o `mentoria.db` atualizado.

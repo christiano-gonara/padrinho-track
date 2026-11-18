@@ -4,15 +4,17 @@ import {
   ArrowRight,
   Award,
   BarChart3,
+  BookOpen,
+  CheckCircle2,
   ExternalLink,
   FileCheck2,
   Github,
-  Layers,
+  GraduationCap,
   LogIn,
   Play,
+  Users,
 } from "lucide-react";
 import { SemesterFlowDiagram } from "../components/charts/SemesterFlowDiagram";
-import { StatusBarChart } from "../components/charts/StatusBarChart";
 import { ToneBadge } from "../components/ui/StatusBadge";
 import { useApp } from "../context/AppContext";
 import { getScenarioList } from "../data/scenarios";
@@ -34,129 +36,172 @@ export function LandingPage() {
     navigate(rota);
   }
 
-  const counts = {
-    aptos: scenario.padrinhos.filter((p) => p.status === "apto").length,
-    alertas: scenario.padrinhos.filter((p) => p.status === "alerta").length,
-    reprovados: scenario.padrinhos.filter((p) => p.status === "inapto_amarelo").length,
-    reportados: scenario.padrinhos.filter((p) => p.status === "inapto_vermelho").length,
-  };
-
   const docLinks = {
     certificado: `${base}exemplos/certificado.html`,
     aptidao: `${base}exemplos/relatorio-aptidao.html`,
     resumo: `${base}exemplos/resumo-semestre.html`,
   };
 
+  const counts = {
+    aptos: scenario.padrinhos.filter((p) => p.status === "apto").length,
+    alertas: scenario.padrinhos.filter((p) => p.status === "alerta").length,
+  };
+
   return (
     <div className="lp-wrap">
-      {/* Barra superior informativa */}
+      {/* Barra rápida para exemplos e repositório */}
       <div className="lp-notice">
         <div className="lp-notice-inner">
-          <span className="lp-notice-badge">
-            <Layers size={12} /> Demo interativa + Exemplos reais
-          </span>
           <span>
-            Explore todas as telas em React + TypeScript com cenários prontos ou abra os relatórios e certificados em A4.
+            Quer ir direto aos documentos de fim de semestre? Abra os modelos reais abaixo:
           </span>
           <div className="lp-notice-links">
             <a href={docLinks.aptidao} target="_blank" rel="noopener noreferrer">
-              Relatório ACG <ExternalLink size={12} />
+              Relatório ACG <ExternalLink size={13} />
             </a>
             <a href={docLinks.certificado} target="_blank" rel="noopener noreferrer">
-              Certificado <ExternalLink size={12} />
+              Certificado A4 <ExternalLink size={13} />
             </a>
             <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
-              GitHub <Github size={12} />
+              GitHub <Github size={13} />
             </a>
           </div>
         </div>
       </div>
 
-      {/* Header */}
-      <header className="lp-header">
-        <div className="lp-header-inner">
+      {/* Navbar flutuante em pílula */}
+      <div className="lp-header-slot">
+        <header className="lp-header-pill">
           <a href="#topo">
             <img className="lp-logo" src={`${base}brand/padrinho-track-lockup.svg`} alt="Padrinho Track" />
           </a>
           <nav className="lp-nav" aria-label="Navegação da apresentação">
-            <a href="#cenarios">Cenários de uso</a>
-            <a href="#fluxo">Fluxo &amp; Regras</a>
-            <a href="#documentos">Relatórios &amp; Certificados</a>
+            <a href="#cenarios">Cenários</a>
+            <a href="#como-funciona">Como funciona</a>
+            <a href="#documentos">Relatórios</a>
           </nav>
           <div style={{ display: "flex", gap: 8 }}>
-            <button type="button" className="pt-btn pt-btn-soft pt-btn-sm" onClick={() => navigate("/dashboard")}>
-              <Play size={13} /> Abrir painel
+            <button
+              type="button"
+              className="pt-btn pt-btn-ghost pt-btn-sm lp-pill-btn"
+              onClick={() => navigate("/login")}
+            >
+              <LogIn size={14} /> Entrar
             </button>
-            <button type="button" className="pt-btn pt-btn-primary pt-btn-sm" onClick={() => navigate("/login")}>
-              <LogIn size={13} /> Entrar
+            <button
+              type="button"
+              className="pt-btn pt-btn-primary pt-btn-sm lp-pill-btn"
+              onClick={() => abrirCenario("fechamento", "/dashboard")}
+            >
+              Abrir painel
             </button>
           </div>
-        </div>
-      </header>
+        </header>
+      </div>
 
       <main id="topo">
-        {/* Hero */}
+        {/* Hero editorial com letras grandes e composição visual */}
         <section className="lp-hero-band">
           <div className="lp-hero">
             <div>
               <p className="lp-eyebrow">
-                <span className="lp-dot" /> Engenharia de Software · PUC Minas
+                <span className="lp-eyebrow-icons">
+                  <GraduationCap size={15} />
+                  <Users size={15} />
+                  <Award size={15} />
+                </span>
+                Para coordenação e padrinhos · PUC Minas
               </p>
+
               <h1>
-                Apadrinhamento de calouros, <span className="lp-highlight">do match ao certificado</span>.
+                Apadrinhamento de calouros,{" "}
+                <span className="lp-highlight">sem planilha solta.</span>
               </h1>
+
               <p className="lp-lede">
-                Centralize padrinhos, calouros, reuniões, presenças, entregas de temas, advertências e a emissão de
-                relatórios de ACG e certificados em PDF — em tema claro, com gráficos de barras e cenários de uso prontos para testar.
+                Você importa os inscritos, junta cada calouro com um padrinho do mesmo turno e acompanha reuniões, temas e certificados num lugar só.
               </p>
+
               <div className="lp-hero-actions">
                 <button
                   type="button"
-                  className="pt-btn pt-btn-primary pt-btn-lg"
+                  className="pt-btn pt-btn-primary lp-btn-hero"
                   onClick={() => abrirCenario("fechamento", "/dashboard")}
                 >
-                  Explorar telas com dados <ArrowRight size={16} />
+                  Testar telas com dados <ArrowRight size={17} />
                 </button>
-                <a className="pt-btn pt-btn-ghost pt-btn-lg" href="#documentos">
-                  Ver relatórios e certificados
+                <a className="pt-btn pt-btn-ghost lp-btn-hero" href="#documentos">
+                  Ver relatório e certificado
                 </a>
               </div>
+
+              <p className="lp-hero-note">
+                Sem precisar instalar nada: clique acima e navegue pelos cenários reais do semestre.
+              </p>
             </div>
 
-            {/* Card resumo no Hero com gráfico em barras (sem pizza/rosca) */}
-            <div className="lp-mockup">
-              <div className="lp-mockup-bar">
-                <span className="lp-mockup-dots">
-                  <i />
-                  <i />
-                  <i />
-                </span>
-                <span className="pt-mono" style={{ fontSize: 11.5, color: "var(--pt-muted)" }}>
-                  {scenario.titulo}
-                </span>
-                <ToneBadge tone="brand">{scenario.config.semestre}</ToneBadge>
-              </div>
-              <div className="lp-mockup-body">
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <strong style={{ fontSize: 14, color: "var(--pt-ink)" }}>Distribuição ACG (barras)</strong>
-                  <span className="pt-muted" style={{ fontSize: 12 }}>
-                    {scenario.padrinhos.length} padrinhos
-                  </span>
+            {/* Composição visual clara (cartão de acompanhamento + selo flutuante) */}
+            <div className="lp-visual-stage">
+              <div className="lp-visual-blob" />
+              <div className="lp-visual-card">
+                <div className="lp-visual-card-top">
+                  <div>
+                    <span className="lp-visual-kicker">Acompanhamento do semestre</span>
+                    <h2 className="lp-visual-name">Alice Mendonça · Manhã</h2>
+                  </div>
+                  <ToneBadge tone="green">Apto ACG</ToneBadge>
                 </div>
-                <StatusBarChart counts={counts} />
+
+                <div className="lp-visual-steps">
+                  <div className="lp-visual-step is-done">
+                    <span className="lp-visual-num">1</span>
+                    <div className="lp-visual-step-text">
+                      <strong>Match feito por afinidade</strong>
+                      <span>2 calouros do turno da manhã vinculados</span>
+                    </div>
+                  </div>
+                  <div className="lp-visual-step is-done">
+                    <span className="lp-visual-num">2</span>
+                    <div className="lp-visual-step-text">
+                      <strong>Reuniões e temas em dia</strong>
+                      <span>3/3 presenças e material entregue no prazo</span>
+                    </div>
+                  </div>
+                  <div className="lp-visual-step">
+                    <span className="lp-visual-num" style={{ background: "var(--pt-green)" }}>
+                      <CheckCircle2 size={15} />
+                    </span>
+                    <div className="lp-visual-step-text">
+                      <strong>Certificado pronto para baixar</strong>
+                      <span>04 horas de ACG emitidas em PDF</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="lp-floating-cert">
+                <Award size={17} color="#93c5fd" />
+                <span>Certificado A4 + Relatório ACG prontos</span>
               </div>
             </div>
           </div>
+
+          {/* Frase-resumo grande */}
+          <div className="lp-quote-band">
+            <p className="lp-quote-text">
+              “Um semestre inteiro vira <strong>um painel só</strong>: a coordenação acompanha as faltas, aplica as regras automaticamente e entrega os <strong>certificados no fim do prazo</strong>.”
+            </p>
+          </div>
         </section>
 
-        {/* Cenários de Uso clicáveis */}
+        {/* Cenários de uso prontos */}
         <section id="cenarios" className="lp-section">
           <div className="lp-container">
             <header className="lp-section-head">
-              <p className="lp-eyebrow">Cenários de Uso</p>
-              <h2>Teste as telas sem aparecer tudo vazio.</h2>
+              <span className="lp-section-kicker">Teste sem tela vazia</span>
+              <h2>Escolha um momento do semestre para ver como funciona.</h2>
               <p>
-                Escolha um momento real do semestre para carregar dados completos de demonstração no painel React + TypeScript.
+                Cada botão abre o sistema já preenchido com dados de exemplo, para você explorar tudo na prática.
               </p>
             </header>
 
@@ -165,35 +210,31 @@ export function LandingPage() {
                 <article key={sc.id} className="lp-scenario-card">
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
                     <ToneBadge tone="brand">{sc.badge}</ToneBadge>
-                    <span className="pt-mono pt-muted" style={{ fontSize: 11.5 }}>
+                    <span className="pt-mono pt-muted" style={{ fontSize: 12 }}>
                       {sc.padrinhos.length} padrinhos
                     </span>
                   </div>
                   <h3>{sc.titulo}</h3>
                   <p>{sc.resumo}</p>
-                  <div className="lp-scenario-metrics">
-                    <span>{sc.matches.length} grupos match</span>
-                    <span>·</span>
-                    <span>{sc.reunioes.length} reuniões</span>
-                    <span>·</span>
-                    <span>{sc.temas.length} temas</span>
-                  </div>
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", paddingTop: 6 }}>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", paddingTop: 4 }}>
                     <button
                       type="button"
-                      className="pt-btn pt-btn-primary pt-btn-sm"
+                      className="pt-btn pt-btn-primary lp-pill-btn"
                       onClick={() => abrirCenario(sc.id, "/dashboard")}
                     >
-                      <Play size={13} /> Ver cenário no painel
+                      <Play size={14} /> Abrir este cenário
                     </button>
                     <button
                       type="button"
-                      className="pt-btn pt-btn-ghost pt-btn-sm"
+                      className="pt-btn pt-btn-ghost lp-pill-btn"
                       onClick={() =>
-                        abrirCenario(sc.id, sc.id === "inicio" ? "/match" : sc.id === "fechamento" ? "/relatorio" : "/reunioes")
+                        abrirCenario(
+                          sc.id,
+                          sc.id === "inicio" ? "/match" : sc.id === "fechamento" ? "/relatorio" : "/reunioes"
+                        )
                       }
                     >
-                      Tela principal
+                      Ir direto
                     </button>
                   </div>
                 </article>
@@ -202,13 +243,13 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* Diagrama de Fluxo */}
-        <section id="fluxo" className="lp-section lp-section-white">
+        {/* Como o semestre funciona + Regras simples */}
+        <section id="como-funciona" className="lp-section lp-section-white">
           <div className="lp-container">
             <header className="lp-section-head">
-              <p className="lp-eyebrow">Diagrama do Ciclo Semestral</p>
-              <h2>Quatro etapas conectadas às regras de ACG.</h2>
-              <p>Clique em qualquer etapa do diagrama para abrir diretamente a tela correspondente no cenário atual.</p>
+              <span className="lp-section-kicker">Do início ao fim</span>
+              <h2>Quatro passos simples que o sistema acompanha com você.</h2>
+              <p>Clique em qualquer etapa abaixo para abrir a tela dela no painel.</p>
             </header>
 
             <SemesterFlowDiagram
@@ -218,17 +259,34 @@ export function LandingPage() {
               temasCount={scenario.temas.length}
               aptosCount={counts.aptos + counts.alertas}
             />
+
+            <div className="lp-rules-grid">
+              <div className="lp-rule-item">
+                <CheckCircle2 size={20} color="var(--pt-green)" style={{ flexShrink: 0, marginTop: 2 }} />
+                <div>
+                  <strong>Quem participa recebe ACG sem erro</strong>
+                  <p>Faltas justificadas não prejudicam o padrinho e a presença fica registrada reunião por reunião.</p>
+                </div>
+              </div>
+              <div className="lp-rule-item">
+                <BookOpen size={20} color="var(--pt-brand)" style={{ flexShrink: 0, marginTop: 2 }} />
+                <div>
+                  <strong>Falta ou atraso avisa antes de reprovar</strong>
+                  <p>Quando alguém chega perto do limite, o sistema marca em alerta para a coordenação agir cedo.</p>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* Relatórios & Certificados */}
+        {/* Relatórios e Certificados reais */}
         <section id="documentos" className="lp-section">
           <div className="lp-container">
             <header className="lp-section-head">
-              <p className="lp-eyebrow">Relatórios e Certificados no GitHub Pages</p>
-              <h2>Documentos reais prontos para impressão e PDF.</h2>
+              <span className="lp-section-kicker">Prontos para imprimir ou salvar em PDF</span>
+              <h2>Veja como saem o relatório final e o certificado.</h2>
               <p>
-                Visualize as prévias abaixo ou abra os documentos completos gerados a partir dos templates oficiais do sistema.
+                No fim do semestre, você gera a lista oficial de ACG, o resumo executivo e baixa todos os certificados de uma vez.
               </p>
             </header>
 
@@ -262,9 +320,9 @@ export function LandingPage() {
                   href={docLinks[docTab]}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="pt-btn pt-btn-primary pt-btn-sm"
+                  className="pt-btn pt-btn-primary lp-pill-btn"
                 >
-                  Abrir documento completo <ExternalLink size={13} />
+                  Abrir em tela cheia <ExternalLink size={14} />
                 </a>
               </div>
 
@@ -275,7 +333,7 @@ export function LandingPage() {
                     <div className="lp-cert-band bottom" />
                     <div
                       style={{
-                        fontSize: 11,
+                        fontSize: 11.5,
                         fontWeight: 800,
                         letterSpacing: "0.24em",
                         textTransform: "uppercase",
@@ -284,18 +342,19 @@ export function LandingPage() {
                     >
                       Certificado de Participação
                     </div>
-                    <p style={{ margin: "6px 0 0", fontSize: 12.5, color: "var(--pt-muted)" }}>
+                    <p style={{ margin: "6px 0 0", fontSize: 13.5, color: "var(--pt-muted)" }}>
                       Este certificado é concedido a
                     </p>
-                    <div style={{ marginTop: 10, fontFamily: "Georgia, serif", fontSize: 34, fontWeight: 600 }}>
+                    <div style={{ marginTop: 10, fontFamily: "Georgia, serif", fontSize: 36, fontWeight: 600 }}>
                       Alice Mendonça
                     </div>
                     <div style={{ margin: "12px 0 16px" }}>
                       <ToneBadge tone="brand">Madrinha · 04 horas ACG</ToneBadge>
                     </div>
-                    <p style={{ maxWidth: 600, margin: "0 auto", fontSize: 13.5, color: "var(--pt-text)", lineHeight: 1.7 }}>
-                      em reconhecimento à sua valiosa participação no <strong>Projeto de Apadrinhamento de Calouros</strong>{" "}
-                      ({scenario.config.semestre}), Departamento de Engenharia de Software da <strong>PUC Minas</strong>.
+                    <p style={{ maxWidth: 620, margin: "0 auto", fontSize: 14.5, color: "var(--pt-text)", lineHeight: 1.7 }}>
+                      em reconhecimento à sua participação como <strong>Madrinha</strong> no{" "}
+                      <strong>Projeto de Apadrinhamento de Calouros</strong> ({scenario.config.semestre}), Departamento de
+                      Engenharia de Software da <strong>PUC Minas</strong>.
                     </p>
                   </div>
                 )}
@@ -304,7 +363,7 @@ export function LandingPage() {
                   <div className="pt-card pt-card-flat" style={{ maxWidth: 840, margin: "0 auto" }}>
                     <div className="pt-card-header" style={{ background: "var(--pt-brand-gradient)", color: "#fff" }}>
                       <strong>Aptidão ACG — {scenario.config.semestre}</strong>
-                      <span className="pt-mono" style={{ fontSize: 11.5 }}>RELATÓRIO-001</span>
+                      <span className="pt-mono" style={{ fontSize: 12 }}>RELATÓRIO-001</span>
                     </div>
                     <div className="pt-table-wrap">
                       <table className="pt-table pt-table-compact">
@@ -345,7 +404,7 @@ export function LandingPage() {
                   <div className="pt-card pt-card-flat" style={{ maxWidth: 840, margin: "0 auto" }}>
                     <div className="pt-card-header" style={{ background: "var(--pt-brand-gradient)", color: "#fff" }}>
                       <strong>Resumo do Semestre — {scenario.config.semestre}</strong>
-                      <span className="pt-mono" style={{ fontSize: 11.5 }}>3 PÁGINAS A4</span>
+                      <span className="pt-mono" style={{ fontSize: 12 }}>3 PÁGINAS A4</span>
                     </div>
                     <div className="pt-table-wrap">
                       <table className="pt-table pt-table-compact">
@@ -374,25 +433,25 @@ export function LandingPage() {
         <section className="lp-section" style={{ paddingTop: 12 }}>
           <div className="lp-container">
             <div className="lp-cta">
-              <h2>Pronto para explorar cada tela em funcionamento?</h2>
+              <h2>Quer ver o sistema funcionando por dentro?</h2>
               <p>
-                Navegue pelo Dashboard, Padrinhos, Match, Reuniões, Temas, Advertências e Relatórios com os cenários interativos.
+                Abra o painel com um clique e navegue pelos cenários prontos de início, andamento e fechamento de semestre.
               </p>
               <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
                 <button
                   type="button"
-                  className="pt-btn pt-btn-ghost pt-btn-lg"
+                  className="pt-btn pt-btn-ghost lp-btn-hero"
                   onClick={() => abrirCenario("fechamento", "/dashboard")}
                 >
-                  Abrir Dashboard <ArrowRight size={16} />
+                  Abrir painel agora <ArrowRight size={17} />
                 </button>
                 <a
-                  className="pt-btn pt-btn-soft pt-btn-lg"
+                  className="pt-btn pt-btn-soft lp-btn-hero"
                   href={docLinks.certificado}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Abrir Certificado A4 <ExternalLink size={15} />
+                  Ver certificado A4 <ExternalLink size={16} />
                 </a>
               </div>
             </div>
@@ -409,8 +468,8 @@ export function LandingPage() {
           <div className="lp-footer-links">
             <a href={REPO_URL} target="_blank" rel="noopener noreferrer">Repositório</a>
             <a href={`${REPO_URL}/blob/main/docs/arquitetura.md`} target="_blank" rel="noopener noreferrer">Arquitetura</a>
-            <a href={docLinks.aptidao} target="_blank" rel="noopener noreferrer">Exemplo Relatório ACG</a>
-            <a href={docLinks.certificado} target="_blank" rel="noopener noreferrer">Exemplo Certificado</a>
+            <a href={docLinks.aptidao} target="_blank" rel="noopener noreferrer">Relatório ACG</a>
+            <a href={docLinks.certificado} target="_blank" rel="noopener noreferrer">Certificado</a>
           </div>
         </div>
       </footer>

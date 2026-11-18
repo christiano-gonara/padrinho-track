@@ -5,306 +5,137 @@
 ![Padrinho Track](web/static/brand/padrinho-track-lockup.svg#gh-light-mode-only)
 ![Padrinho Track](web/static/brand/padrinho-track-lockup-dark.svg#gh-dark-mode-only)
 
-**Sistema integrado para gestão do Programa de Apadrinhamento de Calouros**  
-*PUC Minas — Engenharia de Software*
+**Gestão do Programa de Apadrinhamento de Calouros**  
+*Engenharia de Software — PUC Minas*
 
-[![Python](https://img.shields.io/badge/Python-3.12%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
-[![Flask](https://img.shields.io/badge/Backend-Flask_REST-1e40af?logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![Python](https://img.shields.io/badge/Python-3.12%2B-1e40af?logo=python&logoColor=white)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/Backend-Flask_REST-2563eb?logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
 [![React](https://img.shields.io/badge/Frontend-React_19_+_TypeScript-2563eb?logo=react&logoColor=white)](https://react.dev/)
 [![Database](https://img.shields.io/badge/Database-SQLite%20%7C%20PostgreSQL-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![GitHub Pages](https://img.shields.io/badge/Landing_Page-GitHub_Pages-22c55e?logo=githubpages&logoColor=white)](https://christiano-gonara.github.io/padrinho-track/)
-[![Test Suite](https://img.shields.io/badge/Tests-pytest-green?logo=pytest&logoColor=white)](https://docs.pytest.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![GitHub Pages](https://img.shields.io/badge/Demo_Online-GitHub_Pages-10b981?logo=githubpages&logoColor=white)](https://christiano-gonara.github.io/padrinho-track/)
 
-[🌐 Ver Landing Page Online](https://christiano-gonara.github.io/padrinho-track/) • [📐 Documento de Arquitetura](docs/arquitetura.md) • [📋 Tarefas e Roadmap](docs/tarefas.md)
+[Ver demonstração online](https://christiano-gonara.github.io/padrinho-track/) · [Arquitetura](docs/arquitetura.md) · [Guia de transição](docs/HANDOFF.md) · [Próximos passos](docs/tarefas.md)
 
 </div>
 
 ---
 
-## 📌 Visão Geral
+## O que o sistema resolve
 
-O **Padrinho Track** elimina o retrabalho e o risco de inconsistências causados por múltiplas planilhas desconexas na coordenação do programa de mentoria universitária.
+Coordenar o apadrinhamento em planilhas separadas dá trabalho e gera erro na hora de fechar o semestre. O **Padrinho Track** junta todo o processo em um só lugar:
 
-O sistema centraliza em um único ambiente:
-- **Inscrição e match inteligente** entre padrinhos/madrinhas veteranos e calouros por compatibilidade de turno e perfil.
-- **Registro e acompanhamento de reuniões** periódicas e sincronização de presenças (Google Forms/Sheets ou lançamento direto).
-- **Controle de temas e prazos** com atribuição de responsáveis individuais ou grupos.
-- **Motor automático de regras de ACG e advertências** (sistema de cartões amarelos e vermelhos com histórico rastreável).
-- **Emissão automática de relatórios finais** de aptidão e geração em lote de **certificados em PDF / ZIP** para alunos e coordenação.
+- **Cadastro e match**: importa padrinhos e calouros (do Google Forms ou manual) e sugere os pares por turno e perfil.
+- **Reuniões e presenças**: registra quem foi, quem justificou e quem faltou (manual, CSV ou Google Sheets).
+- **Temas e prazos**: acompanha quem ficou responsável por cada tema e se entregou no prazo.
+- **Regras de ACG automáticas**: calcula quem está apto, em alerta ou reprovado sem conferência manual.
+- **Relatórios e certificados**: gera o Relatório de Aptidão ACG, o Resumo do Semestre e todos os certificados em PDF (com download em ZIP).
 
 ---
 
-## 🖼️ Capturas do Sistema
+## Capturas do sistema
 
-### Landing Page (Tema Claro · Azul Cobalto) e Cenários de Uso
+### Apresentação e cenários de uso (GitHub Pages)
 ![Landing Page Padrinho Track](docs/images/landing_page.png)
 
-### Dashboard Interativo (Gráficos em Barras e Diagrama de Fluxo)
+### Dashboard com gráficos em barras e diagrama do semestre
 ![Dashboard Padrinho Track](docs/images/dashboard.png)
 
-### Tela de Relatórios e Fechamento ACG
+### Relatório geral e emissão de certificados
 ![Tela de Relatório Padrinho Track](docs/images/relatorio_tela.png)
 
-### Exemplos Reais em A4 (Relatório de Aptidão ACG e Certificado)
-| Relatório de Aptidão ACG (A4) | Certificado de Participação (A4) |
+### Modelos em A4 prontos para impressão e PDF
+| Relatório de Aptidão ACG | Certificado de Participação |
 |---|---|
 | ![Relatório de Aptidão ACG](docs/images/relatorio_aptidao_a4.png) | ![Certificado de Participação](docs/images/certificado_a4.png) |
 
 ---
 
-## 📐 Arquitetura do Sistema
-
-O projeto adota uma arquitetura em camadas orientada a serviços e repositórios, desacoplando o protocolo de transporte HTTP da lógica de negócio e do acesso a dados.
-
-```mermaid
-graph TD
-    subgraph Apresentacao["Camada de Apresentação & UI"]
-        Landing["Landing Page (Estática no GitHub Pages ou Flask)"]
-        Painel["Painel Administrativo Jinja2 + RemixIcon"]
-    end
-
-    subgraph Transporte["Rotas & Middlewares (Flask Blueprints)"]
-        Auth["Controle de Sessão & Autenticação"]
-        Routes["routes/ (dashboard, padrinhos, reunioes, match, temas, relatorios...)"]
-    end
-
-    subgraph Dominio["Serviços de Domínio (Business Logic)"]
-        StatusSvc["status_service (Regras de Aptidão ACG)"]
-        MatchSvc["match_service & match_algorithm (Afinidade de Turno/Perfil)"]
-        CertSvc["certificado_service & relatorio_service (PDFs e ZIP)"]
-    end
-
-    subgraph Dados["Acesso a Dados (Repository Pattern)"]
-        Repos["repositories/ (padrinho, calouro, reuniao, presenca, advertencia...)"]
-        DB["database.py & database_schema.py"]
-    end
-
-    subgraph Persistencia["Armazenamento & Integrações"]
-        SQLite[("SQLite Local (dev)")]
-        Postgres[("PostgreSQL (prod)")]
-        Sheets[("Google Sheets / Forms")]
-    end
-
-    Apresentacao --> Transporte
-    Transporte --> Dominio
-    Dominio --> Dados
-    Dados --> DB
-    DB --> SQLite
-    DB --> Postgres
-    Dominio --> Sheets
-```
-
----
-
-## 🔄 Ciclo de Vida Semestral
-
-O fluxo do programa é estruturado em 4 etapas principais ao longo do semestre letivo:
+## Como o semestre funciona
 
 ```mermaid
 flowchart LR
-    E1["1. Inscrições & Importação\n(Google Sheets / Manual)"] --> E2["2. Match de Afinidade\n(Turno e Perfil)"]
-    E2 --> E3["3. Acompanhamento Contínuo\n(Reuniões, Presenças & Temas)"]
-    E3 --> E4["4. Fechamento de Semestre\n(Relatório ACG & Certificados ZIP)"]
-
-    subgraph Advertencias["Motor de Regras Automático"]
-        A1["Falta sem justificativa ➔ Amarelo"]
-        A2["Atraso de tema ➔ Amarelo"]
-        A3["Não entrega de tema ➔ Vermelho"]
-        A4["2 Amarelos ou 1 Vermelho ➔ Inapto ACG"]
-    end
-
-    E3 -.-> Advertencias
-    Advertencias -.-> E4
+    A["1. Importação\nPadrinhos e calouros"] --> B["2. Match\nCruzamento por turno e perfil"]
+    B --> C["3. Acompanhamento\nReuniões, presenças e temas"]
+    C --> D["4. Fechamento\nRelatório ACG e certificados PDF"]
 ```
 
----
-
-## 🗄️ Modelo de Dados (ERD)
-
-```mermaid
-erDiagram
-    PADRINHOS ||--o{ MATCHES : "recebe"
-    CALOUROS ||--o{ MATCHES : "atribuido a"
-    PADRINHOS ||--o{ PRESENCAS : "possui"
-    REUNIOES ||--o{ PRESENCAS : "contem"
-    PADRINHOS ||--o{ TEMA_PADRINHOS : "responde por"
-    TEMAS ||--o{ TEMA_PADRINHOS : "distribuido para"
-    PADRINHOS ||--o{ ADVERTENCIAS : "acumula"
-
-    PADRINHOS {
-        int id PK
-        string nome
-        string matricula
-        string email
-        string turno
-        boolean ativo
-    }
-    CALOUROS {
-        int id PK
-        string nome
-        string telefone
-        string turno
-        int primeiro_periodo
-    }
-    MATCHES {
-        int id PK
-        int padrinho_id FK
-        int calouro_id FK
-    }
-    REUNIOES {
-        int id PK
-        date data
-        string tema
-    }
-    PRESENCAS {
-        int id PK
-        int reuniao_id FK
-        int padrinho_id FK
-        int presente
-        int justificada
-    }
-    TEMAS {
-        int id PK
-        string titulo
-        date data_limite
-        string situacao
-    }
-    ADVERTENCIAS {
-        int id PK
-        int padrinho_id FK
-        string tipo
-        string origem
-        string motivo
-    }
-```
+| Situação do padrinho | Efeito no status ACG |
+|---|---|
+| Dentro do limite de faltas e sem ocorrência grave | **Apto para ACG** (certificado de 04h) |
+| Chegou a 1 falta do limite (aviso preventivo) | **Em alerta** (ainda apto, com aviso) |
+| Faltou em todas as reuniões sem justificativa | **Reprovado** (sem certificado) |
+| Não entregou tema ou recebeu advertência vermelha | **Reportado ao professor coordenador** |
 
 ---
 
-## ⚖️ Regras de ACG e Advertências
-
-| Situação | Cartão / Penalidade | Efeito no Status ACG |
-|---|:---:|---|
-| Todas as presenças confirmadas e temas entregues no prazo | — | **Apto para ACG** |
-| 1 falta não justificada ou atraso leve de tema | 🟨 Amarelo | **Em Alerta** (aviso formal) |
-| 2 advertências amarelas acumuladas | 🟨🟨 Amarelos | **Não Apto por Faltas** |
-| Não entrega de tema no prazo estendido | 🟥 Vermelho | **Não Apto por Infração** |
-| Falta em todas as reuniões do semestre | 🟥 Vermelho | **Não Apto** |
-| Infração grave reportada pela coordenação (manual) | 🟥 Vermelho | **Reportado à Coordenação Geral** |
-
----
-
-## 📂 Estrutura de Diretórios
+## Organização das pastas
 
 ```text
 padrinho-track/
-├── app.py                  # Ponto de entrada leve (compatível com gunicorn app:app)
-├── backend/                # Camada de servidor, regras de negócio e dados
-│   ├── app.py              # Factory da aplicação Flask e registro de Blueprints
-│   ├── database.py         # Conexão híbrida SQLite / PostgreSQL
-│   ├── database_schema.py  # DDL, constraints e migrações do banco
-│   ├── models.py           # Camada de compatibilidade e utilitários
-│   ├── routes/             # Blueprints modulares por domínio
-│   ├── services/           # Lógica pura de negócio (status, match, relatórios, certificados)
-│   ├── repositories/       # Consultas e persistência SQL isoladas
-│   └── integrations/       # Integração com Google Sheets e CSVs
-├── web/                    # Frontend React + TypeScript + Vite e templates de impressão
-│   ├── src/                # Aplicação React + TypeScript (CSS separado por página/componente)
-│   │   ├── pages/          # Landing Page, Dashboard (barras/fluxo), Padrinhos, Match, Relatórios...
-│   │   ├── components/     # AppShell, gráficos em barras, diagrama de fluxo e seletor de cenários
-│   │   ├── data/           # Cenários de uso interativos (Início, Em Andamento, Fechamento ACG)
-│   │   ├── services/       # Cliente HTTP tipado para /api/*
-│   │   └── styles/         # Design tokens (Azul Acadêmico/Cobalto em tema claro fixo)
-│   ├── public/             # Identidade visual e ícones estáticos
-│   ├── templates/          # Templates Jinja2 para relatórios A4 e certificados PDF
-│   └── static/             # CSS e imagens para impressão A4/PDF
-├── scripts/                # Gerador do GitHub Pages (build_site.py), seed e handoff
-├── docs/                   # Documentação arquitetural e site gerado (docs/site/)
-└── tests/                  # Suíte de testes automatizados com pytest
+├── app.py              # Ponto de entrada do servidor (gunicorn app:app)
+├── backend/            # API REST, regras de negócio e acesso ao banco
+│   ├── app.py          # Montagem do Flask e autenticação
+│   ├── database.py     # Conexão SQLite (local) / PostgreSQL (produção)
+│   ├── routes/         # Rotas HTML de impressão e API JSON (/api/*)
+│   ├── services/       # Regras de ACG, match, relatórios e certificados
+│   ├── repositories/   # Consultas SQL isoladas por entidade
+│   └── integrations/   # Leitura de planilhas Google Sheets e CSV
+├── web/                # Interface React + TypeScript e templates A4
+│   ├── src/            # Páginas, gráficos em barras, cenários de uso e CSS separado
+│   ├── public/         # Logotipo e imagens estáticas
+│   ├── templates/      # Templates A4 para PDF/impressão (relatórios e certificado)
+│   └── static/         # Estilos e imagens para impressão A4
+├── scripts/            # Build do GitHub Pages (build_site.py), seed e handoff
+├── docs/               # Documentação e capturas de tela
+└── tests/              # Testes automatizados com pytest
 ```
 
 ---
 
-## 🚀 Como Executar Localmente
+## Como rodar localmente
 
-### 1. Clonar o repositório e preparar o ambiente
+### 1. Backend (Python / Flask)
 
 ```bash
 git clone https://github.com/christiano-gonara/padrinho-track.git
 cd padrinho-track
 
-# Criar ambiente virtual
 python3 -m venv .venv
-source .venv/bin/activate  # No Windows: .venv\Scripts\activate
-
-# Instalar dependências
+source .venv/bin/activate
 pip install -r requirements.txt
-```
 
-### 2. Configurar as variáveis de ambiente
-
-Copie o arquivo de exemplo e defina suas credenciais:
-
-```bash
 cp .env.example .env
-```
-
-Conteúdo mínimo do `.env`:
-```env
-APP_USERNAME=admin
-APP_PASSWORD=sua_senha_aqui
-SECRET_KEY=uma_chave_longa_e_segura
-
-# Opcional (se não informado, utiliza SQLite local em instance/mentoria.db):
-# DATABASE_URL=postgresql://user:pass@localhost:5432/padrinho_track
-```
-
-### 3. Executar o servidor de desenvolvimento
-
-```bash
 python app.py
 ```
 
-Acesse:
-- **Landing Page Pública**: `http://localhost:5000/`
-- **Painel Administrativo**: `http://localhost:5000/dashboard` (requer login)
-
----
-
-## 🧪 Testes Automatizados
-
-A suíte de testes foi reformulada para ser **concisa, ágil e focada em valor de negócio**, cobrindo regras de status, algoritmo de match e segurança de rotas sem testes redundantes de biblioteca:
-
-```bash
-pytest -v
+Variáveis mínimas no `.env`:
+```env
+APP_USERNAME=admin
+APP_PASSWORD=sua_senha_aqui
+SECRET_KEY=uma_chave_segura
 ```
 
-**Principais áreas validadas:**
-- `tests/test_regras_negocio.py`: Progressão de status (apto, alerta, inapto), faltas justificadas, penalidades por atraso/falta de temas e idempotência.
-- `tests/test_match.py`: Algoritmo de cruzamento padrinho-calouro com afinidade de turno e casos de borda.
-- `tests/test_integracao.py`: Rota pública da landing page, controle estrito de autenticação nas rotas internas e endpoints principais.
+### 2. Frontend (React + TypeScript)
+
+```bash
+cd web
+npm install
+npm run dev
+```
+
+Acesse `http://localhost:5173` para usar o frontend React com proxy para a API Flask (`http://localhost:5000`).
+
+### 3. Testes e build do GitHub Pages
+
+```bash
+# Testes automatizados (regras de ACG, match, rotas e API)
+pytest -v
+
+# Gerar site estático completo em docs/site/
+npm run build --prefix web -- --mode pages
+python scripts/build_site.py
+```
 
 ---
 
-## 🌐 Publicação Estática no GitHub Pages
-
-O projeto conta com automação para publicar a landing page institucional via GitHub Pages:
-
-- **Geração local**:
-  ```bash
-  python scripts/build_site.py
-  ```
-  Renderiza a página estática em `docs/site/index.html` com todos os assets copiados.
-- **Automação CI/CD**: O workflow `.github/workflows/pages.yml` publica automaticamente a cada push na branch `main`.
-
----
-
-## 📄 Licença
-
-Distribuído sob a licença MIT. Consulte o arquivo [LICENSE](LICENSE) para mais detalhes.
-
----
-
-<div align="center">
-Desenvolvido por <strong>Christiano Gonçalves</strong> — Engenharia de Software, PUC Minas.
-</div>
+Desenvolvido por **Christiano Gonçalves** — Engenharia de Software, PUC Minas.
