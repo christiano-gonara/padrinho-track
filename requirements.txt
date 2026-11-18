@@ -1,0 +1,7 @@
+flask>=3.0
+pandas>=2.0
+pytest>=9.0
+python-dotenv>=1.0
+gspread>=6.0
+psycopg2-binary>=2.9
+gunicorn>=21.0

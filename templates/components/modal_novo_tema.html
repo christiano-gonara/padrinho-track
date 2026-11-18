@@ -1,0 +1,77 @@
+<div id="modal-novo" class="pt-modal-backdrop">
+  <div class="pt-modal pt-modal-lg">
+    <div class="pt-modal-header pt-tone-violet">
+      <i class="ri-book-open-line"></i>
+      <span class="pt-modal-title">Novo tema</span>
+      <button class="pt-modal-close" onclick="closeModal('modal-novo')">&times;</button>
+    </div>
+    <form action="/temas/novo" method="POST">
+      <div class="pt-modal-body">
+        <div class="pt-field">
+          <label class="pt-label">Título do tema</label>
+          <input type="text" name="titulo" required class="pt-input" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="pt-field">
+            <label class="pt-label">Data de aviso</label>
+            <input type="date" name="data_aviso" id="novo-tema-aviso" class="pt-input" />
+          </div>
+          <div class="pt-field">
+            <label class="pt-label">Prazo de entrega</label>
+            <input type="date" name="data_limite" id="novo-tema-limite" required class="pt-input" />
+          </div>
+        </div>
+        <div class="pt-field">
+          <label class="pt-label">Responsáveis</label>
+          <select name="padrinho_ids" multiple required class="pt-select" style="height:144px;">
+            {% for p in padrinhos %}
+              <option value="{{ p['id'] }}">{{ p["nome"] }}</option>
+            {% endfor %}
+          </select>
+          <p class="pt-muted-text" style="font-size:12px;margin-top:6px;display:flex;align-items:center;gap:4px;">
+            <i class="ri-information-line"></i> Segura Ctrl para selecionar mais de um
+          </p>
+        </div>
+        <div class="pt-modal-actions">
+          <button type="button" class="pt-btn pt-btn-ghost" onclick="closeModal('modal-novo')">Cancelar</button>
+          <button type="submit" class="pt-btn pt-btn-primary">
+            <i class="ri-save-line"></i> Registrar
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+(function () {
+  var ultimoPrazo = "{{ ultimo_prazo or '' }}";
+
+  function addDays(isoDate, n) {
+    var d = new Date(isoDate + "T00:00:00");
+    d.setDate(d.getDate() + n);
+    return d.toISOString().slice(0, 10);
+  }
+
+  window.abrirNovoTema = function () {
+    var avisoEl  = document.getElementById("novo-tema-aviso");
+    var limiteEl = document.getElementById("novo-tema-limite");
+    avisoEl.value  = "";
+    limiteEl.value = "";
+
+    if (ultimoPrazo) {
+      var aviso = addDays(ultimoPrazo, 1);
+      avisoEl.value  = aviso;
+      limiteEl.value = addDays(aviso, 7);
+    }
+
+    openModal("modal-novo");
+  };
+
+  document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("novo-tema-aviso").addEventListener("change", function () {
+      if (!this.value) return;
+      document.getElementById("novo-tema-limite").value = addDays(this.value, 7);
+    });
+  });
+})();
+</script>

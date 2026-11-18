@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Padrinho Track{% endblock %}</title>
+  <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class', theme: { extend: {} } }</script>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}" />
+  <style>
+    .mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="h-full">
+
+<div class="pt-app">
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="pt-sidebar">
+
+    <!-- Logo -->
+    <div class="pt-sidebar-logo">
+      <a href="/" style="display:flex;align-items:center;gap:12px;text-decoration:none;min-width:0;flex:1;overflow:hidden;">
+        <span class="pt-knot-tile">
+          <img src="{{ url_for('static', filename='padrinho-track-tile.svg') }}" style="width:100%;height:100%;" alt="" />
+        </span>
+        <span class="pt-sidebar-logo-text">Padrinho <span style="color:#8b6dff;">Track</span></span>
+      </a>
+      <button class="pt-sidebar-collapse-btn" onclick="toggleSidebar()" aria-label="Colapsar sidebar">
+        <i id="toggle-icon" class="ri-menu-fold-line" style="font-size:16px;"></i>
+      </button>
+    </div>
+
+    <!-- Nav -->
+    <nav style="flex:1;display:flex;flex-direction:column;gap:4px;overflow-y:auto;">
+
+      <p class="pt-sidebar-section">Menu</p>
+
+      <div class="pt-sidebar-group">
+        <a href="/" class="pt-nav-item" data-tooltip="Dashboard">
+          <i class="ri-dashboard-line"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="/padrinhos" class="pt-nav-item" data-tooltip="Padrinhos">
+          <i class="ri-user-star-line"></i>
+          <span>Padrinhos</span>
+        </a>
+        <a href="/reunioes" class="pt-nav-item" data-tooltip="Reuniões">
+          <i class="ri-video-chat-line"></i>
+          <span>Reuniões</span>
+        </a>
+        <a href="/temas" class="pt-nav-item" data-tooltip="Temas">
+          <i class="ri-book-open-line"></i>
+          <span>Temas</span>
+        </a>
+        <a href="/calouros" class="pt-nav-item" data-tooltip="Calouros">
+          <i class="ri-group-line"></i>
+          <span>Calouros</span>
+        </a>
+        <a href="/inicio" class="pt-nav-item" data-tooltip="Início do Semestre">
+          <i class="ri-calendar-event-line"></i>
+          <span>Início do Semestre</span>
+        </a>
+        <a href="/match" class="pt-nav-item" data-tooltip="Match">
+          <i class="ri-link-m"></i>
+          <span>Match</span>
+        </a>
+      </div>
+
+      <p class="pt-sidebar-section">Gestão</p>
+
+      <div class="pt-sidebar-group">
+        <a href="/advertencias" class="pt-nav-item" data-tooltip="Advertências">
+          <i class="ri-error-warning-line"></i>
+          <span>Advertências</span>
+        </a>
+        <a href="/relatorio" class="pt-nav-item" data-tooltip="Relatório">
+          <i class="ri-file-chart-line"></i>
+          <span>Relatório</span>
+        </a>
+        <a href="/config" class="pt-nav-item" data-tooltip="Configurações">
+          <i class="ri-settings-3-line"></i>
+          <span>Configurações</span>
+        </a>
+        <a href="/logs" class="pt-nav-item" data-tooltip="Logs">
+          <i class="ri-history-line"></i>
+          <span>Logs</span>
+        </a>
+      </div>
+
+    </nav>
+
+    <!-- Footer -->
+    <div class="pt-sidebar-footer">
+      <div class="pt-sidebar-footer-info">
+        <div class="pt-sidebar-org-tile">PUC</div>
+        <div class="pt-sidebar-org-text">
+          <strong>PUC Minas</strong>
+          <small>Eng. Software</small>
+        </div>
+        <button class="pt-theme-btn" onclick="toggleDark()" aria-label="Alternar tema">
+          <i id="dark-icon" class="ri-moon-line" style="font-size:16px;"></i>
+        </button>
+      </div>
+      <form method="POST" action="/logout">
+        <button type="submit" class="pt-nav-item"
+                style="width:100%;border:none;cursor:pointer;color:rgba(255,255,255,0.45);"
+                onmouseover="this.style.background='rgba(239,68,68,0.12)';this.style.color='#f87171';"
+                onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,0.45)';">
+          <i class="ri-logout-box-r-line"></i>
+          <span>Sair</span>
+        </button>
+      </form>
+    </div>
+
+  </aside>
+
+  <!-- Main -->
+  <div id="main-content" class="pt-main">
+
+    <!-- Topbar -->
+    <header class="pt-topbar">
+      <div class="pt-breadcrumb">
+        <i class="ri-map-pin-2-line" style="color:var(--pt-violet-deep);"></i>
+        <span>{% block page_title %}Padrinho Track{% endblock %}</span>
+      </div>
+      <div>
+        <span class="pt-course-pill">
+          <i class="ri-building-line"></i> Eng. Software — PUC Minas
+        </span>
+      </div>
+    </header>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2">
+          {% for category, message in messages %}
+            <div class="toast-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium shadow-lg min-w-64 max-w-sm
+              {% if category == 'success' %}bg-emerald-500 text-white
+              {% elif category == 'error' %}bg-red-500 text-white
+              {% else %}text-white{% endif %}
+              translate-x-0 transition-all duration-300"
+              {% if category != 'success' and category != 'error' %}style="background:#7c5cff;"{% endif %}>
+              {% if category == 'success' %}
+                <i class="ri-checkbox-circle-line text-lg shrink-0"></i>
+              {% elif category == 'error' %}
+                <i class="ri-alert-line text-lg shrink-0"></i>
+              {% else %}
+                <i class="ri-information-line text-lg shrink-0"></i>
+              {% endif %}
+              <span class="flex-1">{{ message }}</span>
+              <button onclick="this.parentElement.remove()" class="text-white/70 hover:text-white shrink-0">
+                <i class="ri-close-line"></i>
+              </button>
+            </div>
+          {% endfor %}
+        </div>
+        <script>
+          setTimeout(() => {
+            document.querySelectorAll('.toast-item').forEach(el => {
+              el.style.opacity = '0';
+              el.style.transform = 'translateX(100%)';
+              setTimeout(() => el.remove(), 300);
+            });
+          }, 4000);
+        </script>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Content -->
+    <main class="pt-content pt-content-padded" style="flex:1;padding-top:32px;padding-bottom:32px;">
+      {% block content %}{% endblock %}
+    </main>
+
+  </div>
+</div>
+
+<script>
+  // --- Sidebar ---
+  let collapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+  if (collapsed) {
+    document.body.classList.add('pt-sidebar-collapsed');
+    document.getElementById('toggle-icon').className = 'ri-menu-unfold-line';
+  }
+
+  function toggleSidebar() {
+    collapsed = !collapsed;
+    document.body.classList.toggle('pt-sidebar-collapsed', collapsed);
+    document.getElementById('toggle-icon').className = collapsed ? 'ri-menu-unfold-line' : 'ri-menu-fold-line';
+    localStorage.setItem('sidebarCollapsed', collapsed);
+  }
+
+  // --- Dark mode ---
+  function toggleDark() {
+    const html = document.documentElement;
+    const icon = document.getElementById('dark-icon');
+    if (html.classList.contains('dark')) {
+      html.classList.remove('dark');
+      html.removeAttribute('data-theme');
+      icon.className = 'ri-moon-line';
+      localStorage.setItem('theme', 'light');
+    } else {
+      html.classList.add('dark');
+      html.setAttribute('data-theme', 'dark');
+      icon.className = 'ri-sun-line';
+      localStorage.setItem('theme', 'dark');
+    }
+  }
+  if (localStorage.getItem('theme') === 'dark') {
+    document.documentElement.classList.add('dark');
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.getElementById('dark-icon').className = 'ri-sun-line';
+  }
+
+  // --- Active nav link ---
+  document.querySelectorAll('.pt-nav-item[href]').forEach(link => {
+    if (link.getAttribute('href') === window.location.pathname) {
+      link.classList.add('is-active');
+    }
+  });
+
+  // --- Modal helpers ---
+  function openModal(id) { document.getElementById(id).classList.add('is-open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('is-open'); }
+</script>
+
+</body>
+</html>
