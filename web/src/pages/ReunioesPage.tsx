@@ -4,6 +4,7 @@ import { Calendar, Plus, Trash2, UserCheck, Video } from "lucide-react";
 import { AppShell } from "../components/layout/AppShell";
 import { useApp } from "../context/AppContext";
 import { formatarDataBr } from "../data/scenarios";
+import { useLiveData } from "../hooks/useLiveData";
 import { apiFetch } from "../services/api";
 import { Reuniao } from "../types/domain";
 
@@ -15,27 +16,16 @@ interface LiveReunioesResp {
 export function ReunioesPage() {
   const { mode, scenario, addReuniaoDemo, notify } = useApp();
   const navigate = useNavigate();
-  const [live, setLive] = useState<LiveReunioesResp | null>(null);
+  const { live, reload: loadLive } = useLiveData<LiveReunioesResp>("/api/reunioes");
   const [modalOpen, setModalOpen] = useState(false);
   const [data, setData] = useState("");
   const [tema, setTema] = useState("");
   const [descricao, setDescricao] = useState("");
   const [sheetsUrl, setSheetsUrl] = useState("");
 
-  function loadLive() {
-    if (mode !== "live") return;
-    apiFetch<LiveReunioesResp>("/api/reunioes")
-      .then((res) => {
-        setLive(res);
-        setSheetsUrl(res.sheets_presenca_url || "");
-      })
-      .catch(() => setLive(null));
-  }
-
   useEffect(() => {
-    if (mode === "live") loadLive();
-    else setLive(null);
-  }, [mode]);
+    if (live) setSheetsUrl(live.sheets_presenca_url || "");
+  }, [live]);
 
   const reunioes: Partial<Reuniao>[] = live ? live.reunioes : scenario.reunioes;
 

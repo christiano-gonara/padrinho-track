@@ -23,6 +23,12 @@ import "./LandingPage.css";
 
 const REPO_URL = "https://github.com/christiano-gonara/padrinho-track";
 
+const DOC_TABS = [
+  { id: "certificado" as const, label: "Certificado", Icon: Award },
+  { id: "aptidao" as const, label: "Relatório Aptidão ACG", Icon: FileCheck2 },
+  { id: "resumo" as const, label: "Resumo do Semestre", Icon: BarChart3 },
+];
+
 export function LandingPage() {
   const { scenario, setScenarioId } = useApp();
   const navigate = useNavigate();
@@ -293,27 +299,16 @@ export function LandingPage() {
             <div className="pt-card pt-card-flat">
               <div className="lp-tabs-bar">
                 <div className="lp-tab-group">
-                  <button
-                    type="button"
-                    className={`lp-tab-btn ${docTab === "certificado" ? "is-active" : ""}`}
-                    onClick={() => setDocTab("certificado")}
-                  >
-                    <Award size={15} /> Certificado
-                  </button>
-                  <button
-                    type="button"
-                    className={`lp-tab-btn ${docTab === "aptidao" ? "is-active" : ""}`}
-                    onClick={() => setDocTab("aptidao")}
-                  >
-                    <FileCheck2 size={15} /> Relatório Aptidão ACG
-                  </button>
-                  <button
-                    type="button"
-                    className={`lp-tab-btn ${docTab === "resumo" ? "is-active" : ""}`}
-                    onClick={() => setDocTab("resumo")}
-                  >
-                    <BarChart3 size={15} /> Resumo do Semestre
-                  </button>
+                  {DOC_TABS.map(({ id, label, Icon }) => (
+                    <button
+                      key={id}
+                      type="button"
+                      className={`lp-tab-btn ${docTab === id ? "is-active" : ""}`}
+                      onClick={() => setDocTab(id)}
+                    >
+                      <Icon size={15} /> {label}
+                    </button>
+                  ))}
                 </div>
 
                 <a

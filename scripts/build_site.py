@@ -2,9 +2,10 @@
 
 Copia o build React + TypeScript (web/dist) como aplicação principal interativa
 (com cenários de uso e tema claro) e renderiza os exemplos reais de relatórios
-e certificados A4 em docs/site/exemplos/ a partir dos templates do sistema.
+e certificados A4 em docs/site/exemplos/ a partir de web/src/data/scenarios.json.
 """
 
+import json
 import os
 import shutil
 import subprocess
@@ -16,6 +17,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 WEB_DIR = RAIZ / "web"
 WEB_DIST = WEB_DIR / "dist"
 WEB_STATIC = WEB_DIR / "static"
+SCENARIOS_JSON = WEB_DIR / "src" / "data" / "scenarios.json"
 SAIDA = RAIZ / "docs" / "site"
 EXEMPLOS_DIR = SAIDA / "exemplos"
 
@@ -29,45 +31,55 @@ from flask import render_template  # noqa: E402
 from app import app  # noqa: E402
 
 
+def _iso_to_date(texto):
+    ano, mes, dia = (int(parte) for parte in texto.split("-"))
+    return date(ano, mes, dia)
+
+
 def _dados_exemplo():
-    """Retorna contexto fictício consistente para os exemplos públicos no Pages."""
-    config = {
-        "semestre": "2026/1",
-        "professor_coordenador": "Prof. Laerte Xavier",
-        "professor_coordenador_certificado": "Prof. Laerte Xavier",
-        "programa": "Mentoria Acadêmica — Engenharia de Software",
-        "instituicao": "PUC Minas",
-        "total_reunioes": 3,
-        "coordenadora_geral": "Clara Vasconcelos",
-        "coordenadores": ["Lucas Almeida", "Mariana Freitas"],
-    }
+    """Monta o contexto fictício dos exemplos A4 a partir do scenarios.json compartilhado."""
+    bruto = json.loads(SCENARIOS_JSON.read_text(encoding="utf-8"))
+    fechamento = bruto["scenarios"]["fechamento"]
+    config = {**bruto["config"], "professor_coordenador_certificado": bruto["config"]["professor_coordenador"]}
     hoje = date(2026, 7, 20)
 
-    aprovados = [
-        {"id": 1, "nome": "Alice Mendonça", "matricula": "100001", "turno": "Manhã", "email": "alice.mendonca@exemplo.edu.br"},
-        {"id": 2, "nome": "Bruno Tavares", "matricula": "100002", "turno": "Noite", "email": "bruno.tavares@exemplo.edu.br"},
-        {"id": 3, "nome": "Camila Rezende", "matricula": "100003", "turno": "Manhã", "email": "camila.rezende@exemplo.edu.br"},
-        {"id": 4, "nome": "Diego Fonseca", "matricula": "100004", "turno": "Noite", "email": "diego.fonseca@exemplo.edu.br"},
-        {"id": 5, "nome": "Elisa Drummond", "matricula": "100005", "turno": "Manhã", "email": "elisa.drummond@exemplo.edu.br"},
-        {"id": 6, "nome": "Felipe Quaresma", "matricula": "100006", "turno": "Noite", "email": "felipe.quaresma@exemplo.edu.br"},
-        {"id": 7, "nome": "Gabriela Monteiro", "matricula": "100007", "turno": "Manhã", "email": "gabriela.monteiro@exemplo.edu.br"},
-        {"id": 8, "nome": "Henrique Lacerda", "matricula": "100008", "turno": "Noite", "email": "henrique.lacerda@exemplo.edu.br"},
-    ]
-    reportados = [
-        {
-            "id": 10,
-            "nome": "João Vasconcelos",
-            "matricula": "100010",
-            "turno": "Noite",
-            "email": "joao.vasconcelos@exemplo.edu.br",
-            "motivo_vermelho": "Não entrega do tema atribuído após prazo estendido",
-            "data_advertencia_grave": date(2026, 5, 18),
+    padrinhos = bruto["padrinhosBase"]
+    overrides = fechamento["statusOverrides"]
+
+    aprovados = []
+    reportados = []
+    alerta_count = inapto_amarelo_count = 0
+
+    for p in padrinhos:
+        ov = overrides.get(str(p["id"]), {"status": "apto"})
+        status = ov["status"]
+        base_row = {
+            "id": p["id"],
+            "nome": p["nome"],
+            "matricula": p["matricula"],
+            "turno": p["turno"],
+            "email": p["email"],
         }
-    ]
+        if status == "inapto_vermelho":
+            adv = next((a for a in fechamento["advertencias"] if a["padrinho_id"] == p["id"] and a["tipo"] == "vermelho"), None)
+            reportados.append({
+                **base_row,
+                "motivo_vermelho": adv["motivo"] if adv else "Ocorrência grave",
+                "data_advertencia_grave": _iso_to_date(adv["data"]) if adv else hoje,
+            })
+        elif status == "inapto_amarelo":
+            inapto_amarelo_count += 1
+        else:
+            aprovados.append(base_row)
+            if status == "alerta":
+                alerta_count += 1
+
     coordenacao = [
-        {"indice": 0, "nome": "Clara Vasconcelos", "matricula": "—", "turno": "Coord.", "email": "—"},
-        {"indice": 1, "nome": "Lucas Almeida", "matricula": "—", "turno": "Coord.", "email": "—"},
-        {"indice": 2, "nome": "Mariana Freitas", "matricula": "—", "turno": "Coord.", "email": "—"},
+        {"indice": 0, "nome": config["coordenadora_geral"], "matricula": "—", "turno": "Coord.", "email": "—"},
+        *(
+            {"indice": idx, "nome": nome, "matricula": "—", "turno": "Coord.", "email": "—"}
+            for idx, nome in enumerate(config["coordenadores"], start=1)
+        ),
     ]
     paginas_aptidao = [
         {"tipo": "aprovados", "titulo": "Aptos para ACG", "linhas": aprovados, "inicio": 1},
@@ -75,12 +87,19 @@ def _dados_exemplo():
         {"tipo": "coordenacao", "titulo": "Coordenação para ACG", "linhas": coordenacao, "inicio": 1},
     ]
 
+    total_padrinhos = len(padrinhos)
+    total_calouros = len(bruto["calouros"])
+    cal_manha = sum(1 for c in bruto["calouros"] if c["turno"] == "Manhã")
+    cal_noite = total_calouros - cal_manha
+    pad_manha = [p["nome"] for p in padrinhos if p["turno"] == "Manhã"]
+    pad_noite = [p["nome"] for p in padrinhos if p["turno"] == "Noite"]
+
     ctx_aptidao = {
         "estatico": True,
         "config": config,
         "hoje": hoje,
-        "total": 10,
-        "total_reunioes_db": 3,
+        "total": total_padrinhos,
+        "total_reunioes_db": len(fechamento["reunioes"]),
         "aprovados": aprovados,
         "reportados": reportados,
         "coordenacao": coordenacao,
@@ -93,42 +112,45 @@ def _dados_exemplo():
         "estatico": True,
         "config": config,
         "hoje": hoje,
-        "total_padrinhos": 10,
-        "total_calouros": 20,
-        "total_reunioes": 3,
+        "total_padrinhos": total_padrinhos,
+        "total_calouros": total_calouros,
+        "total_reunioes": len(fechamento["reunioes"]),
         "reunioes": [
-            {"data": date(2026, 3, 20), "tema": "Abertura do semestre", "descricao": "Apresentação das regras do programa e acolhimento inicial."},
-            {"data": date(2026, 4, 17), "tema": "Acompanhamento de temas", "descricao": "Alinhamento de dúvidas dos calouros e cronograma de atividades."},
-            {"data": date(2026, 6, 12), "tema": "Fechamento e balanço", "descricao": "Revisão de entregas e feedback do semestre."},
+            {"data": _iso_to_date(r["data"]), "tema": r["tema"], "descricao": r["descricao"]}
+            for r in fechamento["reunioes"]
         ],
         "temas": [
-            {"titulo": "Boas-vindas e Setup", "data_limite": date(2026, 3, 27), "responsaveis": "Alice Mendonça, Bruno Tavares", "qtd_responsaveis": 2, "situacao": "entregue"},
-            {"titulo": "Lógica Digital", "data_limite": date(2026, 4, 6), "responsaveis": "Camila Rezende, Diego Fonseca", "qtd_responsaveis": 2, "situacao": "entregue"},
-            {"titulo": "Python: Entradas e Saídas", "data_limite": date(2026, 4, 16), "responsaveis": "Elisa Drummond, Felipe Quaresma", "qtd_responsaveis": 2, "situacao": "entregue"},
-            {"titulo": "Python: Condicionais e Laços", "data_limite": date(2026, 5, 4), "responsaveis": "Gabriela Monteiro, Henrique Lacerda", "qtd_responsaveis": 2, "situacao": "atraso"},
+            {
+                "titulo": t["titulo"],
+                "data_limite": _iso_to_date(t["data_limite"]),
+                "responsaveis": ", ".join(r["nome"] for r in t["responsaveis"]),
+                "qtd_responsaveis": len(t["responsaveis"]),
+                "situacao": t["situacao"],
+            }
+            for t in fechamento["temas"]
         ],
         "padrinhos_por_turno": [
-            {"turno": "Manhã", "qtd": 5, "nomes": ["Alice Mendonça", "Camila Rezende", "Elisa Drummond", "Gabriela Monteiro", "Isabela Coutinho"]},
-            {"turno": "Noite", "qtd": 5, "nomes": ["Bruno Tavares", "Diego Fonseca", "Felipe Quaresma", "Henrique Lacerda", "João Vasconcelos"]},
+            {"turno": "Manhã", "qtd": len(pad_manha), "nomes": pad_manha},
+            {"turno": "Noite", "qtd": len(pad_noite), "nomes": pad_noite},
         ],
-        "total_aptos_acg": 8,
-        "total_nao_aptos": 2,
-        "taxa_aptidao": 80,
-        "total_aprovados": 7,
-        "total_alerta": 1,
-        "total_reprovados": 1,
-        "total_reportados": 1,
+        "total_aptos_acg": len(aprovados),
+        "total_nao_aptos": total_padrinhos - len(aprovados),
+        "taxa_aptidao": round(len(aprovados) / max(total_padrinhos, 1) * 100),
+        "total_aprovados": len(aprovados) - alerta_count,
+        "total_alerta": alerta_count,
+        "total_reprovados": inapto_amarelo_count,
+        "total_reportados": len(reportados),
         "turno_data": [
-            {"turno": "Manhã", "qtd": 5, "pct": 50},
-            {"turno": "Noite", "qtd": 5, "pct": 50},
+            {"turno": "Manhã", "qtd": len(pad_manha), "pct": round(len(pad_manha) / total_padrinhos * 100)},
+            {"turno": "Noite", "qtd": len(pad_noite), "pct": round(len(pad_noite) / total_padrinhos * 100)},
         ],
         "turno_data_cal": [
-            {"turno": "Manhã", "qtd": 10, "pct": 50},
-            {"turno": "Noite", "qtd": 10, "pct": 50},
+            {"turno": "Manhã", "qtd": cal_manha, "pct": round(cal_manha / total_calouros * 100)},
+            {"turno": "Noite", "qtd": cal_noite, "pct": round(cal_noite / total_calouros * 100)},
         ],
-        "pct_bolsista": 30,
-        "pct_bh": 60,
-        "pct_trabalha": 50,
+        "pct_bolsista": round(sum(p["bolsista"] for p in padrinhos) / total_padrinhos * 100),
+        "pct_bh": round(sum(p["cidade_bh"] for p in padrinhos) / total_padrinhos * 100),
+        "pct_trabalha": round(sum(p["trabalha"] for p in padrinhos) / total_padrinhos * 100),
         "pct_bolsista_cal": 35,
         "pct_bh_cal": 55,
         "pct_trabalha_cal": 30,
@@ -137,15 +159,12 @@ def _dados_exemplo():
     ctx_certificado = {
         "estatico": True,
         "padrinho": aprovados[0],
-        "total_padrinhos": 10,
-        "total_calouros": 20,
+        "total_padrinhos": total_padrinhos,
+        "total_calouros": total_calouros,
         "semestre": config["semestre"],
         "config": config,
         "hoje": hoje,
-        "funcao_certificado": {
-            "titulo": "Madrinha",
-            "texto": "madrinha",
-        },
+        "funcao_certificado": {"titulo": "Madrinha", "texto": "madrinha"},
         "horas_acg": 4,
     }
 

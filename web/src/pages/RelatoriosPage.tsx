@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { AlertTriangle, Award, BarChart3, CheckCircle2, Clock, ExternalLink, FileBarChart2, FolderDown, Printer, XCircle } from "lucide-react";
 import { AppShell } from "../components/layout/AppShell";
@@ -6,7 +5,7 @@ import { MetricCard } from "../components/ui/MetricCard";
 import { StatusACGBadge, ToneBadge } from "../components/ui/StatusBadge";
 import { useApp } from "../context/AppContext";
 import { abreviarNome } from "../data/scenarios";
-import { apiFetch } from "../services/api";
+import { useLiveData } from "../hooks/useLiveData";
 import { Padrinho } from "../types/domain";
 
 interface RelatorioRow {
@@ -33,16 +32,8 @@ interface LiveRelatorioResp {
 
 export function RelatoriosPage() {
   const { mode, scenario } = useApp();
-  const [live, setLive] = useState<LiveRelatorioResp | null>(null);
+  const { live } = useLiveData<LiveRelatorioResp>("/api/relatorio");
   const base = import.meta.env.BASE_URL;
-
-  useEffect(() => {
-    if (mode !== "live") {
-      setLive(null);
-      return;
-    }
-    apiFetch<LiveRelatorioResp>("/api/relatorio").then(setLive).catch(() => setLive(null));
-  }, [mode]);
 
   const rows: RelatorioRow[] = live
     ? live.dados

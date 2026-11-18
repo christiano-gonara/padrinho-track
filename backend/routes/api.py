@@ -19,7 +19,6 @@ from backend.models import (
 )
 from backend.repositories import (
     advertencia_repository,
-    calouro_repository,
     match_repository,
     padrinho_repository,
     reuniao_repository,
@@ -33,16 +32,14 @@ from backend.services.padrinho_service import (
     listar_padrinhos_com_status,
     montar_contexto_padrinho_detalhe,
 )
-from backend.services.presenca_service import (
-    buscar_reuniao,
-    lancar_presencas_reuniao,
-    listar_presencas_reuniao,
-)
 from backend.services.relatorio_service import montar_contexto_relatorio_geral
 from backend.services.reuniao_service import (
+    buscar_reuniao,
     criar_nova_reuniao,
     editar_reuniao,
     excluir_reuniao,
+    lancar_presencas_reuniao,
+    listar_presencas_reuniao,
     montar_contexto_reunioes,
     salvar_link_forms_presenca,
     sincronizar_presencas,
@@ -390,7 +387,7 @@ def api_inicio():
         "sheets_padrinhos_url": get_config("sheets_padrinhos_url", ""),
         "sheets_calouros_url": get_config("sheets_calouros_url", ""),
         "total_padrinhos": padrinho_repository.contar_ativos(),
-        "total_calouros": calouro_repository.contar_todos(),
+        "total_calouros": match_repository.contar_calouros(),
     })
 
 

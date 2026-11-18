@@ -1,10 +1,11 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
 import { Link } from "react-router-dom";
 import { AlertTriangle, ShieldAlert, Trash2 } from "lucide-react";
 import { AppShell } from "../components/layout/AppShell";
 import { ToneBadge } from "../components/ui/StatusBadge";
 import { useApp } from "../context/AppContext";
 import { abreviarNome, formatarDataBr } from "../data/scenarios";
+import { useLiveData } from "../hooks/useLiveData";
 import { apiFetch } from "../services/api";
 import { Advertencia, Padrinho } from "../types/domain";
 
@@ -16,21 +17,11 @@ interface LiveAdvResp {
 
 export function AdvertenciasPage() {
   const { mode, scenario, addAdvertenciaDemo, removeAdvertenciaDemo, notify } = useApp();
-  const [live, setLive] = useState<LiveAdvResp | null>(null);
+  const { live, reload: loadLive } = useLiveData<LiveAdvResp>("/api/advertencias");
   const [modalOpen, setModalOpen] = useState(false);
   const [padrinhoId, setPadrinhoId] = useState<number>(0);
   const [tipo, setTipo] = useState<"amarelo" | "vermelho">("amarelo");
   const [motivo, setMotivo] = useState("");
-
-  function loadLive() {
-    if (mode !== "live") return;
-    apiFetch<LiveAdvResp>("/api/advertencias").then(setLive).catch(() => setLive(null));
-  }
-
-  useEffect(() => {
-    if (mode === "live") loadLive();
-    else setLive(null);
-  }, [mode]);
 
   const advertencias = live ? live.advertencias : scenario.advertencias;
   const padrinhos = live ? live.padrinhos : scenario.padrinhos;

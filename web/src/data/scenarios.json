@@ -1,0 +1,308 @@
+{
+  "config": {
+    "semestre": "2026/1",
+    "professor_coordenador": "Prof. Laerte Xavier",
+    "programa": "Mentoria Acadêmica — Engenharia de Software",
+    "instituicao": "PUC Minas",
+    "total_reunioes": 3,
+    "data_inicio": "2026-03-01",
+    "data_fim": "2026-07-15",
+    "coordenadora_geral": "Clara Vasconcelos",
+    "coordenadores": ["Lucas Almeida", "Mariana Freitas"]
+  },
+  "padrinhosBase": [
+    { "id": 1, "nome": "Alice Mendonça", "matricula": "100001", "email": "alice.mendonca@exemplo.edu.br", "telefone": "(31) 99000-0001", "turno": "Manhã", "genero": "F", "idade": 21, "cidade_bh": 1, "bolsista": 0, "trabalha": 0, "periodo": "5°" },
+    { "id": 2, "nome": "Bruno Tavares", "matricula": "100002", "email": "bruno.tavares@exemplo.edu.br", "telefone": "(31) 99000-0002", "turno": "Noite", "genero": "M", "idade": 23, "cidade_bh": 0, "bolsista": 1, "trabalha": 1, "periodo": "7°" },
+    { "id": 3, "nome": "Camila Rezende", "matricula": "100003", "email": "camila.rezende@exemplo.edu.br", "telefone": "(31) 99000-0003", "turno": "Manhã", "genero": "F", "idade": 22, "cidade_bh": 1, "bolsista": 0, "trabalha": 1, "periodo": "5°" },
+    { "id": 4, "nome": "Diego Fonseca", "matricula": "100004", "email": "diego.fonseca@exemplo.edu.br", "telefone": "(31) 99000-0004", "turno": "Noite", "genero": "M", "idade": 24, "cidade_bh": 0, "bolsista": 0, "trabalha": 1, "periodo": "8°" },
+    { "id": 5, "nome": "Elisa Drummond", "matricula": "100005", "email": "elisa.drummond@exemplo.edu.br", "telefone": "(31) 99000-0005", "turno": "Manhã", "genero": "F", "idade": 20, "cidade_bh": 1, "bolsista": 1, "trabalha": 0, "periodo": "4°" },
+    { "id": 6, "nome": "Felipe Quaresma", "matricula": "100006", "email": "felipe.quaresma@exemplo.edu.br", "telefone": "(31) 99000-0006", "turno": "Noite", "genero": "M", "idade": 22, "cidade_bh": 1, "bolsista": 0, "trabalha": 0, "periodo": "6°" },
+    { "id": 7, "nome": "Gabriela Monteiro", "matricula": "100007", "email": "gabriela.monteiro@exemplo.edu.br", "telefone": "(31) 99000-0007", "turno": "Manhã", "genero": "F", "idade": 21, "cidade_bh": 0, "bolsista": 1, "trabalha": 1, "periodo": "5°" },
+    { "id": 8, "nome": "Henrique Lacerda", "matricula": "100008", "email": "henrique.lacerda@exemplo.edu.br", "telefone": "(31) 99000-0008", "turno": "Noite", "genero": "M", "idade": 23, "cidade_bh": 1, "bolsista": 0, "trabalha": 1, "periodo": "7°" },
+    { "id": 9, "nome": "Isabela Coutinho", "matricula": "100009", "email": "isabela.coutinho@exemplo.edu.br", "telefone": "(31) 99000-0009", "turno": "Manhã", "genero": "F", "idade": 20, "cidade_bh": 1, "bolsista": 0, "trabalha": 0, "periodo": "4°" },
+    { "id": 10, "nome": "João Vasconcelos", "matricula": "100010", "email": "joao.vasconcelos@exemplo.edu.br", "telefone": "(31) 99000-0010", "turno": "Noite", "genero": "M", "idade": 25, "cidade_bh": 0, "bolsista": 0, "trabalha": 1, "periodo": "8°" }
+  ],
+  "calouros": [
+    { "id": 101, "nome": "Mateus Aguiar", "telefone": "(31) 98000-1001", "turno": "Manhã", "genero": "M" },
+    { "id": 102, "nome": "Larissa Peixoto", "telefone": "(31) 98000-1002", "turno": "Manhã", "genero": "F" },
+    { "id": 103, "nome": "Rafael Evangelista", "telefone": "(31) 98000-1003", "turno": "Noite", "genero": "M" },
+    { "id": 104, "nome": "Beatriz Salomão", "telefone": "(31) 98000-1004", "turno": "Noite", "genero": "F" },
+    { "id": 105, "nome": "Lucas Wanderley", "telefone": "(31) 98000-1005", "turno": "Manhã", "genero": "M" },
+    { "id": 106, "nome": "Fernanda Azevedo", "telefone": "(31) 98000-1006", "turno": "Manhã", "genero": "F" },
+    { "id": 107, "nome": "Pedro Magalhães", "telefone": "(31) 98000-1007", "turno": "Noite", "genero": "M" },
+    { "id": 108, "nome": "Julia Paranhos", "telefone": "(31) 98000-1008", "turno": "Noite", "genero": "F" },
+    { "id": 109, "nome": "Guilherme Pacheco", "telefone": "(31) 98000-1009", "turno": "Manhã", "genero": "M" },
+    { "id": 110, "nome": "Amanda Vilela", "telefone": "(31) 98000-1010", "turno": "Manhã", "genero": "F" },
+    { "id": 111, "nome": "Thiago Brandão", "telefone": "(31) 98000-1011", "turno": "Noite", "genero": "M" },
+    { "id": 112, "nome": "Carolina Salgado", "telefone": "(31) 98000-1012", "turno": "Noite", "genero": "F" },
+    { "id": 113, "nome": "Vitor Sepúlveda", "telefone": "(31) 98000-1013", "turno": "Manhã", "genero": "M" },
+    { "id": 114, "nome": "Mariana Toledo", "telefone": "(31) 98000-1014", "turno": "Manhã", "genero": "F" },
+    { "id": 115, "nome": "Leonardo Bittencourt", "telefone": "(31) 98000-1015", "turno": "Noite", "genero": "M" },
+    { "id": 116, "nome": "Stephanie Caldeira", "telefone": "(31) 98000-1016", "turno": "Noite", "genero": "F" }
+  ],
+  "matchPairs": [
+    [0, [1, 5]],
+    [1, [2, 6]],
+    [2, [9, 13]],
+    [3, [10, 14]],
+    [4, [0, 4]],
+    [5, [3, 7]],
+    [6, [8, 12]],
+    [7, [11, 15]]
+  ],
+  "scenarios": {
+    "inicio": {
+      "id": "inicio",
+      "titulo": "Cenário 1 · Início do Semestre",
+      "badge": "Pré-Match",
+      "resumo": "Padrinhos e calouros recém-importados via Google Forms, prontos para rodar o algoritmo de afinidade e iniciar o cronograma.",
+      "hasMatches": false,
+      "statusOverrides": {},
+      "reunioes": [
+        {
+          "id": 1,
+          "data": "2026-03-20",
+          "tema": "Abertura e boas-vindas",
+          "descricao": "Alinhamento inicial das regras do programa de apadrinhamento.",
+          "presentes": 10,
+          "justificadas": 0,
+          "ausentes": 0,
+          "ausentesIds": [],
+          "justificadasIds": []
+        }
+      ],
+      "temas": [
+        {
+          "id": 1,
+          "titulo": "Boas-vindas e Setup de Ambiente",
+          "data_aviso": "2026-03-23",
+          "data_limite": "2026-03-30",
+          "situacao": "pendente",
+          "responsaveis": [
+            { "id": 1, "nome": "Alice Mendonça" },
+            { "id": 2, "nome": "Bruno Tavares" }
+          ]
+        },
+        {
+          "id": 2,
+          "titulo": "Lógica Digital e Sistemas Numéricos",
+          "data_aviso": "2026-03-31",
+          "data_limite": "2026-04-07",
+          "situacao": "pendente",
+          "responsaveis": [
+            { "id": 3, "nome": "Camila Rezende" },
+            { "id": 4, "nome": "Diego Fonseca" }
+          ]
+        }
+      ],
+      "advertencias": [],
+      "logs": [
+        { "id": 1, "data": "2026-03-18 14:22", "acao": "CADASTRO_PADRINHO", "descricao": "10 padrinhos importados da planilha do Forms.", "ip": "127.0.0.1" },
+        { "id": 2, "data": "2026-03-18 14:25", "acao": "ALTERACAO_CONFIG", "descricao": "Semestre 2026/1 configurado pela coordenação.", "ip": "127.0.0.1" }
+      ]
+    },
+    "andamento": {
+      "id": "andamento",
+      "titulo": "Cenário 2 · Semestre em Andamento",
+      "badge": "Monitoria Ativa",
+      "resumo": "Match confirmado entre padrinhos e calouros, 2 reuniões realizadas, entregas de temas acontecendo e alertas preventivos ativos.",
+      "hasMatches": true,
+      "statusOverrides": {
+        "3": { "status": "alerta", "amarelos": 1, "vermelhos": 0 },
+        "5": { "status": "alerta", "amarelos": 1, "vermelhos": 0 },
+        "7": { "status": "alerta", "amarelos": 1, "vermelhos": 0 }
+      },
+      "reunioes": [
+        {
+          "id": 1,
+          "data": "2026-03-20",
+          "tema": "Abertura do semestre",
+          "descricao": "Apresentação dos pares padrinho-calouro e cronograma de temas.",
+          "presentes": 8,
+          "justificadas": 1,
+          "ausentes": 1,
+          "ausentesIds": [3, 4],
+          "justificadasIds": [4]
+        },
+        {
+          "id": 2,
+          "data": "2026-04-17",
+          "tema": "Acompanhamento de Python e AEDS 1",
+          "descricao": "Feedback dos primeiros encontros e revisão de entregas.",
+          "presentes": 8,
+          "justificadas": 0,
+          "ausentes": 2,
+          "ausentesIds": [5, 7],
+          "justificadasIds": []
+        }
+      ],
+      "temas": [
+        {
+          "id": 1,
+          "titulo": "Boas-vindas e Setup de Ambiente",
+          "data_aviso": "2026-03-23",
+          "data_limite": "2026-03-30",
+          "data_entrega": "2026-03-29",
+          "situacao": "entregue",
+          "responsaveis": [
+            { "id": 1, "nome": "Alice Mendonça" },
+            { "id": 2, "nome": "Bruno Tavares" }
+          ]
+        },
+        {
+          "id": 2,
+          "titulo": "Lógica Digital e Sistemas Numéricos",
+          "data_aviso": "2026-03-31",
+          "data_limite": "2026-04-07",
+          "data_entrega": "2026-04-10",
+          "situacao": "atraso",
+          "responsaveis": [
+            { "id": 3, "nome": "Camila Rezende" },
+            { "id": 4, "nome": "Diego Fonseca" }
+          ]
+        },
+        {
+          "id": 3,
+          "titulo": "Python 1: Estruturas Condicionais",
+          "data_aviso": "2026-04-10",
+          "data_limite": "2026-04-24",
+          "situacao": "pendente",
+          "responsaveis": [
+            { "id": 5, "nome": "Elisa Drummond" },
+            { "id": 6, "nome": "Felipe Quaresma" }
+          ]
+        }
+      ],
+      "advertencias": [
+        { "id": 1, "padrinho_id": 3, "padrinho_nome": "Camila Rezende", "tipo": "amarelo", "origem": "falta", "motivo": "Falta sem justificativa na reunião de 20/03", "data": "2026-03-20" },
+        { "id": 2, "padrinho_id": 5, "padrinho_nome": "Elisa Drummond", "tipo": "amarelo", "origem": "falta", "motivo": "Falta sem justificativa na reunião de 17/04", "data": "2026-04-17" },
+        { "id": 3, "padrinho_id": 7, "padrinho_nome": "Gabriela Monteiro", "tipo": "amarelo", "origem": "atraso_tema", "motivo": "Entrega de material com 3 dias de atraso", "data": "2026-04-10" }
+      ],
+      "logs": [
+        { "id": 5, "data": "2026-04-17 19:40", "acao": "LANCAMENTO_PRESENCA", "descricao": "Presenças sincronizadas via Google Forms (Reunião 2).", "ip": "127.0.0.1" },
+        { "id": 4, "data": "2026-04-10 11:15", "acao": "ADVERTENCIA_MANUAL", "descricao": "Atraso registrado no tema Lógica Digital.", "ip": "127.0.0.1" },
+        { "id": 3, "data": "2026-03-19 16:05", "acao": "CADASTRO_PADRINHO", "descricao": "Match automático executado: 16 calouros alocados.", "ip": "127.0.0.1" }
+      ]
+    },
+    "fechamento": {
+      "id": "fechamento",
+      "titulo": "Cenário 3 · Fechamento ACG",
+      "badge": "Relatórios & Certificados",
+      "resumo": "Fim do semestre com 3 reuniões, temas encerrados, cálculo completo de aptidão (aptos, alerta, reprovado e reportado) e certificados prontos.",
+      "hasMatches": true,
+      "statusOverrides": {
+        "3": { "status": "alerta", "amarelos": 2, "vermelhos": 0 },
+        "5": { "status": "inapto_amarelo", "amarelos": 3, "vermelhos": 0 },
+        "7": { "status": "apto", "amarelos": 1, "vermelhos": 0 },
+        "10": { "status": "inapto_vermelho", "amarelos": 1, "vermelhos": 1 }
+      },
+      "reunioes": [
+        {
+          "id": 1,
+          "data": "2026-03-20",
+          "tema": "Abertura do semestre",
+          "descricao": "Apresentação das regras do programa e acolhimento inicial.",
+          "presentes": 8,
+          "justificadas": 1,
+          "ausentes": 1,
+          "ausentesIds": [5, 10],
+          "justificadasIds": [10]
+        },
+        {
+          "id": 2,
+          "data": "2026-04-17",
+          "tema": "Acompanhamento de temas",
+          "descricao": "Alinhamento de dúvidas dos calouros e cronograma de atividades.",
+          "presentes": 7,
+          "justificadas": 1,
+          "ausentes": 2,
+          "ausentesIds": [3, 5, 7],
+          "justificadasIds": [7]
+        },
+        {
+          "id": 3,
+          "data": "2026-06-12",
+          "tema": "Fechamento e balanço final",
+          "descricao": "Revisão de entregas e fechamento de horas de ACG.",
+          "presentes": 8,
+          "justificadas": 0,
+          "ausentes": 2,
+          "ausentesIds": [3, 5],
+          "justificadasIds": []
+        }
+      ],
+      "temas": [
+        {
+          "id": 1,
+          "titulo": "Boas-vindas e Setup de Ambiente",
+          "data_aviso": "2026-03-23",
+          "data_limite": "2026-03-27",
+          "data_entrega": "2026-03-26",
+          "situacao": "entregue",
+          "responsaveis": [
+            { "id": 1, "nome": "Alice Mendonça" },
+            { "id": 2, "nome": "Bruno Tavares" }
+          ]
+        },
+        {
+          "id": 2,
+          "titulo": "Lógica Digital",
+          "data_aviso": "2026-03-28",
+          "data_limite": "2026-04-06",
+          "data_entrega": "2026-04-06",
+          "situacao": "entregue",
+          "responsaveis": [
+            { "id": 3, "nome": "Camila Rezende" },
+            { "id": 4, "nome": "Diego Fonseca" }
+          ]
+        },
+        {
+          "id": 3,
+          "titulo": "Python 1: Entradas e Saídas",
+          "data_aviso": "2026-04-07",
+          "data_limite": "2026-04-16",
+          "data_entrega": "2026-04-15",
+          "situacao": "entregue",
+          "responsaveis": [
+            { "id": 6, "nome": "Felipe Quaresma" },
+            { "id": 8, "nome": "Henrique Lacerda" }
+          ]
+        },
+        {
+          "id": 4,
+          "titulo": "Python 2: Condicionais e Laços",
+          "data_aviso": "2026-04-17",
+          "data_limite": "2026-05-04",
+          "data_entrega": "2026-05-08",
+          "situacao": "atraso",
+          "responsaveis": [
+            { "id": 7, "nome": "Gabriela Monteiro" },
+            { "id": 9, "nome": "Isabela Coutinho" }
+          ]
+        },
+        {
+          "id": 5,
+          "titulo": "Modularização e Revisão Final",
+          "data_aviso": "2026-05-05",
+          "data_limite": "2026-05-18",
+          "situacao": "nao_entregue",
+          "responsaveis": [{ "id": 10, "nome": "João Vasconcelos" }]
+        }
+      ],
+      "advertencias": [
+        { "id": 1, "padrinho_id": 5, "padrinho_nome": "Elisa Drummond", "tipo": "amarelo", "origem": "falta", "motivo": "Falta sem justificativa (Reunião 1)", "data": "2026-03-20" },
+        { "id": 2, "padrinho_id": 5, "padrinho_nome": "Elisa Drummond", "tipo": "amarelo", "origem": "falta", "motivo": "Falta sem justificativa (Reunião 2)", "data": "2026-04-17" },
+        { "id": 3, "padrinho_id": 5, "padrinho_nome": "Elisa Drummond", "tipo": "amarelo", "origem": "falta", "motivo": "Falta sem justificativa (Reunião 3)", "data": "2026-06-12" },
+        { "id": 4, "padrinho_id": 3, "padrinho_nome": "Camila Rezende", "tipo": "amarelo", "origem": "falta", "motivo": "Falta sem justificativa (Reunião 2)", "data": "2026-04-17" },
+        { "id": 5, "padrinho_id": 3, "padrinho_nome": "Camila Rezende", "tipo": "amarelo", "origem": "falta", "motivo": "Falta sem justificativa (Reunião 3)", "data": "2026-06-12" },
+        { "id": 6, "padrinho_id": 7, "padrinho_nome": "Gabriela Monteiro", "tipo": "amarelo", "origem": "atraso_tema", "motivo": "Entrega do tema Python 2 com atraso", "data": "2026-05-08" },
+        { "id": 7, "padrinho_id": 10, "padrinho_nome": "João Vasconcelos", "tipo": "vermelho", "origem": "nao_entrega", "motivo": "Não entrega do tema atribuído após prazo estendido", "data": "2026-05-18" }
+      ],
+      "logs": [
+        { "id": 10, "data": "2026-06-15 17:10", "acao": "ALTERACAO_CONFIG", "descricao": "Relatório de Aptidão ACG e pacote ZIP gerados.", "ip": "127.0.0.1" },
+        { "id": 9, "data": "2026-06-12 20:05", "acao": "LANCAMENTO_PRESENCA", "descricao": "Presenças lançadas para a reunião 3.", "ip": "127.0.0.1" },
+        { "id": 8, "data": "2026-05-18 22:00", "acao": "ADVERTENCIA_MANUAL", "descricao": "Advertência grave por não entrega de tema (João Vasconcelos).", "ip": "127.0.0.1" }
+      ]
+    }
+  }
+}

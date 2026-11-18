@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { CheckCircle2, Link2, Printer, RefreshCw, Sparkles, Users } from "lucide-react";
 import { AppShell } from "../components/layout/AppShell";
 import { ToneBadge } from "../components/ui/StatusBadge";
 import { useApp } from "../context/AppContext";
 import { abreviarNome } from "../data/scenarios";
+import { useLiveData } from "../hooks/useLiveData";
 import { apiFetch } from "../services/api";
 import { MatchGrupo } from "../types/domain";
 
@@ -17,17 +17,7 @@ interface LiveMatchResp {
 
 export function MatchPage() {
   const { mode, scenario, runMatchDemo, notify } = useApp();
-  const [live, setLive] = useState<LiveMatchResp | null>(null);
-
-  function loadLive() {
-    if (mode !== "live") return;
-    apiFetch<LiveMatchResp>("/api/match").then(setLive).catch(() => setLive(null));
-  }
-
-  useEffect(() => {
-    if (mode === "live") loadLive();
-    else setLive(null);
-  }, [mode]);
+  const { live, reload: loadLive } = useLiveData<LiveMatchResp>("/api/match");
 
   const grupos = (live ? live.dados : scenario.matches).filter((g) => g.calouros.length > 0);
   const totalPadrinhos = live ? live.total_padrinhos : scenario.padrinhos.length;

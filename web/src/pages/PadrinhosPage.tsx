@@ -1,17 +1,18 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, Moon, Search, Sun, UserPlus, Users } from "lucide-react";
 import { AppShell } from "../components/layout/AppShell";
 import { StatusACGBadge, ToneBadge } from "../components/ui/StatusBadge";
 import { useApp } from "../context/AppContext";
 import { abreviarNome } from "../data/scenarios";
+import { useLiveData } from "../hooks/useLiveData";
 import { apiFetch } from "../services/api";
 import { Padrinho, StatusACG } from "../types/domain";
 
 export function PadrinhosPage() {
   const { mode, scenario, addPadrinhoDemo, notify } = useApp();
   const navigate = useNavigate();
-  const [liveList, setLiveList] = useState<Padrinho[] | null>(null);
+  const { live, reload: loadLive } = useLiveData<{ padrinhos: Padrinho[] }>("/api/padrinhos");
   const [filtro, setFiltro] = useState<"todos" | StatusACG>("todos");
   const [busca, setBusca] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
@@ -22,19 +23,7 @@ export function PadrinhosPage() {
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
 
-  function loadLive() {
-    if (mode !== "live") return;
-    apiFetch<{ padrinhos: Padrinho[] }>("/api/padrinhos")
-      .then((res) => setLiveList(res.padrinhos))
-      .catch(() => setLiveList(null));
-  }
-
-  useEffect(() => {
-    if (mode === "live") loadLive();
-    else setLiveList(null);
-  }, [mode]);
-
-  const padrinhos = liveList ?? scenario.padrinhos;
+  const padrinhos = live?.padrinhos ?? scenario.padrinhos;
 
   const filtrados = padrinhos.filter((p) => {
     const q = busca.trim().toLowerCase();

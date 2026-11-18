@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   AlertTriangle,
@@ -19,7 +18,7 @@ import { MetricCard } from "../components/ui/MetricCard";
 import { StatusACGBadge, ToneBadge } from "../components/ui/StatusBadge";
 import { useApp } from "../context/AppContext";
 import { abreviarNome, formatarDataBr } from "../data/scenarios";
-import { apiFetch } from "../services/api";
+import { useLiveData } from "../hooks/useLiveData";
 import { Padrinho, Reuniao } from "../types/domain";
 import "./DashboardPage.css";
 
@@ -31,19 +30,9 @@ interface LiveDashboardResponse {
 }
 
 export function DashboardPage() {
-  const { mode, scenario } = useApp();
+  const { scenario } = useApp();
   const navigate = useNavigate();
-  const [liveData, setLiveData] = useState<LiveDashboardResponse | null>(null);
-
-  useEffect(() => {
-    if (mode !== "live") {
-      setLiveData(null);
-      return;
-    }
-    apiFetch<LiveDashboardResponse>("/api/dashboard")
-      .then(setLiveData)
-      .catch(() => setLiveData(null));
-  }, [mode]);
+  const { live: liveData } = useLiveData<LiveDashboardResponse>("/api/dashboard");
 
   const padrinhos: Padrinho[] = liveData
     ? liveData.dados.map((d) => ({

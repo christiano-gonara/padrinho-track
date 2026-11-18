@@ -4,12 +4,11 @@ from datetime import datetime, date
 
 from backend.repositories import (
     advertencia_repository,
-    config_repository,
-    log_repository,
     match_repository,
     padrinho_repository,
     presenca_repository,
     reuniao_repository,
+    sistema_repository,
     tema_repository,
 )
 
@@ -72,7 +71,7 @@ def registrar_log(acao, descricao):
         ip = request.remote_addr
     except RuntimeError:
         ip = None
-    log_repository.registrar(acao, descricao, ip)
+    sistema_repository.registrar_log(acao, descricao, ip)
 
 
 def get_todos_padrinhos():
@@ -218,11 +217,11 @@ def calcular_todos_status(padrinho_ids, limite=None):
 
 
 def get_config(chave, padrao=None):
-    return config_repository.obter(chave, padrao)
+    return sistema_repository.obter_config(chave, padrao)
 
 
 def set_config(chave, valor):
-    return config_repository.salvar(chave, valor)
+    return sistema_repository.salvar_config(chave, valor)
 
 
 def get_historico_padrinho(padrinho_id):
@@ -266,5 +265,5 @@ def excluir_advertencia(advertencia_id):
 
 
 def rodar_match(max_calouros=3, score_minimo=0):
-    from backend.services.match_algorithm import rodar_match as _rodar_match
+    from backend.services.match_service import rodar_match as _rodar_match
     return _rodar_match(max_calouros, score_minimo)

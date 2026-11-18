@@ -1,12 +1,26 @@
-"""Dashboard: visão inicial com o status dos padrinhos e o resumo das reuniões."""
+"""Dashboard e página inicial pública: visão do programa e métricas de reuniões."""
 
-from flask import Blueprint, render_template
+from flask import Blueprint, redirect, render_template, session, url_for
 
 from backend.models import contar_reunioes, get_todos_padrinhos
 from backend.repositories import reuniao_repository, tema_repository
 from backend.services.status_service import calcular_todos_status
 
+REPOSITORIO = "https://github.com/christiano-gonara/padrinho-track"
+
 bp = Blueprint("dashboard", __name__)
+
+
+@bp.route("/")
+def landing():
+    """Apresenta o programa para quem ainda não entrou."""
+    if session.get("logged_in"):
+        return redirect(url_for("dashboard.dashboard"))
+    return render_template(
+        "pages/landing.html",
+        estatico=False,
+        repositorio=REPOSITORIO,
+    )
 
 
 @bp.route("/dashboard")

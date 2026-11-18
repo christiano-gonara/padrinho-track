@@ -1,28 +1,18 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Phone, Search, Smile, UserCheck, Users } from "lucide-react";
 import { AppShell } from "../components/layout/AppShell";
 import { ToneBadge } from "../components/ui/StatusBadge";
 import { useApp } from "../context/AppContext";
-import { apiFetch } from "../services/api";
+import { useLiveData } from "../hooks/useLiveData";
 import { MatchGrupo } from "../types/domain";
 
 export function CalourosPage() {
-  const { mode, scenario } = useApp();
-  const [liveGrupos, setLiveGrupos] = useState<MatchGrupo[] | null>(null);
+  const { scenario } = useApp();
+  const { live } = useLiveData<{ grupos: MatchGrupo[] }>("/api/calouros");
   const [busca, setBusca] = useState("");
 
-  useEffect(() => {
-    if (mode !== "live") {
-      setLiveGrupos(null);
-      return;
-    }
-    apiFetch<{ grupos: MatchGrupo[] }>("/api/calouros")
-      .then((res) => setLiveGrupos(res.grupos))
-      .catch(() => setLiveGrupos(null));
-  }, [mode]);
-
-  const grupos = (liveGrupos ?? scenario.matches).filter((g) => g.calouros.length > 0);
+  const grupos = (live?.grupos ?? scenario.matches).filter((g) => g.calouros.length > 0);
   const q = busca.trim().toLowerCase();
   const filtrados = grupos.filter(
     (g) =>

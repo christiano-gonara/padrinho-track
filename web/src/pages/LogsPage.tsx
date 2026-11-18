@@ -1,24 +1,15 @@
-import { useEffect, useState } from "react";
 import { History } from "lucide-react";
 import { AppShell } from "../components/layout/AppShell";
 import { ToneBadge } from "../components/ui/StatusBadge";
 import { useApp } from "../context/AppContext";
-import { apiFetch } from "../services/api";
+import { useLiveData } from "../hooks/useLiveData";
 import { LogAcao } from "../types/domain";
 
 export function LogsPage() {
-  const { mode, scenario } = useApp();
-  const [liveLogs, setLiveLogs] = useState<LogAcao[] | null>(null);
+  const { scenario } = useApp();
+  const { live } = useLiveData<{ logs: LogAcao[] }>("/api/logs");
 
-  useEffect(() => {
-    if (mode !== "live") {
-      setLiveLogs(null);
-      return;
-    }
-    apiFetch<{ logs: LogAcao[] }>("/api/logs").then((res) => setLiveLogs(res.logs)).catch(() => setLiveLogs(null));
-  }, [mode]);
-
-  const logs = liveLogs ?? scenario.logs;
+  const logs = live?.logs ?? scenario.logs;
 
   return (
     <AppShell title="Logs de Auditoria">

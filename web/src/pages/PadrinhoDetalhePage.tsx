@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AlertTriangle, ArrowLeft, BookOpen, Mail, Phone, ShieldAlert, Smile, UserCheck, XCircle } from "lucide-react";
 import { AppShell } from "../components/layout/AppShell";
@@ -6,7 +5,7 @@ import { MetricCard } from "../components/ui/MetricCard";
 import { StatusACGBadge, ToneBadge } from "../components/ui/StatusBadge";
 import { useApp } from "../context/AppContext";
 import { formatarDataBr } from "../data/scenarios";
-import { apiFetch } from "../services/api";
+import { useLiveData } from "../hooks/useLiveData";
 import { Advertencia, Calouro, Padrinho } from "../types/domain";
 
 interface LiveDetail {
@@ -23,18 +22,8 @@ interface LiveDetail {
 export function PadrinhoDetalhePage() {
   const { id } = useParams();
   const padrinhoId = Number(id);
-  const { mode, scenario } = useApp();
-  const [live, setLive] = useState<LiveDetail | null>(null);
-
-  useEffect(() => {
-    if (mode !== "live") {
-      setLive(null);
-      return;
-    }
-    apiFetch<LiveDetail>(`/api/padrinhos/${padrinhoId}`)
-      .then(setLive)
-      .catch(() => setLive(null));
-  }, [mode, padrinhoId]);
+  const { scenario } = useApp();
+  const { live } = useLiveData<LiveDetail>(`/api/padrinhos/${padrinhoId}`, [padrinhoId]);
 
   const demoPadrinho = scenario.padrinhos.find((p) => p.id === padrinhoId) || scenario.padrinhos[0];
   const padrinho = live?.padrinho ?? demoPadrinho;

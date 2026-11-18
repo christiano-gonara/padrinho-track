@@ -8,7 +8,7 @@ from backend.models import (
     get_todos_padrinhos,
     get_todos_temas,
 )
-from backend.repositories import advertencia_repository, calouro_repository
+from backend.repositories import advertencia_repository, match_repository
 from backend.services.certificado_service import listar_coordenacao_certificados
 from backend.services.status_service import calcular_todos_status
 
@@ -153,8 +153,8 @@ def montar_contexto_resumo_semestre(config):
     reunioes = get_todas_reunioes()
     temas_raw = get_todos_temas()
 
-    cal_row = calouro_repository.obter_resumo_demografico()
-    cal_turnos_raw = calouro_repository.contar_por_turno()
+    cal_row = match_repository.obter_resumo_demografico_calouros()
+    cal_turnos_raw = match_repository.contar_calouros_por_turno()
 
     total_calouros = cal_row["total"] or 0
     total_cal_d = total_calouros or 1

@@ -9,7 +9,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from backend.database import init_db, get_conn
 import backend.database as db_module
 from backend.repositories import padrinho_repository
-from backend.services.match_algorithm import rodar_match
+from backend.services.match_service import rodar_match
 
 
 @pytest.fixture(autouse=True)

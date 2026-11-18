@@ -12,7 +12,7 @@ from flask import render_template
 
 from backend.database import DB_PATH
 from backend.models import contar_reunioes, get_padrinho, get_todos_padrinhos
-from backend.repositories import calouro_repository
+from backend.repositories import match_repository
 from backend.services.status_service import calcular_todos_status
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -106,7 +106,7 @@ def montar_contexto_certificado(padrinho_id, config):
         return None, "Este padrinho não está apto para receber certificado.", 403
 
     total_padrinhos = len(get_todos_padrinhos())
-    total_calouros = calouro_repository.contar_todos()
+    total_calouros = match_repository.contar_calouros()
 
     return _contexto_base_certificado(
         padrinho,
@@ -125,7 +125,7 @@ def montar_contexto_certificado_coordenacao(indice, config):
         return None, "Coordenador(a) não encontrado(a).", 404
 
     total_padrinhos = len(get_todos_padrinhos())
-    total_calouros = calouro_repository.contar_todos()
+    total_calouros = match_repository.contar_calouros()
     return _contexto_base_certificado(
         coordenacao[indice],
         total_padrinhos,
@@ -146,7 +146,7 @@ def obter_zip_certificados(config, regenerar=False):
         if todos_status.get(p["id"], {"status": "apto"})["status"] in ("apto", "alerta")
     ]
 
-    total_calouros = calouro_repository.contar_todos()
+    total_calouros = match_repository.contar_calouros()
     total_padrinhos = len(padrinhos)
 
     semestre_slug = _slug_semestre(config["semestre"])

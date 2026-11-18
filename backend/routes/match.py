@@ -6,6 +6,7 @@ from backend.models import get_config_semestre
 from backend.services.match_service import (
     gerar_csv_lista_contatos,
     gerar_e_confirmar_match,
+    listar_calouros_com_match,
     listar_contatos_match,
     montar_contexto_match,
     resetar_match,
@@ -13,6 +14,12 @@ from backend.services.match_service import (
 
 
 bp = Blueprint("match", __name__)
+
+
+@bp.route("/calouros")
+def calouros():
+    """Lista calouros agrupados por padrinho."""
+    return render_template("pages/calouros.html", dados=listar_calouros_com_match())
 
 
 @bp.route("/match")

@@ -11,7 +11,7 @@ from backend.integrations.importers import (
     importar_padrinhos_sheets,
 )
 from backend.models import get_config, registrar_log, set_config
-from backend.repositories import calouro_repository, padrinho_repository
+from backend.repositories import match_repository, padrinho_repository
 
 bp = Blueprint("inicio", __name__)
 
@@ -33,7 +33,7 @@ def inicio_semestre():
     return render_template(
         "pages/inicio_semestre.html",
         total_padrinhos=padrinho_repository.contar_ativos(),
-        total_calouros=calouro_repository.contar_todos(),
+        total_calouros=match_repository.contar_calouros(),
         sheets_padrinhos_url=get_config("sheets_padrinhos_url", ""),
         sheets_calouros_url=get_config("sheets_calouros_url", ""),
     )

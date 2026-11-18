@@ -19,14 +19,11 @@ from backend.database import init_db  # noqa: E402  (precisa do .env já carrega
 from backend.models import abreviar_nome, registrar_log  # noqa: E402
 from backend.routes.advertencias import bp as advertencias_bp  # noqa: E402
 from backend.routes.api import bp as api_bp  # noqa: E402
-from backend.routes.calouros import bp as calouros_bp  # noqa: E402
 from backend.routes.configuracoes import bp as configuracoes_bp  # noqa: E402
 from backend.routes.dashboard import bp as dashboard_bp  # noqa: E402
 from backend.routes.inicio import bp as inicio_bp  # noqa: E402
 from backend.routes.match import bp as match_bp  # noqa: E402
 from backend.routes.padrinhos import bp as padrinhos_bp  # noqa: E402
-from backend.routes.presencas import bp as presencas_bp  # noqa: E402
-from backend.routes.publicas import bp as publicas_bp  # noqa: E402
 from backend.routes.relatorios import bp as relatorios_bp  # noqa: E402
 from backend.routes.reunioes import bp as reunioes_bp  # noqa: E402
 from backend.routes.temas import bp as temas_bp  # noqa: E402
@@ -55,7 +52,6 @@ with app.app_context():
 # Blueprints são grupos de rotas separados por domínio. O backend/app.py só monta
 # a aplicação; cada arquivo em backend/routes/ cuida de uma área.
 for _bp in (
-    publicas_bp,
     api_bp,
     dashboard_bp,
     advertencias_bp,
@@ -63,10 +59,8 @@ for _bp in (
     inicio_bp,
     relatorios_bp,
     reunioes_bp,
-    presencas_bp,
     temas_bp,
     padrinhos_bp,
-    calouros_bp,
     match_bp,
 ):
     app.register_blueprint(_bp)
@@ -74,7 +68,7 @@ for _bp in (
 app.jinja_env.filters["abreviar"] = abreviar_nome
 
 # Rotas que abrem sem sessão: a apresentação, o login e os arquivos estáticos.
-ROTAS_PUBLICAS = {"publicas.landing", "login", "static", "api.auth_login", "api.auth_me", "api.auth_logout"}
+ROTAS_PUBLICAS = {"dashboard.landing", "login", "static", "api.auth_login", "api.auth_me", "api.auth_logout"}
 
 
 @app.errorhandler(Exception)

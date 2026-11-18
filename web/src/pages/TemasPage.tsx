@@ -1,9 +1,10 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
 import { BookOpen, Check, Plus, X } from "lucide-react";
 import { AppShell } from "../components/layout/AppShell";
 import { ToneBadge } from "../components/ui/StatusBadge";
 import { useApp } from "../context/AppContext";
 import { abreviarNome, formatarDataBr } from "../data/scenarios";
+import { useLiveData } from "../hooks/useLiveData";
 import { apiFetch } from "../services/api";
 import { Padrinho, TemaItem } from "../types/domain";
 
@@ -17,22 +18,12 @@ interface LiveTemasResp {
 
 export function TemasPage() {
   const { mode, scenario, addTemaDemo, markTemaDemo, notify } = useApp();
-  const [live, setLive] = useState<LiveTemasResp | null>(null);
+  const { live, reload: loadLive } = useLiveData<LiveTemasResp>("/api/temas");
   const [modalOpen, setModalOpen] = useState(false);
   const [titulo, setTitulo] = useState("");
   const [dataAviso, setDataAviso] = useState("");
   const [dataLimite, setDataLimite] = useState("");
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
-
-  function loadLive() {
-    if (mode !== "live") return;
-    apiFetch<LiveTemasResp>("/api/temas").then(setLive).catch(() => setLive(null));
-  }
-
-  useEffect(() => {
-    if (mode === "live") loadLive();
-    else setLive(null);
-  }, [mode]);
 
   const temas: TemaItem[] = live
     ? live.temas.map((x) => ({
