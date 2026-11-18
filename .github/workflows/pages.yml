@@ -1,0 +1,56 @@
+# Publica a apresentação (a landing page) no GitHub Pages.
+# O sistema completo é Flask e roda em servidor; aqui sobe só a página estática
+# gerada por scripts/build_site.py. Endereço: https://christiano-gonara.github.io/padrinho-track/
+
+name: Apresentação no GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'templates/pages/landing.html'
+      - 'static/**'
+      - 'scripts/build_site.py'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Gerar a apresentação estática
+        run: python scripts/build_site.py
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.publicacao.outputs.page_url }}
+    steps:
+      - id: publicacao
+        uses: actions/deploy-pages@v4

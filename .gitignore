@@ -1,14 +1,29 @@
-instance/
+# Ambiente e dependências
+.venv/
+env/
+venv/
+
+# Cache Python e Pytest
 __pycache__/
 *.pyc
+.pytest_cache/
+tmp_pytest_run/
+
+# Arquivos locais e credenciais
 .env
+instance/
 *.db
 *.csv
 *.xlsx
-scripts/seed.py
-scripts/seed_calouros.py
 config_semestre.json
 config_handoff.json
 credentials.json
 client_secrets.json
 authorized_user.json
+
+# Scripts com dados sensíveis
+scripts/seed.py
+scripts/seed_calouros.py
+
+# Artefato de build estático do Pages (gerado em runtime pelo CI)
+docs/site/

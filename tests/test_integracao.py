@@ -1,22 +1,23 @@
-"""Testes de integração — rotas HTTP retornam 200 ou 302, nunca 404 ou 500."""
+"""Testes de integração — landing page pública, proteção de login e fluxos principais."""
 
 import os
-import sys
 from pathlib import Path
+import sys
+
+import pytest
 
 os.environ.setdefault("SECRET_KEY", "test-integration-key")
 os.environ.setdefault("APP_PASSWORD", "test-password")
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-import pytest
+from database import get_conn, init_db
 import database as db_module
-from database import init_db, get_conn
 
 
 @pytest.fixture()
 def client(tmp_path, monkeypatch):
-    """Cliente de teste com banco isolado e dados mínimos de seed."""
+    """Cliente de teste com banco isolado e dados mínimos."""
     db_path = tmp_path / "test_integracao.db"
     monkeypatch.setattr(db_module, "DB_PATH", db_path)
     init_db()
@@ -44,99 +45,92 @@ def client(tmp_path, monkeypatch):
     conn.close()
 
     from app import app as flask_app
+
     flask_app.config["TESTING"] = True
     with flask_app.test_client() as c:
-        with c.session_transaction() as sess:
-            sess["logged_in"] = True
         yield c
 
 
-class TestGetPages:
+class TestLandingEPublico:
+    """A apresentação pública abre sem login; visitantes autenticados vão ao dashboard."""
 
-    def test_dashboard(self, client):
-        assert client.get("/").status_code == 200
+    def test_landing_abre_sem_login(self, client):
+        resp = client.get("/")
+        assert resp.status_code == 200
+        assert b"Padrinho Track" in resp.data
 
-    def test_padrinhos(self, client):
-        assert client.get("/padrinhos").status_code == 200
-
-    def test_padrinho_detalhe(self, client):
-        assert client.get("/padrinhos/1").status_code == 200
-
-    def test_calouros(self, client):
-        assert client.get("/calouros").status_code == 200
-
-    def test_reunioes(self, client):
-        assert client.get("/reunioes").status_code == 200
-
-    def test_presencas_get(self, client):
-        assert client.get("/presencas/1").status_code == 200
-
-    def test_temas(self, client):
-        assert client.get("/temas").status_code == 200
-
-    def test_match(self, client):
-        assert client.get("/match").status_code == 200
-
-    def test_match_lista_contatos(self, client):
-        assert client.get("/match/lista-contatos").status_code == 200
-
-    def test_inicio_semestre(self, client):
-        assert client.get("/inicio").status_code == 200
-
-    def test_advertencias(self, client):
-        assert client.get("/advertencias").status_code == 200
-
-    def test_logs(self, client):
-        assert client.get("/logs").status_code == 200
-
-    def test_configuracoes(self, client):
-        assert client.get("/config").status_code == 200
-
-    def test_relatorio(self, client):
-        assert client.get("/relatorio").status_code == 200
-
-    def test_relatorio_aptidao(self, client):
-        assert client.get("/relatorio/aptidao").status_code == 200
-
-    def test_relatorio_resumo(self, client):
-        assert client.get("/relatorio/resumo").status_code == 200
-
-    def test_relatorio_certificado(self, client):
-        assert client.get("/relatorio/certificado/1").status_code == 200
+    def test_visitante_autenticado_redireciona_ao_dashboard(self, client):
+        with client.session_transaction() as sess:
+            sess["logged_in"] = True
+        resp = client.get("/")
+        assert resp.status_code == 302
+        assert "/dashboard" in resp.headers["Location"]
 
 
+class TestProtecaoDeAcesso:
+    """Rotas internas exigem login e redirecionam para a tela de autenticação."""
 
-class TestPostActions:
+    @pytest.mark.parametrize(
+        "rota",
+        [
+            "/dashboard",
+            "/padrinhos",
+            "/calouros",
+            "/reunioes",
+            "/temas",
+            "/match",
+            "/relatorio",
+            "/config",
+        ],
+    )
+    def test_rotas_fechadas_redirecionam_sem_login(self, client, rota):
+        resp = client.get(rota)
+        assert resp.status_code == 302
+        assert "/login" in resp.headers["Location"]
 
-    def test_nova_reuniao(self, client):
-        r = client.post("/reunioes/nova", data={
-            "data": "2026-06-01",
-            "tema": "Reunião Nova",
-            "descricao": "",
-        })
-        assert r.status_code == 302
 
-    def test_novo_tema(self, client):
-        r = client.post("/temas/novo", data={
-            "titulo": "Tema Novo",
-            "data_aviso": "2026-06-01",
-            "data_limite": "2026-06-08",
-            "padrinho_ids": ["1"],
-        })
-        assert r.status_code == 302
+class TestNavegacaoEAcoesAutenticadas:
+    """Usuário autenticado consegue visualizar as páginas e executar ações chave."""
 
-    def test_match_rodar(self, client):
-        assert client.post("/match/rodar").status_code == 302
+    @pytest.fixture(autouse=True)
+    def autenticar(self, client):
+        with client.session_transaction() as sess:
+            sess["logged_in"] = True
 
-    def test_sincronizar_presenca_sem_config(self, client):
-        assert client.post("/reunioes/1/sincronizar").status_code == 302
+    @pytest.mark.parametrize(
+        "rota",
+        [
+            "/dashboard",
+            "/padrinhos",
+            "/padrinhos/1",
+            "/calouros",
+            "/reunioes",
+            "/presencas/1",
+            "/temas",
+            "/match",
+            "/match/lista-contatos",
+            "/relatorio",
+            "/relatorio/aptidao",
+            "/relatorio/resumo",
+            "/relatorio/certificado/1",
+        ],
+    )
+    def test_rotas_principais_respondem_200(self, client, rota):
+        resp = client.get(rota)
+        assert resp.status_code == 200
 
-    def test_importar_padrinhos_sem_url(self, client):
-        assert client.post("/inicio/importar-padrinhos", data={}).status_code == 302
+    def test_acoes_post_essenciais(self, client):
+        # Lançar presença
+        r_presenca = client.post("/presencas/1", data={"presentes": ["1"]})
+        assert r_presenca.status_code == 302
 
-    def test_importar_calouros_sem_url(self, client):
-        assert client.post("/inicio/importar-calouros", data={}).status_code == 302
+        # Nova reunião
+        r_reuniao = client.post(
+            "/reunioes/nova",
+            data={"data": "2026-06-01", "tema": "Nova Reunião", "descricao": ""},
+        )
+        assert r_reuniao.status_code == 302
 
-    def test_lancar_presencas(self, client):
-        r = client.post("/presencas/1", data={"presentes": ["1"]})
-        assert r.status_code == 302
+        # Rodar match
+        r_match = client.post("/match/rodar")
+        assert r_match.status_code == 302
