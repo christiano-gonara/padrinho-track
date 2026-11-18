@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Padrinho Track — Apadrinhamento de calouros sem planilha solta</title>
+  <meta name="description" content="Sistema para acompanhar padrinhos, calouros, reuniões, presenças, temas, advertências, relatórios ACG e certificados da Engenharia de Software da PUC Minas." />
+  {% if estatico %}
+  <base href="/padrinho-track/" />
+  {% endif %}
+  <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}" />
+</head>
+<body class="lp">
+
+{% if estatico %}
+<div class="lp-aviso">
+  <div class="lp-aviso-inner">
+    <span class="lp-aviso-badge"><i class="ri-eye-line"></i> Demonstração pública</span>
+    <span>Apresentação estática no GitHub Pages com exemplos reais dos relatórios e certificados gerados pelo sistema.</span>
+    <span class="lp-aviso-links">
+      <a href="exemplos/relatorio-aptidao.html">Relatório ACG <i class="ri-arrow-right-up-line"></i></a>
+      <a href="exemplos/certificado.html">Certificado <i class="ri-arrow-right-up-line"></i></a>
+      <a href="{{ repositorio }}" target="_blank" rel="noopener">GitHub <i class="ri-github-fill"></i></a>
+    </span>
+  </div>
+</div>
+{% endif %}
+
+<div class="lp-header-wrap">
+  <header class="lp-topo">
+    <a class="lp-marca" href="#topo">
+      <img class="lp-marca-logo" src="{{ url_for('static', filename='brand/padrinho-track-lockup.svg') }}" alt="Padrinho Track" />
+    </a>
+    <nav class="lp-nav" aria-label="Seções da apresentação">
+      <a href="#problema">O problema</a>
+      <a href="#como-funciona">Fluxo</a>
+      <a href="#documentos">Relatórios e Certificados</a>
+      <a href="#regras">Regras ACG</a>
+      <a href="#telas">Telas</a>
+    </nav>
+    <a class="lp-btn lp-btn-primario lp-btn-sm" href="{{ repositorio if estatico else url_for('login') }}" {% if estatico %}target="_blank" rel="noopener"{% endif %}>
+      {% if estatico %}<i class="ri-github-fill"></i> Repositório{% else %}<i class="ri-login-box-line"></i> Entrar{% endif %}
+    </a>
+  </header>
+</div>
+
+<main id="topo">
+
+  <!-- Hero -->
+  <section class="lp-hero-band">
+    <div class="lp-hero">
+      <div class="lp-hero-texto">
+        <p class="lp-eyebrow"><span class="lp-ponto"></span> Engenharia de Software · PUC Minas</p>
+        <h1>Apadrinhamento de calouros, <span class="lp-destaque">do match ao certificado</span>.</h1>
+        <p class="lp-lede">
+          Centralize padrinhos, calouros, reuniões, presenças, entregas de temas, advertências e a emissão automática
+          de relatórios de ACG e certificados em PDF — sem cruzar cinco planilhas no fim do semestre.
+        </p>
+        <div class="lp-acoes">
+          {% if estatico %}
+          <a class="lp-btn lp-btn-primario" href="#documentos">
+            Ver exemplos de relatório e certificado <i class="ri-arrow-down-line"></i>
+          </a>
+          <a class="lp-btn lp-btn-secundario" href="{{ repositorio }}" target="_blank" rel="noopener">
+            <i class="ri-github-fill"></i> Código no GitHub
+          </a>
+          {% else %}
+          <a class="lp-btn lp-btn-primario" href="{{ url_for('login') }}">
+            Entrar no sistema <i class="ri-arrow-right-line"></i>
+          </a>
+          <a class="lp-btn lp-btn-secundario" href="#documentos">
+            Ver relatórios e certificados
+          </a>
+          {% endif %}
+        </div>
+        <div class="lp-hero-stats">
+          <div class="lp-hero-stat">
+            <strong>Match por afinidade</strong>
+            <span>Turno, gênero, cidade e perfil</span>
+          </div>
+          <div class="lp-hero-stat">
+            <strong>Regras ACG automáticas</strong>
+            <span>Amarelos e vermelhos rastreáveis</span>
+          </div>
+          <div class="lp-hero-stat">
+            <strong>Fechamento em 1 clique</strong>
+            <span>Relatórios A4 e ZIP de certificados</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview claro do painel -->
+      <div class="lp-mockup" aria-label="Prévia do painel administrativo">
+        <div class="lp-mockup-bar">
+          <span class="lp-mockup-dots"><i></i><i></i><i></i></span>
+          <span class="lp-mockup-url">padrinho-track / dashboard</span>
+          <span class="lp-selo lp-selo-info" style="font-size:11px;padding:2px 8px;">2026/1</span>
+        </div>
+        <div class="lp-mockup-body">
+          <div class="lp-mini-kpis">
+            <div class="lp-mini-kpi is-green">
+              <small>Aptos</small>
+              <strong>24</strong>
+            </div>
+            <div class="lp-mini-kpi is-amber">
+              <small>Alerta</small>
+              <strong>4</strong>
+            </div>
+            <div class="lp-mini-kpi is-orange">
+              <small>Reprov.</small>
+              <strong>2</strong>
+            </div>
+            <div class="lp-mini-kpi is-red">
+              <small>Report.</small>
+              <strong>1</strong>
+            </div>
+          </div>
+
+          <div class="lp-mini-table-card">
+            <div class="lp-mini-table-head">
+              <span>Acompanhamento de padrinhos</span>
+              <span style="color:var(--lp-muted);font-weight:500;font-size:11.5px;">31 participantes</span>
+            </div>
+            <table class="lp-mini-table">
+              <thead>
+                <tr>
+                  <th>Padrinho</th>
+                  <th>Turno</th>
+                  <th>Alertas</th>
+                  <th>Status ACG</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="lp-mini-user"><span class="lp-mini-av">AM</span> Alice Mendonça</span></td>
+                  <td>Manhã</td>
+                  <td>—</td>
+                  <td><span class="lp-selo lp-selo-ok">Apto</span></td>
+                </tr>
+                <tr>
+                  <td><span class="lp-mini-user"><span class="lp-mini-av">BT</span> Bruno Tavares</span></td>
+                  <td>Noite</td>
+                  <td>1 amarelo</td>
+                  <td><span class="lp-selo lp-selo-alerta">Em alerta</span></td>
+                </tr>
+                <tr>
+                  <td><span class="lp-mini-user"><span class="lp-mini-av">CR</span> Camila Rezende</span></td>
+                  <td>Manhã</td>
+                  <td>—</td>
+                  <td><span class="lp-selo lp-selo-ok">Apto</span></td>
+                </tr>
+                <tr>
+                  <td><span class="lp-mini-user"><span class="lp-mini-av">JV</span> João Vasconcelos</span></td>
+                  <td>Noite</td>
+                  <td>1 vermelho</td>
+                  <td><span class="lp-selo lp-selo-erro">Reportado</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- O Problema -->
+  <section id="problema" class="lp-secao">
+    <div class="lp-container">
+      <header class="lp-secao-topo">
+        <p class="lp-eyebrow">O problema</p>
+        <h2>Planilha não avisa quando alguém falha no semestre.</h2>
+        <p class="lp-sub">O programa tem regras claras de presença, entrega de temas e emissão de ACG. Sem um fluxo único, a coordenação gasta horas conferindo dados espalhados.</p>
+      </header>
+      <div class="lp-cards-3">
+        <article class="lp-card">
+          <span class="lp-icone"><i class="ri-file-list-3-line"></i></span>
+          <h3>Dados desconexos</h3>
+          <p>Inscrições em um formulário, lista de presença em outro, entregas de temas em mensagens. Nada se cruza sozinho.</p>
+        </article>
+        <article class="lp-card">
+          <span class="lp-icone"><i class="ri-user-unfollow-line"></i></span>
+          <h3>Histórico sem rastro</h3>
+          <p>Sem registro formal por reunião e prazo, a contagem de advertências vira conferência manual sujeita a erro.</p>
+        </article>
+        <article class="lp-card">
+          <span class="lp-icone"><i class="ri-award-line"></i></span>
+          <h3>Fechamento trabalhoso</h3>
+          <p>Conferir quem tem direito às horas de ACG e montar cada certificado individualmente consome dias no fim do período.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Como funciona -->
+  <section id="como-funciona" class="lp-secao lp-secao-white">
+    <div class="lp-container">
+      <header class="lp-secao-topo">
+        <p class="lp-eyebrow">Fluxo do semestre</p>
+        <h2>Quatro etapas, do início ao fechamento.</h2>
+        <p class="lp-sub">Pensado para acompanhar exatamente a rotina da coordenação de monitoria ao longo do semestre letivo.</p>
+      </header>
+      <ol class="lp-passos">
+        <li>
+          <span class="lp-passo-numero">1</span>
+          <h3>Importação inicial</h3>
+          <p>Importe padrinhos e calouros direto do Google Forms/Sheets ou cadastre manualmente no painel.</p>
+        </li>
+        <li>
+          <span class="lp-passo-numero">2</span>
+          <h3>Match inteligente</h3>
+          <p>O algoritmo sugere pares por turno, gênero e perfil, gerando a lista oficial de contatos.</p>
+        </li>
+        <li>
+          <span class="lp-passo-numero">3</span>
+          <h3>Reuniões e temas</h3>
+          <p>Lance presenças (manual, CSV ou Sheets) e controle entregas. Faltas e atrasos aplicam advertências automáticas.</p>
+        </li>
+        <li>
+          <span class="lp-passo-numero">4</span>
+          <h3>Relatórios e certificados</h3>
+          <p>Gere o Relatório de Aptidão ACG, o Resumo do Semestre e baixe todos os certificados em PDF num único ZIP.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Documentos e Certificados (destaque especial para GH Pages!) -->
+  <section id="documentos" class="lp-secao">
+    <div class="lp-container">
+      <header class="lp-secao-topo">
+        <p class="lp-eyebrow">Exemplos reais do sistema</p>
+        <h2>Relatórios e certificados prontos para impressão.</h2>
+        <p class="lp-sub">Veja abaixo os documentos reais gerados pelo Padrinho Track em formato A4 — com dados fictícios de exemplo para visualização direta.</p>
+      </header>
+
+      <div class="lp-docs-grid">
+        <article class="lp-doc-card">
+          <div class="lp-doc-card-head">
+            <span class="lp-icone" style="margin:0;"><i class="ri-file-check-line"></i></span>
+            <span class="lp-doc-pill">A4 Retrato</span>
+          </div>
+          <h3>Relatório de Aptidão ACG</h3>
+          <p>Lista oficial de padrinhos aptos ao certificado, casos reportados ao coordenador e equipe de coordenação com links diretos.</p>
+          {% if estatico %}
+          <div class="lp-doc-actions">
+            <a class="lp-btn lp-btn-primario lp-btn-sm" href="exemplos/relatorio-aptidao.html" target="_blank" rel="noopener">
+              Abrir exemplo completo <i class="ri-external-link-line"></i>
+            </a>
+          </div>
+          {% endif %}
+        </article>
+
+        <article class="lp-doc-card">
+          <div class="lp-doc-card-head">
+            <span class="lp-icone" style="margin:0;"><i class="ri-award-line"></i></span>
+            <span class="lp-doc-pill">A4 Paisagem · PDF/ZIP</span>
+          </div>
+          <h3>Certificado de Participação</h3>
+          <p>Certificado individual para padrinhos (04h ACG) e coordenação (05h), pronto para salvar em PDF ou exportar em lote no ZIP.</p>
+          {% if estatico %}
+          <div class="lp-doc-actions">
+            <a class="lp-btn lp-btn-primario lp-btn-sm" href="exemplos/certificado.html" target="_blank" rel="noopener">
+              Abrir certificado completo <i class="ri-external-link-line"></i>
+            </a>
+          </div>
+          {% endif %}
+        </article>
+
+        <article class="lp-doc-card">
+          <div class="lp-doc-card-head">
+            <span class="lp-icone" style="margin:0;"><i class="ri-bar-chart-box-line"></i></span>
+            <span class="lp-doc-pill">3 Páginas A4</span>
+          </div>
+          <h3>Resumo do Semestre</h3>
+          <p>Balanço executivo com demografia, reuniões realizadas, cronograma de temas, taxa de aptidão e participantes por turno.</p>
+          {% if estatico %}
+          <div class="lp-doc-actions">
+            <a class="lp-btn lp-btn-primario lp-btn-sm" href="exemplos/resumo-semestre.html" target="_blank" rel="noopener">
+              Abrir resumo completo <i class="ri-external-link-line"></i>
+            </a>
+          </div>
+          {% endif %}
+        </article>
+      </div>
+
+      <!-- Showcase com abas interativas -->
+      <div class="lp-showcase">
+        <div class="lp-showcase-tabs">
+          <div class="lp-tab-group" role="tablist" aria-label="Exemplos de documentos">
+            <button type="button" class="lp-tab-btn is-active" data-tab="certificado">
+              <i class="ri-award-line"></i> Certificado
+            </button>
+            <button type="button" class="lp-tab-btn" data-tab="aptidao">
+              <i class="ri-file-check-line"></i> Relatório Aptidão ACG
+            </button>
+            <button type="button" class="lp-tab-btn" data-tab="resumo">
+              <i class="ri-bar-chart-box-line"></i> Resumo do Semestre
+            </button>
+          </div>
+          {% if estatico %}
+          <a id="lp-tab-external" href="exemplos/certificado.html" target="_blank" rel="noopener" class="lp-btn lp-btn-secundario lp-btn-sm">
+            Abrir em tela cheia <i class="ri-external-link-line"></i>
+          </a>
+          {% endif %}
+        </div>
+
+        <!-- Aba 1: Certificado -->
+        <div class="lp-showcase-panel is-active" data-panel="certificado">
+          <div class="lp-cert-preview">
+            <div class="lp-cert-band top"></div>
+            <div class="lp-cert-band bottom"></div>
+            <div class="lp-cert-kicker">Certificado de Participação</div>
+            <div style="font-size:12.5px;color:var(--lp-muted);margin-top:4px;">Este certificado é concedido a</div>
+            <div class="lp-cert-name">Alice Mendonça</div>
+            <div class="lp-cert-role"><i class="ri-user-heart-line"></i> Madrinha</div>
+            <p class="lp-cert-text">
+              em reconhecimento à sua valiosa participação como <strong>Madrinha</strong> no
+              <strong>Projeto de Apadrinhamento de Calouros</strong>, realizado no semestre <strong>2026/1</strong>,
+              com dedicação total de <strong>04 horas</strong> de Atividade Complementar (ACG) no Departamento de
+              Engenharia de Software da <strong>PUC Minas</strong>.
+            </p>
+            <div class="lp-cert-foot">
+              <span>Emitido em 20/07/2026 · Belo Horizonte · MG</span>
+              <span><strong>Prof. Laerte Xavier</strong> · Coordenador do Programa</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Aba 2: Relatório de Aptidão ACG -->
+        <div class="lp-showcase-panel" data-panel="aptidao">
+          <div class="lp-mini-table-card" style="max-width:860px;margin:0 auto;">
+            <div class="lp-mini-table-head" style="background:var(--lp-brand-gradient);color:#fff;">
+              <span>Aptidão ACG — 2026/1 · Engenharia de Software (PUC Minas)</span>
+              <span style="font-family:var(--lp-mono);font-size:11px;opacity:0.85;">RELATÓRIO-001</span>
+            </div>
+            <div style="padding:14px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;background:var(--lp-bg);border-bottom:1px solid var(--lp-border);">
+              <div class="lp-mini-kpi">
+                <small>Inscritos</small>
+                <strong>10</strong>
+              </div>
+              <div class="lp-mini-kpi is-green">
+                <small>Aptos ACG</small>
+                <strong>8 (80%)</strong>
+              </div>
+              <div class="lp-mini-kpi is-red">
+                <small>Reportados</small>
+                <strong>1</strong>
+              </div>
+            </div>
+            <table class="lp-mini-table">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Matrícula</th>
+                  <th>Turno</th>
+                  <th>Situação</th>
+                  <th style="text-align:right;">Certificado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Alice Mendonça</strong></td>
+                  <td style="font-family:var(--lp-mono);">100001</td>
+                  <td>Manhã</td>
+                  <td><span class="lp-selo lp-selo-ok">Apto (04h)</span></td>
+                  <td style="text-align:right;">
+                    {% if estatico %}<a href="exemplos/certificado.html" target="_blank" style="color:var(--lp-brand-deep);font-weight:600;">Ver PDF</a>{% else %}Gerado{% endif %}
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Bruno Tavares</strong></td>
+                  <td style="font-family:var(--lp-mono);">100002</td>
+                  <td>Noite</td>
+                  <td><span class="lp-selo lp-selo-ok">Apto (04h)</span></td>
+                  <td style="text-align:right;">
+                    {% if estatico %}<a href="exemplos/certificado.html" target="_blank" style="color:var(--lp-brand-deep);font-weight:600;">Ver PDF</a>{% else %}Gerado{% endif %}
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>João Vasconcelos</strong></td>
+                  <td style="font-family:var(--lp-mono);">100010</td>
+                  <td>Noite</td>
+                  <td><span class="lp-selo lp-selo-erro">Reportado</span></td>
+                  <td style="text-align:right;color:var(--lp-muted);">—</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Aba 3: Resumo do Semestre -->
+        <div class="lp-showcase-panel" data-panel="resumo">
+          <div class="lp-mini-table-card" style="max-width:860px;margin:0 auto;">
+            <div class="lp-mini-table-head" style="background:var(--lp-brand-gradient);color:#fff;">
+              <span>Resumo do Semestre — 2026/1 · Visão Executiva</span>
+              <span style="font-family:var(--lp-mono);font-size:11px;opacity:0.85;">3 PÁGINAS A4</span>
+            </div>
+            <div style="padding:16px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;background:var(--lp-bg);border-bottom:1px solid var(--lp-border);">
+              <div class="lp-mini-kpi"><small>Padrinhos</small><strong>10</strong></div>
+              <div class="lp-mini-kpi"><small>Calouros</small><strong>20</strong></div>
+              <div class="lp-mini-kpi"><small>Reuniões</small><strong>3</strong></div>
+              <div class="lp-mini-kpi is-green"><small>Aptidão</small><strong>80%</strong></div>
+            </div>
+            <table class="lp-mini-table">
+              <thead>
+                <tr>
+                  <th>Tema do cronograma</th>
+                  <th>Prazo</th>
+                  <th>Responsáveis</th>
+                  <th>Situação</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Boas-vindas e Setup</strong></td>
+                  <td style="font-family:var(--lp-mono);">27/03</td>
+                  <td>Alice Mendonça, Bruno Tavares</td>
+                  <td><span class="lp-selo lp-selo-ok">Entregue</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Lógica Digital</strong></td>
+                  <td style="font-family:var(--lp-mono);">06/04</td>
+                  <td>Diego Fonseca, Elisa Drummond</td>
+                  <td><span class="lp-selo lp-selo-ok">Entregue</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Python: Condicionais</strong></td>
+                  <td style="font-family:var(--lp-mono);">16/04</td>
+                  <td>Henrique Lacerda, Isabela Coutinho</td>
+                  <td><span class="lp-selo lp-selo-alerta">Atraso</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Regras de ACG -->
+  <section id="regras" class="lp-secao lp-secao-white">
+    <div class="lp-container">
+      <header class="lp-secao-topo">
+        <p class="lp-eyebrow">Motor de regras</p>
+        <h2>Transparência total no cálculo de ACG.</h2>
+        <p class="lp-sub">Cada presença, justificativa ou entrega de tema atualiza automaticamente a situação do padrinho sem planilhas paralelas.</p>
+      </header>
+      <div class="lp-tabela-envolucro">
+        <table class="lp-tabela">
+          <thead>
+            <tr><th scope="col">Situação</th><th scope="col">Resultado no sistema</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Dentro do limite de faltas e sem advertência grave</td><td><span class="lp-selo lp-selo-ok">Apto para ACG</span></td></tr>
+            <tr><td>Acumulou faltas até o limite − 1 (aviso preventivo)</td><td><span class="lp-selo lp-selo-alerta">Em alerta</span></td></tr>
+            <tr><td>Faltas sem justificativa em todas as reuniões do semestre</td><td><span class="lp-selo lp-selo-erro">Reprovado</span></td></tr>
+            <tr><td>Entrega de tema com atraso ou infração leve</td><td>Advertência amarela automática</td></tr>
+            <tr><td>Não entrega de tema ou ocorrência grave manual</td><td><span class="lp-selo lp-selo-erro">Reportado ao coordenador</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Telas do sistema -->
+  <section id="telas" class="lp-secao">
+    <div class="lp-container">
+      <header class="lp-secao-topo">
+        <p class="lp-eyebrow">Interface do sistema</p>
+        <h2>Telas limpas para a rotina da coordenação.</h2>
+        <p class="lp-sub">Tudo pensado em tema claro de alta legibilidade, com tabelas organizadas, filtros rápidos e modais objetivos.</p>
+      </header>
+      <div class="lp-screens-grid">
+        <article class="lp-screen-card">
+          <div class="lp-screen-head">
+            <span class="lp-screen-title"><i class="ri-user-star-line"></i> Gestão de Padrinhos</span>
+            <span class="lp-doc-pill">Filtros + Busca</span>
+          </div>
+          <div class="lp-screen-body">
+            <div class="lp-screen-row">
+              <div><strong>Alice Mendonça</strong><br><small>Mat. 100001 · Manhã · 2 calouros</small></div>
+              <span class="lp-selo lp-selo-ok">Apto</span>
+            </div>
+            <div class="lp-screen-row">
+              <div><strong>Bruno Tavares</strong><br><small>Mat. 100002 · Noite · 1 amarelo</small></div>
+              <span class="lp-selo lp-selo-alerta">Em alerta</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="lp-screen-card">
+          <div class="lp-screen-head">
+            <span class="lp-screen-title"><i class="ri-link-m"></i> Match Padrinho-Calouro</span>
+            <span class="lp-doc-pill">Algoritmo ponderado</span>
+          </div>
+          <div class="lp-screen-body">
+            <div class="lp-screen-row">
+              <div><strong>Turno compatível</strong><br><small>Prioridade máxima na alocação</small></div>
+              <span class="lp-selo lp-selo-info">+200 pts</span>
+            </div>
+            <div class="lp-screen-row">
+              <div><strong>Gênero, idade, BH, bolsa e trabalho</strong><br><small>Refinamento automático de afinidade</small></div>
+              <span class="lp-selo lp-selo-info">Até +95 pts</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="lp-screen-card">
+          <div class="lp-screen-head">
+            <span class="lp-screen-title"><i class="ri-checkbox-multiple-line"></i> Reuniões e Presenças</span>
+            <span class="lp-doc-pill">Manual / CSV / Sheets</span>
+          </div>
+          <div class="lp-screen-body">
+            <div class="lp-screen-row">
+              <div><strong>Sincronização com Google Sheets</strong><br><small>Lê respostas do Forms e lança faltas</small></div>
+              <span class="lp-selo lp-selo-ok">Automático</span>
+            </div>
+            <div class="lp-screen-row">
+              <div><strong>Checklist manual e justificativas</strong><br><small>Presença ou ausência justificada por reunião</small></div>
+              <span class="lp-selo lp-selo-info">1 clique</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="lp-screen-card">
+          <div class="lp-screen-head">
+            <span class="lp-screen-title"><i class="ri-shield-check-line"></i> Auditoria e Handoff</span>
+            <span class="lp-doc-pill">Continuidade</span>
+          </div>
+          <div class="lp-screen-body">
+            <div class="lp-screen-row">
+              <div><strong>Logs de auditoria</strong><br><small>Rastreia cadastros, presenças e advertências</small></div>
+              <span class="lp-selo lp-selo-info">Rastreável</span>
+            </div>
+            <div class="lp-screen-row">
+              <div><strong>Exportação de backup do banco</strong><br><small>Transição simples entre coordenações</small></div>
+              <span class="lp-selo lp-selo-ok">.db portátil</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Chamada final -->
+  <section class="lp-secao" style="padding-top:16px;">
+    <div class="lp-container">
+      <div class="lp-chamada">
+        <h2>Um semestre inteiro organizado num único lugar.</h2>
+        <p>Desenvolvido para o Programa de Apadrinhamento de Calouros da Engenharia de Software — PUC Minas.</p>
+        <div class="lp-chamada-acoes">
+          {% if estatico %}
+          <a class="lp-btn lp-btn-branco" href="exemplos/relatorio-aptidao.html" target="_blank" rel="noopener">
+            <i class="ri-file-chart-line"></i> Ver exemplo de relatório
+          </a>
+          <a class="lp-btn lp-btn-contorno" href="exemplos/certificado.html" target="_blank" rel="noopener">
+            <i class="ri-award-line"></i> Ver exemplo de certificado
+          </a>
+          {% else %}
+          <a class="lp-btn lp-btn-branco" href="{{ url_for('login') }}">
+            Entrar no sistema <i class="ri-arrow-right-line"></i>
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="lp-rodape">
+  <div class="lp-rodape-dentro">
+    <div class="lp-rodape-marca">
+      <img src="{{ url_for('static', filename='brand/padrinho-track-mark.svg') }}" alt="" />
+      <p>Padrinho Track · gestão do apadrinhamento de calouros</p>
+    </div>
+    <div class="lp-rodape-links">
+      <a href="{{ repositorio }}" target="_blank" rel="noopener"><i class="ri-github-fill"></i> Repositório</a>
+      <a href="{{ repositorio }}/blob/main/docs/arquitetura.md" target="_blank" rel="noopener"><i class="ri-git-branch-line"></i> Arquitetura</a>
+      <a href="{{ repositorio }}/blob/main/readme.md" target="_blank" rel="noopener"><i class="ri-book-2-line"></i> Documentação</a>
+    </div>
+  </div>
+  <p class="lp-rodape-fim">Christiano Gonçalves · Engenharia de Software, PUC Minas</p>
+</footer>
+
+<script>
+  // Abas interativas dos exemplos de documentos (sempre em tema claro)
+  const urlsExternas = {
+    certificado: "exemplos/certificado.html",
+    aptidao: "exemplos/relatorio-aptidao.html",
+    resumo: "exemplos/resumo-semestre.html"
+  };
+  document.querySelectorAll(".lp-tab-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const alvo = btn.dataset.tab;
+      document.querySelectorAll(".lp-tab-btn").forEach((b) => b.classList.remove("is-active"));
+      document.querySelectorAll(".lp-showcase-panel").forEach((p) => p.classList.remove("is-active"));
+      btn.classList.add("is-active");
+      const painel = document.querySelector(`.lp-showcase-panel[data-panel="${alvo}"]`);
+      if (painel) painel.classList.add("is-active");
+      const link = document.getElementById("lp-tab-external");
+      if (link && urlsExternas[alvo]) link.href = urlsExternas[alvo];
+    });
+  });
+</script>
+
+</body>
+</html>

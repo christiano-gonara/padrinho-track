@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Presenças — Padrinho Track{% endblock %}
+{% block page_title %}Lançar presenças{% endblock %}
+
+{% block content %}
+
+<div class="pt-page-head">
+  <div>
+    <a href="/reunioes" class="pt-back-link">
+      <i class="ri-arrow-left-line"></i> voltar para reuniões
+    </a>
+    <h1 class="pt-page-title">Lançar presenças</h1>
+    <p class="pt-page-subtitle">
+      {% if reuniao %}
+        Reunião de <strong>{{ reuniao["data"] | databr }}</strong>{% if reuniao["tema"] %} — {{ reuniao["tema"] }}{% endif %}
+      {% else %}
+        Reunião #{{ reuniao_id }}
+      {% endif %}
+    </p>
+  </div>
+  <div class="pt-page-actions">
+    <a href="/presencas/{{ reuniao_id }}/importar" class="pt-btn pt-btn-ghost">
+      <i class="ri-upload-line"></i> Importar CSV
+    </a>
+  </div>
+</div>
+
+<form action="/presencas/{{ reuniao_id }}" method="POST">
+  <div class="pt-card pt-card-flat">
+    <div class="pt-card-header">
+      <div class="pt-card-header-title">
+        <div class="pt-card-header-icon"><i class="ri-user-follow-line"></i></div>
+        <span class="pt-card-title">Lista de padrinhos ativos</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <button type="button" onclick="marcarTodos(true)" class="pt-btn pt-btn-ghost pt-btn-sm">
+          <i class="ri-checkbox-multiple-line"></i> Marcar todos presentes
+        </button>
+        <button type="button" onclick="marcarTodos(false)" class="pt-btn pt-btn-ghost pt-btn-sm">
+          Desmarcar todos
+        </button>
+      </div>
+    </div>
+
+    <div class="pt-table-wrap">
+      <table class="pt-table">
+        <thead>
+          <tr>
+            <th>Padrinho</th>
+            <th>Matrícula</th>
+            <th style="text-align:center;">Presente</th>
+            <th style="text-align:center;">Falta justificada</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in presencas %}
+          <tr>
+            <td style="font-weight:600;">{{ p["nome"] | abreviar }}</td>
+            <td class="pt-td-muted">{{ p["matricula"] }}</td>
+            <td class="pt-td-center">
+              <input type="checkbox"
+                     name="presentes"
+                     value="{{ p['id'] }}"
+                     class="chk-presente"
+                     {% if p["presente"] %}checked{% endif %}
+                     style="width:18px;height:18px;accent-color:var(--pt-brand);cursor:pointer;" />
+            </td>
+            <td class="pt-td-center">
+              <input type="checkbox"
+                     name="justificadas"
+                     value="{{ p['id'] }}"
+                     {% if p["justificada"] %}checked{% endif %}
+                     style="width:18px;height:18px;accent-color:var(--pt-amber);cursor:pointer;" />
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="4">
+              <div class="pt-empty">
+                <div class="pt-empty-icon"><i class="ri-user-line"></i></div>
+                <p class="pt-empty-title">Nenhum padrinho ativo cadastrado</p>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pt-card-body" style="border-top:1px solid var(--pt-border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+      <div class="pt-alert pt-alert-warn" style="padding:8px 12px;">
+        <i class="ri-alert-line"></i>
+        <span>Ausentes sem justificativa recebem advertência amarela automaticamente ao salvar.</span>
+      </div>
+      <div style="display:flex;gap:10px;margin-left:auto;">
+        <a href="/reunioes" class="pt-btn pt-btn-ghost">Cancelar</a>
+        <button type="submit" class="pt-btn pt-btn-primary">
+          <i class="ri-save-line"></i> Salvar presenças
+        </button>
+      </div>
+    </div>
+  </div>
+</form>
+
+<script>
+function marcarTodos(estado) {
+  document.querySelectorAll('.chk-presente').forEach(el => {
+    el.checked = estado;
+  });
+}
+</script>
+
+{% endblock %}

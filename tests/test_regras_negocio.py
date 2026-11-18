@@ -8,9 +8,9 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from database import get_conn, init_db
-import database as db_module
-from models import (
+from backend.database import get_conn, init_db
+import backend.database as db_module
+from backend.models import (
     cadastrar_padrinho,
     calcular_status,
     criar_reuniao,

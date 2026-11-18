@@ -12,7 +12,7 @@
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from database import init_db, get_conn
+from backend.database import init_db, get_conn
 from datetime import date
 
 # (nome, matricula, email, telefone, turno, genero, idade, cidade_bh, bolsista, trabalha, periodo, passou_algoritmos)

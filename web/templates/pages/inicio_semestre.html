@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block title %}Início do Semestre — Padrinho Track{% endblock %}
+{% block page_title %}Início do Semestre{% endblock %}
+
+{% block content %}
+
+<div class="pt-page-head">
+  <div>
+    <h1 class="pt-page-title">Início do Semestre</h1>
+    <p class="pt-page-subtitle">Importe padrinhos, calouros e gere os matches para o semestre</p>
+  </div>
+</div>
+
+<div style="max-width:740px;margin:0 auto;" class="pt-stack">
+
+  <div class="pt-alert pt-alert-info">
+    <i class="ri-information-line"></i>
+    <span>
+      Use esta tela no início de cada semestre para importar os dados e gerar os matches.
+      <strong>Siga as seções em ordem</strong>: importe os padrinhos, depois os calouros, depois gere o match.
+    </span>
+  </div>
+
+  <!-- Seção 1: Padrinhos -->
+  <div class="pt-card pt-card-flat">
+    <div class="pt-card-header">
+      <div class="pt-card-header-title">
+        <div class="pt-card-header-icon"><i class="ri-user-star-line"></i></div>
+        <span class="pt-card-title">1. Padrinhos</span>
+      </div>
+      {% if total_padrinhos > 0 %}
+      <span class="pt-badge pt-badge-green">{{ total_padrinhos }} cadastrado{{ 's' if total_padrinhos != 1 }}</span>
+      {% endif %}
+    </div>
+    <form action="/inicio/importar-padrinhos" method="POST" class="pt-card-body pt-stack">
+
+      <details class="pt-details">
+        <summary>
+          <i class="ri-question-line"></i>
+          Como configurar o Forms de padrinhos
+          <i class="ri-arrow-down-s-line pt-details-chevron"></i>
+        </summary>
+        <div class="pt-details-box pt-stack-sm">
+          <p style="font-size:12px;font-weight:700;color:var(--pt-ink);margin:0;">Campos do Forms:</p>
+          <p class="pt-muted-text" style="font-size:12px;line-height:1.6;margin:0;">
+            Nome completo, Matrícula, Email, Telefone, Turno (Manhã/Noite), Curso, Instituição, Mora na Grande BH?, É bolsista?, Trabalha?, Idade, Período atual, Passou em Algoritmos/AEDS 1?.
+          </p>
+          <p class="pt-muted-text" style="font-size:12px;line-height:1.5;margin:0;">
+            Compartilhe a planilha vinculada com <code style="background:var(--pt-bg-alt);padding:1px 5px;border-radius:4px;">padrinho-track@padrinho-track.iam.gserviceaccount.com</code> (Editor).
+          </p>
+        </div>
+      </details>
+
+      <div class="pt-field">
+        <label class="pt-label">Link da planilha de respostas do Forms de cadastro</label>
+        <input type="url" name="sheets_padrinhos_url"
+               value="{{ sheets_padrinhos_url }}"
+               placeholder="https://docs.google.com/spreadsheets/d/..."
+               class="pt-input" />
+      </div>
+
+      <div class="pt-alert pt-alert-info">
+        <i class="ri-information-line"></i>
+        <span>Importa apenas respostas de <strong>Engenharia de Software</strong> da <strong>PUC Minas</strong>. Duplicatas (mesma matrícula) são ignoradas.</span>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;">
+        <button type="submit" class="pt-btn pt-btn-primary">
+          <i class="ri-download-line"></i> Importar padrinhos
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Seção 2: Calouros -->
+  <div class="pt-card pt-card-flat">
+    <div class="pt-card-header">
+      <div class="pt-card-header-title">
+        <div class="pt-card-header-icon"><i class="ri-group-line"></i></div>
+        <span class="pt-card-title">2. Calouros</span>
+      </div>
+      {% if total_calouros > 0 %}
+      <span class="pt-badge pt-badge-green">{{ total_calouros }} cadastrado{{ 's' if total_calouros != 1 }}</span>
+      {% endif %}
+    </div>
+    <form action="/inicio/importar-calouros" method="POST" class="pt-card-body pt-stack">
+
+      <details class="pt-details">
+        <summary>
+          <i class="ri-question-line"></i>
+          Como configurar o Forms de calouros
+          <i class="ri-arrow-down-s-line pt-details-chevron"></i>
+        </summary>
+        <div class="pt-details-box pt-stack-sm">
+          <p style="font-size:12px;font-weight:700;color:var(--pt-ink);margin:0;">Campos do Forms:</p>
+          <p class="pt-muted-text" style="font-size:12px;line-height:1.6;margin:0;">
+            Nome completo, Matrícula, Email, Telefone, Turno (Manhã/Noite), Curso, Instituição, Mora na Grande BH?, É bolsista?, Trabalha?, Idade, Está cursando o 1º período?.
+          </p>
+          <p class="pt-muted-text" style="font-size:12px;line-height:1.5;margin:0;">
+            Compartilhe a planilha vinculada com <code style="background:var(--pt-bg-alt);padding:1px 5px;border-radius:4px;">padrinho-track@padrinho-track.iam.gserviceaccount.com</code> (Editor).
+          </p>
+        </div>
+      </details>
+
+      <div class="pt-field">
+        <label class="pt-label">Link da planilha de respostas do Forms de cadastro</label>
+        <input type="url" name="sheets_calouros_url"
+               value="{{ sheets_calouros_url }}"
+               placeholder="https://docs.google.com/spreadsheets/d/..."
+               class="pt-input" />
+      </div>
+
+      <div class="pt-alert pt-alert-info">
+        <i class="ri-information-line"></i>
+        <span>Importa apenas respostas de <strong>Engenharia de Software</strong> da <strong>PUC Minas</strong>. Duplicatas (mesmo nome) são ignoradas.</span>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;">
+        <button type="submit" class="pt-btn pt-btn-primary">
+          <i class="ri-download-line"></i> Importar calouros
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Seção 3: Match -->
+  <div class="pt-card pt-card-flat">
+    <div class="pt-card-header">
+      <div class="pt-card-header-title">
+        <div class="pt-card-header-icon"><i class="ri-link-m"></i></div>
+        <span class="pt-card-title">3. Match</span>
+      </div>
+    </div>
+    <div class="pt-card-body pt-stack">
+      {% if total_padrinhos == 0 or total_calouros == 0 %}
+      <div class="pt-alert pt-alert-warn">
+        <i class="ri-alert-line"></i>
+        <span>
+          Para gerar matches é necessário ter
+          {% if total_padrinhos == 0 and total_calouros == 0 %}padrinhos e calouros{% elif total_padrinhos == 0 %}padrinhos{% else %}calouros{% endif %}
+          importados.
+        </span>
+      </div>
+      {% else %}
+      <div class="pt-alert pt-alert-info">
+        <i class="ri-information-line"></i>
+        <span>
+          <strong>{{ total_padrinhos }}</strong> padrinho{{ 's' if total_padrinhos != 1 }} e
+          <strong>{{ total_calouros }}</strong> calouro{{ 's' if total_calouros != 1 }} disponíveis para o match.
+        </span>
+      </div>
+      {% endif %}
+      <div style="display:flex;justify-content:flex-end;">
+        <form action="/match/rodar" method="POST">
+          <button type="submit"
+                  {% if total_padrinhos == 0 or total_calouros == 0 %}disabled{% endif %}
+                  class="pt-btn pt-btn-primary">
+            <i class="ri-shuffle-line"></i> Gerar matches automaticamente
+          </button>
+        </form>
+      </div>
+      <p class="pt-muted-text" style="font-size:12px;text-align:right;margin:0;">
+        O algoritmo distribui calouros por turno e perfil. Pode ser refeito se necessário.
+      </p>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

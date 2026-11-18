@@ -1,0 +1,51 @@
+.pt-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+.pt-badge-apto,
+.pt-badge-green {
+  background: var(--pt-green-tint);
+  color: var(--pt-green-deep);
+  border-color: var(--pt-green-soft);
+}
+
+.pt-badge-alerta,
+.pt-badge-amber {
+  background: var(--pt-amber-tint);
+  color: var(--pt-amber-deep);
+  border-color: var(--pt-amber-soft);
+}
+
+.pt-badge-inapto,
+.pt-badge-orange {
+  background: var(--pt-orange-tint);
+  color: var(--pt-orange-deep);
+  border-color: var(--pt-orange-soft);
+}
+
+.pt-badge-grave,
+.pt-badge-red {
+  background: var(--pt-red-tint);
+  color: var(--pt-red-deep);
+  border-color: var(--pt-red-soft);
+}
+
+.pt-badge-brand {
+  background: var(--pt-brand-tint);
+  color: var(--pt-brand-deep);
+  border-color: var(--pt-brand-tint-deep);
+}
+
+.pt-badge-neutral {
+  background: var(--pt-bg-alt);
+  color: var(--pt-muted);
+  border-color: var(--pt-border);
+}

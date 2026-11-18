@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Match — Padrinho Track{% endblock %}
+{% block page_title %}Match{% endblock %}
+
+{% block content %}
+
+<div class="pt-page-head">
+  <div>
+    <h1 class="pt-page-title">Match Padrinho-Calouro</h1>
+    <p class="pt-page-subtitle">Distribuição automática por turno, gênero e perfil</p>
+  </div>
+  <div class="pt-page-actions">
+    <span class="pt-pill pt-pill-brand">
+      <i class="ri-user-star-line"></i> {{ total_padrinhos }} padrinhos
+    </span>
+    <span class="pt-pill pt-pill-neutral">
+      <i class="ri-group-line"></i> {{ total_calouros }} calouros
+    </span>
+    {% if total_matches > 0 %}
+    <span class="pt-pill pt-pill-green">
+      <i class="ri-checkbox-circle-line"></i> {{ total_matches }} matches
+    </span>
+    {% endif %}
+  </div>
+</div>
+
+{% if total_matches == 0 %}
+
+<!-- Estado 0: sem matches -->
+<div class="pt-card" style="padding:56px 24px;text-align:center;">
+  <div class="pt-empty-icon" style="margin:0 auto 16px;width:56px;height:56px;border-radius:16px;">
+    <i class="ri-link-m" style="font-size:26px;"></i>
+  </div>
+  <h2 style="font-size:18px;font-weight:700;color:var(--pt-ink);margin:0 0 8px;">Nenhum match gerado ainda</h2>
+  <p class="pt-muted-text" style="font-size:14px;max-width:460px;margin:0 auto 24px;line-height:1.6;">
+    O algoritmo distribui os {{ total_calouros }} calouros entre os {{ total_padrinhos }} padrinhos
+    considerando turno (200 pts), gênero (80 pts), idade, cidade, bolsa e trabalho.
+  </p>
+  <form action="/match/rodar" method="POST">
+    <button type="submit" class="pt-btn pt-btn-primary pt-btn-lg">
+      <i class="ri-magic-line"></i> Gerar matches automaticamente
+    </button>
+  </form>
+</div>
+
+{% else %}
+
+<!-- Estado 1: matches confirmados -->
+<div class="pt-card pt-card-flat">
+  <div class="pt-card-header">
+    <div class="pt-card-header-title">
+      <div class="pt-card-header-icon" style="background:var(--pt-green-tint);color:var(--pt-green-deep);"><i class="ri-checkbox-circle-line"></i></div>
+      <div>
+        <span class="pt-card-title">Matches confirmados</span>
+        <span class="pt-muted-text" style="font-size:12px;margin-left:8px;">{{ total_matches }} total</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <a href="/match/lista-contatos" target="_blank" class="pt-btn pt-btn-soft-green pt-btn-sm">
+        <i class="ri-printer-line"></i> Lista de contatos
+      </a>
+      <form action="/match/rodar" method="POST" onsubmit="return confirm('Refazer os matches agora?')">
+        <button type="submit" class="pt-btn pt-btn-soft pt-btn-sm">
+          <i class="ri-refresh-line"></i> Regerar match
+        </button>
+      </form>
+    </div>
+  </div>
+  <div class="pt-table-wrap">
+    <table class="pt-table">
+      <thead>
+        <tr>
+          <th>Padrinho</th>
+          <th>Turno</th>
+          <th>Calouros vinculados</th>
+          <th style="text-align:right;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in dados %}
+          {% if item.calouros %}
+          <tr>
+            <td>
+              <a href="/padrinhos/{{ item.padrinho['id'] }}" style="font-weight:600;color:var(--pt-ink);">
+                {{ item.padrinho["nome"] | abreviar }}
+              </a>
+            </td>
+            <td>
+              {% if item.padrinho["turno"] == "Manhã" %}
+                <span class="pt-pill pt-pill-amber"><i class="ri-sun-line"></i> Manhã</span>
+              {% elif item.padrinho["turno"] == "Noite" %}
+                <span class="pt-pill pt-pill-brand"><i class="ri-moon-line"></i> Noite</span>
+              {% else %}
+                <span class="pt-dash">—</span>
+              {% endif %}
+            </td>
+            <td>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                {% for c in item.calouros %}
+                  <span class="pt-tag">
+                    <i class="ri-user-smile-line" style="font-size:11px;"></i>
+                    {{ c["nome"].split()[0] }} {{ c["nome"].split()[-1] }}
+                  </span>
+                {% endfor %}
+              </div>
+            </td>
+            <td class="pt-td-right pt-td-muted">{{ item.calouros | length }} calouro(s)</td>
+          </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endif %}
+
+{% endblock %}

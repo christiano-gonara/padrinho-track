@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Entrar — Padrinho Track</title>
+  <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}" />
+</head>
+<body class="h-full" style="display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(circle at 80% 20%, rgba(37,99,235,0.08), transparent 45%), var(--pt-bg);">
+
+  <div style="width:100%;max-width:400px;">
+    <div class="pt-card" style="padding:36px 32px;box-shadow:0 24px 48px -28px rgba(15,23,42,0.18);">
+
+      <div style="display:flex;flex-direction:column;align-items:center;text-align:center;margin-bottom:28px;">
+        <img src="{{ url_for('static', filename='brand/padrinho-track-lockup.svg') }}" style="height:40px;" alt="Padrinho Track" />
+        <p class="pt-muted-text" style="font-size:13px;margin-top:10px;">Acesso restrito à coordenação · PUC Minas</p>
+      </div>
+
+      {% if error %}
+      <div class="pt-alert pt-alert-danger" style="margin-bottom:18px;">
+        <i class="ri-alert-line"></i>
+        <span>{{ error }}</span>
+      </div>
+      {% endif %}
+
+      <form method="POST" style="display:flex;flex-direction:column;gap:16px;">
+        <div class="pt-field">
+          <label class="pt-label" for="username">Usuário</label>
+          <div class="pt-input-wrap">
+            <span class="pt-input-icon"><i class="ri-user-line"></i></span>
+            <input id="username" name="username" type="text" autocomplete="username" autofocus required class="pt-input" placeholder="seu usuário" />
+          </div>
+        </div>
+
+        <div class="pt-field">
+          <label class="pt-label" for="password">Senha</label>
+          <div class="pt-input-wrap">
+            <span class="pt-input-icon"><i class="ri-lock-line"></i></span>
+            <input id="password" name="password" type="password" autocomplete="current-password" required class="pt-input" placeholder="••••••••" />
+          </div>
+        </div>
+
+        <button type="submit" class="pt-btn pt-btn-primary pt-btn-lg" style="width:100%;margin-top:6px;">
+          <i class="ri-login-box-line"></i> Entrar no painel
+        </button>
+      </form>
+
+      <div style="margin-top:20px;text-align:center;">
+        <a href="/" class="pt-link-btn" style="font-size:12.5px;">
+          <i class="ri-arrow-left-line"></i> Voltar para apresentação
+        </a>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

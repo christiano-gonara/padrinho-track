@@ -3,7 +3,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from models import set_config
+from backend.models import set_config
 
 config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config_handoff.json")
 

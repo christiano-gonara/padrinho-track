@@ -1,0 +1,69 @@
+/* ============================================================================
+   Design Tokens — Padrinho Track (Tema Claro Fixo · Azul Acadêmico / Cobalto)
+   ============================================================================ */
+
+:root {
+  color-scheme: light;
+
+  /* Paleta Principal — Azul Acadêmico / Cobalto */
+  --pt-brand: #2563eb;
+  --pt-brand-hover: #1d4ed8;
+  --pt-brand-deep: #1e40af;
+  --pt-brand-dark: #1e3a8a;
+  --pt-brand-light: #3b82f6;
+  --pt-brand-soft: #bfdbfe;
+  --pt-brand-tint: #eff6ff;
+  --pt-brand-tint-deep: #dbeafe;
+  --pt-brand-gradient: linear-gradient(135deg, #2563eb 0%, #1d4ed8 55%, #1e40af 100%);
+  --pt-brand-shadow: rgba(29, 78, 216, 0.28);
+
+  /* Semântica ACG */
+  --pt-green: #10b981;
+  --pt-green-soft: #a7f3d0;
+  --pt-green-tint: #ecfdf5;
+  --pt-green-deep: #047857;
+
+  --pt-amber: #f59e0b;
+  --pt-amber-soft: #fde68a;
+  --pt-amber-tint: #fffbeb;
+  --pt-amber-deep: #b45309;
+
+  --pt-orange: #f97316;
+  --pt-orange-soft: #fed7aa;
+  --pt-orange-tint: #fff7ed;
+  --pt-orange-deep: #c2410c;
+
+  --pt-red: #dc2626;
+  --pt-red-soft: #fecaca;
+  --pt-red-tint: #fef2f2;
+  --pt-red-deep: #991b1b;
+
+  /* Superfícies Neutras Claras */
+  --pt-ink: #0f172a;
+  --pt-text: #334155;
+  --pt-muted: #64748b;
+  --pt-faint: #94a3b8;
+  --pt-border: #e2e8f0;
+  --pt-border-strong: #cbd5e1;
+  --pt-surface: #ffffff;
+  --pt-bg: #f8fafc;
+  --pt-bg-alt: #f1f5f9;
+
+  /* Sidebar Institucional */
+  --pt-sidebar: #0f172a;
+  --pt-sidebar-border: rgba(255, 255, 255, 0.08);
+  --pt-sidebar-text: rgba(255, 255, 255, 0.8);
+  --pt-sidebar-dim: rgba(255, 255, 255, 0.52);
+
+  /* Tipografia */
+  --pt-font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --pt-font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+
+  /* Raios e Sombras */
+  --pt-radius-sm: 8px;
+  --pt-radius-md: 12px;
+  --pt-radius-lg: 16px;
+  --pt-shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.04);
+  --pt-shadow-md: 0 12px 28px -16px rgba(15, 23, 42, 0.16);
+  --pt-shadow-lg: 0 24px 48px -24px rgba(15, 23, 42, 0.22);
+}

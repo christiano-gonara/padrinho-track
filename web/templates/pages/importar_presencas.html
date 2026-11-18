@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Importar Presenças — Padrinho Track{% endblock %}
+{% block page_title %}Importar Presenças{% endblock %}
+
+{% block content %}
+
+<div class="pt-page-head">
+  <div>
+    <a href="/reunioes" class="pt-back-link">
+      <i class="ri-arrow-left-line"></i> voltar para reuniões
+    </a>
+    <h1 class="pt-page-title">Importar presenças</h1>
+    <p class="pt-page-subtitle">
+      Reunião: <strong style="color:var(--pt-ink);">{{ reuniao["data"] | databr }} — {{ reuniao["tema"] or "sem tema" }}</strong>
+    </p>
+  </div>
+</div>
+
+<div style="max-width:560px;">
+  <div class="pt-card pt-card-flat">
+    <div class="pt-card-header">
+      <div class="pt-card-header-title">
+        <div class="pt-card-header-icon"><i class="ri-file-upload-line"></i></div>
+        <span class="pt-card-title">Upload do CSV do Google Forms</span>
+      </div>
+    </div>
+    <form action="/presencas/{{ reuniao['id'] }}/importar" method="POST"
+          enctype="multipart/form-data" class="pt-card-body pt-stack">
+
+      <div class="pt-alert pt-alert-info" style="flex-direction:column;gap:4px;">
+        <div style="display:flex;align-items:center;gap:6px;font-weight:700;">
+          <i class="ri-information-line"></i> Como usar
+        </div>
+        <span>1. No Google Forms, vá em <strong>Respostas → Planilha → Baixar CSV</strong></span>
+        <span>2. O Forms deve ter as perguntas: <strong>Matrícula</strong> e <strong>Situação</strong></span>
+        <span>3. Situação deve ter as opções: <strong>Presente</strong> ou <strong>Ausente com justificativa</strong></span>
+        <span>4. Quem não responder será marcado como ausente automaticamente</span>
+      </div>
+
+      <div class="pt-field">
+        <label class="pt-label">Arquivo CSV</label>
+        <input type="file" name="csv_file" accept=".csv" required class="pt-input" />
+      </div>
+
+      <div class="pt-alert pt-alert-warn">
+        <i class="ri-alert-line"></i>
+        <span>Ao importar, presenças existentes serão sobrescritas e amarelos emitidos automaticamente para ausentes sem justificativa.</span>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px;">
+        <a href="/reunioes" class="pt-btn pt-btn-ghost">Cancelar</a>
+        <button type="submit" class="pt-btn pt-btn-primary">
+          <i class="ri-upload-line"></i> Importar presenças
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

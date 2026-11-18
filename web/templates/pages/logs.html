@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Logs de Auditoria — Padrinho Track{% endblock %}
+{% block page_title %}Logs de Auditoria{% endblock %}
+
+{% block content %}
+
+<div class="pt-page-head">
+  <div>
+    <h1 class="pt-page-title">Logs de auditoria</h1>
+    <p class="pt-page-subtitle">Registro de todas as ações realizadas no sistema</p>
+  </div>
+</div>
+
+<div class="pt-card pt-card-flat">
+  <div class="pt-card-header">
+    <div class="pt-card-header-title">
+      <div class="pt-card-header-icon"><i class="ri-history-line"></i></div>
+      <span class="pt-card-title">Histórico de ações</span>
+    </div>
+    <span class="pt-muted-text" style="font-size:12.5px;">{{ logs | length }} registros</span>
+  </div>
+  <div class="pt-table-wrap">
+    <table class="pt-table">
+      <thead>
+        <tr>
+          <th>Data / Hora</th>
+          <th>Ação</th>
+          <th>Descrição</th>
+          <th>IP</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr>
+          <td class="pt-td-muted" style="white-space:nowrap;">
+            <i class="ri-calendar-line"></i> {{ log["data"] }}
+          </td>
+          <td>
+            {% if log["acao"] == "CADASTRO_PADRINHO" %}
+              <span class="pt-badge pt-badge-sm" data-status="info"><i class="ri-user-add-line"></i> Cadastro padrinho</span>
+            {% elif log["acao"] == "EDICAO_PADRINHO" %}
+              <span class="pt-badge pt-badge-sm" data-status="alerta"><i class="ri-edit-line"></i> Edição padrinho</span>
+            {% elif log["acao"] == "EXCLUSAO_PADRINHO" %}
+              <span class="pt-badge pt-badge-sm" data-status="grave"><i class="ri-delete-bin-line"></i> Exclusão padrinho</span>
+            {% elif log["acao"] == "LANCAMENTO_PRESENCA" %}
+              <span class="pt-badge pt-badge-sm" data-status="presente"><i class="ri-user-follow-line"></i> Lançamento presença</span>
+            {% elif log["acao"] == "ADVERTENCIA_MANUAL" %}
+              <span class="pt-badge pt-badge-sm" data-status="inapto"><i class="ri-alert-line"></i> Advertência manual</span>
+            {% elif log["acao"] == "EXCLUSAO_ADVERTENCIA" %}
+              <span class="pt-badge pt-badge-sm" data-status="grave"><i class="ri-delete-bin-line"></i> Exclusão advertência</span>
+            {% elif log["acao"] == "ALTERACAO_CONFIG" %}
+              <span class="pt-badge pt-badge-sm" data-status="neutro"><i class="ri-settings-3-line"></i> Configuração</span>
+            {% else %}
+              <span class="pt-badge pt-badge-sm" data-status="neutro"><i class="ri-history-line"></i> {{ log["acao"] }}</span>
+            {% endif %}
+          </td>
+          <td class="pt-muted-text">{{ log["descricao"] or "—" }}</td>
+          <td class="pt-td-muted">{{ log["ip"] or "—" }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="4">
+            <div class="pt-empty">
+              <div class="pt-empty-icon"><i class="ri-history-line"></i></div>
+              <p class="pt-empty-title">Nenhum log registrado ainda</p>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

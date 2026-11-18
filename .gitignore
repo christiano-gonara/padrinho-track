@@ -27,3 +27,7 @@ scripts/seed_calouros.py
 
 # Artefato de build estático do Pages (gerado em runtime pelo CI)
 docs/site/
+
+# Frontend React + TypeScript
+web/node_modules/
+web/dist/

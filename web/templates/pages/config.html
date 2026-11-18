@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% block title %}Configurações — Padrinho Track{% endblock %}
+{% block page_title %}Configurações{% endblock %}
+
+{% block content %}
+
+<div class="pt-page-head">
+  <div>
+    <h1 class="pt-page-title">Configurações</h1>
+    <p class="pt-page-subtitle">Parâmetros do programa de mentoria</p>
+  </div>
+</div>
+
+<div style="max-width:740px;margin:0 auto;" class="pt-stack">
+
+  <!-- Configurações do semestre -->
+  <div class="pt-card pt-card-flat">
+    <div class="pt-card-header">
+      <div class="pt-card-header-title">
+        <div class="pt-card-header-icon"><i class="ri-calendar-line"></i></div>
+        <span class="pt-card-title">Configurações do semestre</span>
+      </div>
+    </div>
+    <form action="/config" method="POST" class="pt-card-body pt-stack">
+
+      <div class="pt-grid-2">
+        <div class="pt-field">
+          <label class="pt-label">Semestre</label>
+          <input type="text" name="semestre" value="{{ config_semestre.semestre }}" class="pt-input" />
+        </div>
+        <div class="pt-field">
+          <label class="pt-label">Instituição</label>
+          <input type="text" name="instituicao" value="{{ config_semestre.instituicao }}" class="pt-input" />
+        </div>
+      </div>
+
+      <div class="pt-field">
+        <label class="pt-label">Professor coordenador</label>
+        <input type="text" name="professor_coordenador" value="{{ config_semestre.professor_coordenador }}" class="pt-input" />
+      </div>
+
+      <div class="pt-field">
+        <label class="pt-label">Programa</label>
+        <input type="text" name="programa" value="{{ config_semestre.programa }}" class="pt-input" />
+      </div>
+
+      <div class="pt-grid-3">
+        <div class="pt-field">
+          <label class="pt-label">Total de reuniões</label>
+          <input type="number" name="total_reunioes" value="{{ config_semestre.total_reunioes }}" min="1" max="20" class="pt-input" />
+        </div>
+        <div class="pt-field">
+          <label class="pt-label">Data início</label>
+          <input type="date" name="data_inicio" value="{{ config_semestre.data_inicio }}" class="pt-input" />
+        </div>
+        <div class="pt-field">
+          <label class="pt-label">Data fim</label>
+          <input type="date" name="data_fim" value="{{ config_semestre.data_fim }}" class="pt-input" />
+        </div>
+      </div>
+
+      <div class="pt-grid-2">
+        <div class="pt-field">
+          <label class="pt-label">Coordenadora geral do semestre</label>
+          <input type="text" name="coordenadora_geral" value="{{ config_semestre.coordenadora_geral or '' }}" class="pt-input" placeholder="Nome da coordenadora geral" />
+        </div>
+        <div class="pt-field">
+          <label class="pt-label">Coordenadores da monitoria <span class="pt-label-optional">(um por linha)</span></label>
+          <textarea name="coordenadores" class="pt-textarea" rows="4" placeholder="Um nome por linha">{{ (config_semestre.coordenadores or []) | join('\n') }}</textarea>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;">
+        <button type="submit" class="pt-btn pt-btn-primary">
+          <i class="ri-save-line"></i> Salvar semestre
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Logs de auditoria -->
+  <div class="pt-card pt-card-flat">
+    <div class="pt-card-header">
+      <div class="pt-card-header-title">
+        <div class="pt-card-header-icon"><i class="ri-file-list-3-line"></i></div>
+        <span class="pt-card-title">Logs de auditoria</span>
+      </div>
+    </div>
+    <div class="pt-card-body pt-stack">
+      <p class="pt-muted-text" style="font-size:13.5px;margin:0;">
+        Os logs registram todas as ações relevantes do sistema. Apague-os quando necessário
+        para liberar espaço ou iniciar o semestre com histórico limpo.
+      </p>
+      <div style="display:flex;justify-content:flex-end;">
+        <form action="/logs/limpar" method="POST"
+              onsubmit="return confirm('Isso apagará todos os logs. Confirmar?')">
+          <button type="submit" class="pt-btn pt-btn-danger">
+            <i class="ri-delete-bin-line"></i> Limpar logs de auditoria
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Handoff -->
+  <div class="pt-card pt-card-flat">
+    <div class="pt-card-header">
+      <div class="pt-card-header-title">
+        <div class="pt-card-header-icon"><i class="ri-exchange-line"></i></div>
+        <span class="pt-card-title">Handoff para o próximo coordenador</span>
+      </div>
+    </div>
+    <div class="pt-card-body pt-stack">
+      <p class="pt-muted-text" style="font-size:13.5px;line-height:1.6;margin:0;">
+        Exporte o banco de dados antes de encerrar o semestre e envie ao próximo coordenador.
+        O arquivo <code style="font-size:11.5px;background:var(--pt-surface-alt);padding:1px 5px;border-radius:4px;">mentoria.db</code>
+        contém todo o histórico de padrinhos, presenças e advertências.
+      </p>
+      <div>
+        <a href="/config/backup-db" class="pt-btn pt-btn-primary">
+          <i class="ri-download-line"></i> Exportar backup do banco
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sobre o sistema -->
+  <div class="pt-card pt-card-flat">
+    <div class="pt-card-header">
+      <div class="pt-card-header-title">
+        <div class="pt-card-header-icon"><i class="ri-information-line"></i></div>
+        <span class="pt-card-title">Sobre o sistema</span>
+      </div>
+    </div>
+    <div class="pt-card-body pt-stack">
+      <div style="display:flex;align-items:center;gap:16px;">
+        <span class="pt-knot-tile pt-knot-tile-lg">
+          <img src="{{ url_for('static', filename='brand/padrinho-track-tile.svg') }}" style="width:90%;height:90%;" alt="" />
+        </span>
+        <div>
+          <p style="font-size:15px;font-weight:700;color:var(--pt-ink);margin:0;">Padrinho Track</p>
+          <p class="pt-muted-text" style="font-size:12.5px;margin:2px 0 0;">Versão 1.0.0 &mdash; {{ config_semestre.semestre }}</p>
+        </div>
+      </div>
+
+      <p class="pt-muted-text" style="font-size:13.5px;line-height:1.6;margin:0;">
+        Sistema de gestão do programa de mentoria da
+        <span style="font-weight:600;color:var(--pt-ink);">{{ config_semestre.instituicao }}</span> —
+        controla presenças, advertências e cronograma de temas dos padrinhos, facilitando o acompanhamento dos calouros ao longo do semestre.
+      </p>
+
+      <div class="pt-stack-sm" style="font-size:13px;">
+        <div style="display:flex;align-items:center;gap:12px;color:var(--pt-muted);">
+          <i class="ri-user-line" style="color:var(--pt-brand);width:16px;text-align:center;"></i>
+          <span>Desenvolvido por <strong style="color:var(--pt-ink);">Christiano Gonçalves</strong></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;color:var(--pt-muted);">
+          <i class="ri-building-line" style="color:var(--pt-brand);width:16px;text-align:center;"></i>
+          <span>{{ config_semestre.programa }}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;color:var(--pt-muted);">
+          <i class="ri-user-star-line" style="color:var(--pt-brand);width:16px;text-align:center;"></i>
+          <span>{{ config_semestre.professor_coordenador }}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;color:var(--pt-muted);">
+          <i class="ri-calendar-line" style="color:var(--pt-brand);width:16px;text-align:center;"></i>
+          <span>Semestre <strong style="color:var(--pt-ink);">{{ config_semestre.semestre }}</strong></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <i class="ri-github-line" style="color:var(--pt-brand);width:16px;text-align:center;"></i>
+          <a href="https://github.com/christiano-gonara/padrinho-track" target="_blank" rel="noopener" class="pt-link-btn" style="padding:0;">
+            github.com/christiano-gonara/padrinho-track
+            <i class="ri-external-link-line" style="font-size:11px;"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

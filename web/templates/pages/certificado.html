@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<title>Certificado — {{ padrinho.nome }} — Programa de Apadrinhamento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
+<style>
+  @page { size: A4 landscape; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #e2e8f0; font-family: "Inter", system-ui, sans-serif; }
+
+  /* Barra de ação (somente tela) */
+  .pt-print-bar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: #0f172a; color: #fff;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 24px; font-size: 13px; gap: 12px;
+  }
+  .pt-print-bar a { color: rgba(255,255,255,0.72); text-decoration: none; font-size: 12.5px; }
+  .pt-print-bar a:hover { color: #fff; }
+  .pt-print-btn {
+    background: #2563eb; color: #fff; border: none; border-radius: 8px;
+    padding: 7px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .pt-print-btn:hover { background: #1d4ed8; }
+  body { padding-top: 46px; }
+
+  /* Folha do certificado */
+  .cert-sheet {
+    width: 1040px; height: 735px;
+    margin: 28px auto;
+    background:
+      radial-gradient(circle at 12% 12%, #eff6ff 0%, rgba(239,246,255,0) 38%),
+      radial-gradient(circle at 88% 88%, #dbeafe 0%, rgba(219,234,254,0) 38%),
+      #ffffff;
+    box-shadow: 0 16px 50px rgba(15, 23, 42, 0.16);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Faixas azul cobalto nos cantos superior/inferior */
+  .cert-band-top {
+    position: absolute; top: 0; left: 0; right: 0; height: 8px;
+    background: linear-gradient(90deg, #1e40af 0%, #3b82f6 50%, #1e40af 100%);
+  }
+  .cert-band-bottom {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 8px;
+    background: linear-gradient(90deg, #1e40af 0%, #3b82f6 50%, #1e40af 100%);
+  }
+
+  /* Moldura dupla */
+  .cert-frame {
+    position: absolute; inset: 26px;
+    border: 1.5px solid #bfdbfe;
+    border-radius: 6px;
+  }
+  .cert-frame::before {
+    content: ''; position: absolute; inset: 6px;
+    border: 1px solid #dbeafe; border-radius: 3px;
+  }
+
+  /* Ornamentos de canto */
+  .cert-corner {
+    position: absolute; width: 26px; height: 26px;
+    border-color: #2563eb; border-style: solid; border-width: 0;
+  }
+  .cert-corner.tl { top: 34px; left: 34px; border-top-width: 2px; border-left-width: 2px; border-top-left-radius: 4px; }
+  .cert-corner.tr { top: 34px; right: 34px; border-top-width: 2px; border-right-width: 2px; border-top-right-radius: 4px; }
+  .cert-corner.bl { bottom: 34px; left: 34px; border-bottom-width: 2px; border-left-width: 2px; border-bottom-left-radius: 4px; }
+  .cert-corner.br { bottom: 34px; right: 34px; border-bottom-width: 2px; border-right-width: 2px; border-bottom-right-radius: 4px; }
+
+  /* Marca d'água */
+  .cert-watermark {
+    position: absolute; right: -60px; bottom: -70px;
+    opacity: 0.045; pointer-events: none;
+  }
+
+  .cert-content {
+    position: relative; z-index: 2;
+    height: 100%;
+    padding: 56px 86px 48px;
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center;
+  }
+  .cert-institutional-logos {
+    position: absolute; top: 58px; left: 72px; z-index: 3;
+    width: 250px; height: auto;
+  }
+
+  @media print {
+    @page { size: A4 landscape; margin: 0; }
+    * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    html, body { background: #fff; margin: 0; padding: 0; width: 297mm; height: 210mm; }
+    .pt-print-bar { display: none !important; }
+    .cert-sheet { width: 297mm; height: 210mm; margin: 0; box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="pt-print-bar">
+  <span style="font-weight:600;">Certificado — {{ padrinho.nome }}{% if estatico %} (Exemplo){% endif %}</span>
+  <span style="display:flex;align-items:center;gap:16px;">
+    {% if estatico %}
+      <a href="relatorio-aptidao.html">Ver Relatório ACG</a>
+      <a href="../index.html">← Voltar à apresentação</a>
+    {% else %}
+      <a href="/relatorio/aptidao">← Voltar ao relatório</a>
+    {% endif %}
+    <button class="pt-print-btn" onclick="window.print()">&#128438; Salvar como PDF</button>
+  </span>
+</div>
+
+<div class="cert-sheet">
+
+  <div class="cert-band-top"></div>
+  <div class="cert-band-bottom"></div>
+  <div class="cert-frame"></div>
+  <div class="cert-corner tl"></div>
+  <div class="cert-corner tr"></div>
+  <div class="cert-corner bl"></div>
+  <div class="cert-corner br"></div>
+  <img class="cert-institutional-logos" src="{{ '../static/images/certificado_icones.png' if estatico else '/static/images/certificado_icones.png' }}" alt="Engenharia de Software, ICEI e PUC Minas" />
+
+  <!-- Marca d'água (knot grande) -->
+  <svg class="cert-watermark" width="420" height="420" viewBox="2 2 28 28" fill="none">
+    <path d="M10 22 C5 22, 5 12, 10 12 C14 12, 16 20, 22 20 C27 20, 27 10, 22 10 C18 10, 16 18, 10 18" stroke="#1e40af" stroke-width="2.2" stroke-linecap="round" fill="none" />
+  </svg>
+
+  <div class="cert-content">
+
+    <!-- Rótulo -->
+    <div style="font-family:'Inter',system-ui,sans-serif;font-size:12px;color:#1d4ed8;letter-spacing:0.28em;text-transform:uppercase;font-weight:900;margin:42px 0 8px;">Certificado de Participação</div>
+    <div style="font-family:'Inter',sans-serif;font-size:13px;color:#64748b;letter-spacing:0.04em;margin-bottom:22px;">Este certificado é concedido a</div>
+
+    <!-- Nome -->
+    <div style="font-family:'Playfair Display',Georgia,serif;font-size:52px;font-weight:600;color:#0f172a;letter-spacing:-0.01em;line-height:1.05;margin-bottom:16px;">{{ padrinho.nome }}</div>
+
+    <!-- Função (pílula) -->
+    <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 17px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;margin-bottom:26px;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" />
+        <circle cx="9.5" cy="7" r="4" />
+        <path d="m16.5 11.5 2 2 3.5-4" />
+      </svg>
+      <span style="font-family:'Inter',sans-serif;font-size:13.5px;font-weight:800;color:#1e40af;letter-spacing:0.01em;">{{ funcao_certificado.titulo }}</span>
+    </div>
+
+    <!-- Divisor decorativo com losango -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;width:280px;margin-bottom:26px;">
+      <div style="flex:1;height:1px;background:linear-gradient(to right,rgba(37,99,235,0),#93c5fd);"></div>
+      <div style="width:7px;height:7px;background:#2563eb;transform:rotate(45deg);border-radius:1px;"></div>
+      <div style="flex:1;height:1px;background:linear-gradient(to left,rgba(37,99,235,0),#93c5fd);"></div>
+    </div>
+
+    <!-- Texto do certificado -->
+    <p style="font-size:14.5px;color:#334155;line-height:1.85;max-width:720px;margin:0 0 auto;">
+      em reconhecimento à sua valiosa participação como
+      <strong style="color:#0f172a;">{{ funcao_certificado.texto }}</strong> no
+      <strong style="color:#0f172a;">Projeto de Apadrinhamento de Calouros</strong>,
+      realizado no semestre <strong style="color:#0f172a;">{{ semestre }}</strong>,
+      com dedicação total de <strong style="color:#0f172a;">{{ "%02d"|format(horas_acg|default(4)) }} horas</strong> de
+      Atividade Complementar (ACG). O projeto é uma iniciativa do Departamento de
+      Engenharia de Software da <strong style="color:#0f172a;">PUC Minas</strong>,
+      em parceria com os alunos, com o objetivo de facilitar a transição dos
+      calouros ao ambiente universitário, promovendo acolhimento e integração acadêmica.
+    </p>
+
+    <!-- Selo central, informações flanqueando -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:44px;margin-top:34px;">
+      <!-- Emissão (esquerda) -->
+      <div style="width:236px;text-align:right;display:flex;flex-direction:column;gap:7px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#64748b;letter-spacing:0.06em;text-transform:uppercase;line-height:1.45;">Emitido em {{ hoje.strftime('%d/%m/%Y') }}<br>Belo Horizonte · MG</div>
+      </div>
+
+      <!-- Selo / medalhão (centro) -->
+      <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
+        <div style="position:relative;width:72px;height:72px;">
+          <div style="position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,#3b82f6,#1e40af,#3b82f6,#1e40af,#3b82f6);"></div>
+          <div style="position:absolute;inset:5px;border-radius:50%;background:#ffffff;"></div>
+          <div style="position:absolute;inset:9px;border-radius:50%;background:linear-gradient(150deg,#3b82f6,#1e40af);display:flex;align-items:center;justify-content:center;box-shadow:inset 0 2px 6px rgba(0,0,0,0.12);">
+            <svg width="34" height="34" viewBox="2 2 28 28" fill="none">
+              <path d="M10 22 C5 22, 5 12, 10 12 C14 12, 16 20, 22 20 C27 20, 27 10, 22 10 C18 10, 16 18, 10 18" stroke="#ffffff" stroke-width="3" stroke-linecap="round" fill="none" />
+            </svg>
+          </div>
+        </div>
+        <div style="display:flex;gap:5px;margin-top:-4px;">
+          <div style="width:9px;height:20px;background:#1e40af;clip-path:polygon(0 0,100% 0,100% 100%,50% 78%,0 100%);"></div>
+          <div style="width:9px;height:20px;background:#3b82f6;clip-path:polygon(0 0,100% 0,100% 100%,50% 78%,0 100%);"></div>
+        </div>
+      </div>
+
+      <!-- Coordenação (direita) -->
+      <div style="width:236px;text-align:left;display:flex;flex-direction:column;gap:7px;">
+        <div style="width:210px;height:1.5px;background:#0f172a;margin-bottom:7px;"></div>
+        <div style="font-size:14px;color:#0f172a;line-height:1.35;"><span style="font-weight:600;">{{ config.professor_coordenador_certificado or config.professor_coordenador }}</span><br><span style="font-size:11.5px;color:#64748b;">Coordenador do Programa</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

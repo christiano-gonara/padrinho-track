@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Advertências — Padrinho Track{% endblock %}
+{% block page_title %}Advertências{% endblock %}
+
+{% block content %}
+
+<div class="pt-page-head">
+  <div>
+    <h1 class="pt-page-title">Advertências</h1>
+    <p class="pt-page-subtitle">Registro de cartões amarelos e vermelhos</p>
+  </div>
+  <div class="pt-page-actions">
+    <button onclick="openModal('modal-manual')" class="pt-btn pt-btn-danger">
+      <i class="ri-alert-line"></i> Advertência manual
+    </button>
+  </div>
+</div>
+
+<div class="pt-card pt-card-flat" style="margin-bottom:24px;">
+  <div class="pt-card-header">
+    <div class="pt-card-header-title">
+      <div class="pt-card-header-icon" style="background:var(--pt-red-tint);color:var(--pt-red-deep);"><i class="ri-error-warning-line"></i></div>
+      <span class="pt-card-title">Histórico de advertências</span>
+    </div>
+    <span class="pt-muted-text" style="font-size:12.5px;">{{ advertencias | length }} registros</span>
+  </div>
+  <div class="pt-table-wrap">
+    <table class="pt-table">
+      <thead>
+        <tr>
+          <th>Padrinho</th>
+          <th style="text-align:center;">Tipo</th>
+          <th>Origem</th>
+          <th>Motivo</th>
+          <th>Data</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in advertencias %}
+        <tr>
+          <td style="font-weight:600;">
+            <a href="/padrinhos/{{ a['padrinho_id'] }}" style="color:var(--pt-ink);">
+              {{ a["padrinho_nome"] | abreviar }}
+            </a>
+          </td>
+          <td class="pt-td-center">
+            {% if a["tipo"] == "amarelo" %}
+              <span class="pt-badge" data-status="alerta"><i class="ri-error-warning-line"></i> Advertência</span>
+            {% else %}
+              <span class="pt-badge" data-status="grave"><i class="ri-close-circle-line"></i> Advertência Grave</span>
+            {% endif %}
+          </td>
+          <td class="pt-muted-text">
+            {% if a["origem"] == "falta" %}
+              <i class="ri-user-unfollow-line"></i> Falta em reunião
+            {% elif a["origem"] == "nao_entrega" %}
+              <i class="ri-file-damage-line"></i> Não entrega de tema
+            {% elif a["origem"] == "atraso_tema" %}
+              <i class="ri-time-line"></i> Atraso na entrega
+            {% else %}
+              <i class="ri-edit-line"></i> Manual
+            {% endif %}
+          </td>
+          <td class="pt-muted-text">{{ a["motivo"] or "—" }}</td>
+          <td class="pt-td-muted">{{ a["data"] | databr }}</td>
+          <td class="pt-td-right">
+            <form action="/advertencias/{{ a['id'] }}/excluir" method="POST"
+                  onsubmit="return confirm('Remover esta advertência?')" style="display:inline;">
+              <button type="submit" class="pt-btn pt-btn-soft-red pt-btn-sm">
+                <i class="ri-delete-bin-line"></i> Excluir
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6">
+            <div class="pt-empty">
+              <div class="pt-empty-icon"><i class="ri-shield-check-line"></i></div>
+              <p class="pt-empty-title">Nenhuma advertência registrada ainda</p>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% include "components/modal_advertencia_manual.html" %}
+
+<!-- Regras de advertência -->
+<div class="pt-card pt-card-flat">
+  <div class="pt-card-header">
+    <div class="pt-card-header-title">
+      <div class="pt-card-header-icon"><i class="ri-shield-check-line"></i></div>
+      <span class="pt-card-title">Regras de advertência</span>
+    </div>
+  </div>
+  <div class="pt-card-body pt-stack">
+    <div>
+      <p style="font-size:14px;font-weight:600;color:var(--pt-ink);margin:0 0 4px;">Limite automático por número de reuniões</p>
+      <p class="pt-muted-text" style="font-size:13px;line-height:1.6;margin:0;">
+        Um padrinho é reprovado se faltar em todas as reuniões do semestre.
+        {% if total_reunioes > 0 %}
+          Com <strong>{{ total_reunioes }} reunião{{ 'ões' if total_reunioes > 1 }}</strong> cadastrada{{ 's' if total_reunioes > 1 }}, o limite atual é <strong>{{ total_reunioes }} amarelo{{ 's' if total_reunioes > 1 }}</strong>.
+        {% else %}
+          Nenhuma reunião cadastrada ainda — o limite será definido automaticamente ao criar reuniões.
+        {% endif %}
+      </p>
+    </div>
+
+    <div class="pt-stack-sm">
+      <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--pt-muted);">
+        <i class="ri-checkbox-circle-line" style="color:var(--pt-green);font-size:15px;flex-shrink:0;"></i>
+        <span>Advertências manuais (atraso em tema, comportamento) continuam contando normalmente.</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--pt-muted);">
+        <i class="ri-checkbox-circle-line" style="color:var(--pt-green);font-size:15px;flex-shrink:0;"></i>
+        <span>Advertência grave (vermelha) reprova automaticamente, independente do limite.</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--pt-muted);">
+        <i class="ri-checkbox-circle-line" style="color:var(--pt-green);font-size:15px;flex-shrink:0;"></i>
+        <span>Alerta preventivo aparece quando o padrinho tem <strong>limite − 1</strong> amarelos.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

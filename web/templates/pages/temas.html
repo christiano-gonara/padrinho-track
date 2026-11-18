@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+{% block title %}Temas — Padrinho Track{% endblock %}
+{% block page_title %}Temas{% endblock %}
+
+{% block content %}
+
+<div class="pt-page-head">
+  <div>
+    <h1 class="pt-page-title">Temas</h1>
+    <p class="pt-page-subtitle">Controle de entregas do cronograma</p>
+  </div>
+  <div class="pt-page-actions">
+    <button onclick="abrirNovoTema()" class="pt-btn pt-btn-primary">
+      <i class="ri-add-line"></i> Novo tema
+    </button>
+  </div>
+</div>
+
+<div class="pt-card pt-card-flat" style="margin-bottom:24px;">
+  <div class="pt-card-header">
+    <div class="pt-card-header-title">
+      <div class="pt-card-header-icon"><i class="ri-book-open-line"></i></div>
+      <span class="pt-card-title">Cronograma de temas</span>
+    </div>
+    <span class="pt-muted-text" style="font-size:12.5px;">{{ temas | length }} temas</span>
+  </div>
+  <div class="pt-table-wrap">
+    <table class="pt-table">
+      <thead>
+        <tr>
+          <th>Título</th>
+          <th>Responsáveis</th>
+          <th style="text-align:center;">Aviso</th>
+          <th style="text-align:center;">Prazo</th>
+          <th style="text-align:center;">Status</th>
+          <th style="text-align:right;">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in temas %}
+        <tr>
+          <td style="font-weight:600;">{{ item.tema["titulo"] }}</td>
+          <td>
+            <div style="display:flex;flex-wrap:wrap;gap:5px;">
+              {% for p in item.padrinhos %}
+                <span class="pt-tag">{{ p["nome"].split()[0] }} {{ p["nome"].split()[-1] }}</span>
+              {% endfor %}
+            </div>
+          </td>
+          <td class="pt-td-center pt-td-muted">{{ item.tema["data_aviso"] | databr }}</td>
+          <td class="pt-td-center pt-td-muted">{{ item.tema["data_limite"] | databr }}</td>
+          <td class="pt-td-center">
+            {% if item.tema["situacao"] == "entregue" %}
+              <span class="pt-badge" data-status="entregue"><i class="ri-checkbox-circle-line"></i> Entregue</span>
+            {% elif item.tema["situacao"] == "atraso" %}
+              <span class="pt-badge" data-status="atraso"><i class="ri-time-line"></i> Atraso</span>
+            {% elif item.tema["situacao"] == "nao_entregue" %}
+              <span class="pt-badge" data-status="naoentregue"><i class="ri-close-circle-line"></i> Não entregue</span>
+            {% else %}
+              <span class="pt-badge" data-status="neutro"><i class="ri-time-line"></i> Pendente</span>
+            {% endif %}
+          </td>
+          <td class="pt-td-right">
+            {% set ids_padrinhos = item.padrinhos | map(attribute='id') | list %}
+            {% if item.tema["situacao"] == "pendente" %}
+              <div style="display:inline-flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:wrap;">
+                <form action="/temas/{{ item.tema['id'] }}/entregue" method="POST" style="display:inline-flex;align-items:center;gap:6px;">
+                  <input type="date" name="data_entrega" value="{{ today }}" class="pt-input pt-input-sm" style="width:auto;" />
+                  <button type="submit" class="pt-btn pt-btn-soft-green pt-btn-sm">
+                    <i class="ri-check-line"></i> Entregue
+                  </button>
+                </form>
+                <form action="/temas/{{ item.tema['id'] }}/nao_entregue" method="POST" style="display:inline;">
+                  <button type="submit" class="pt-btn pt-btn-soft-red pt-btn-sm">
+                    <i class="ri-close-line"></i> Não entregue
+                  </button>
+                </form>
+                <button
+                  data-id="{{ item.tema['id'] }}"
+                  data-titulo="{{ item.tema['titulo'] or '' }}"
+                  data-aviso="{{ item.tema['data_aviso'] or '' }}"
+                  data-limite="{{ item.tema['data_limite'] }}"
+                  data-padrinhos="{{ ids_padrinhos|join(',') }}"
+                  onclick="abrirEditarTema(this.dataset.id, this.dataset.titulo, this.dataset.aviso, this.dataset.limite, this.dataset.padrinhos ? this.dataset.padrinhos.split(',').map(Number) : [])"
+                  class="pt-btn pt-btn-ghost pt-btn-sm" aria-label="Editar">
+                  <i class="ri-pencil-line"></i>
+                </button>
+                <form action="/temas/{{ item.tema['id'] }}/excluir" method="POST" onsubmit="return confirm('Excluir este tema?')" style="display:inline;">
+                  <button type="submit" class="pt-btn pt-btn-ghost pt-btn-sm" aria-label="Excluir">
+                    <i class="ri-delete-bin-line"></i>
+                  </button>
+                </form>
+              </div>
+            {% else %}
+              <div style="display:inline-flex;align-items:center;justify-content:flex-end;gap:8px;">
+                <span class="pt-td-muted" style="display:inline-flex;align-items:center;gap:4px;">
+                  <i class="ri-calendar-check-line"></i> {{ item.tema["data_entrega"] | databr }}
+                </span>
+                <button
+                  data-id="{{ item.tema['id'] }}"
+                  data-titulo="{{ item.tema['titulo'] or '' }}"
+                  data-aviso="{{ item.tema['data_aviso'] or '' }}"
+                  data-limite="{{ item.tema['data_limite'] }}"
+                  data-padrinhos="{{ ids_padrinhos|join(',') }}"
+                  onclick="abrirEditarTema(this.dataset.id, this.dataset.titulo, this.dataset.aviso, this.dataset.limite, this.dataset.padrinhos ? this.dataset.padrinhos.split(',').map(Number) : [])"
+                  class="pt-btn pt-btn-ghost pt-btn-sm" aria-label="Editar">
+                  <i class="ri-pencil-line"></i>
+                </button>
+                <form action="/temas/{{ item.tema['id'] }}/excluir" method="POST" onsubmit="return confirm('Excluir este tema?')" style="display:inline;">
+                  <button type="submit" class="pt-btn pt-btn-ghost pt-btn-sm" aria-label="Excluir">
+                    <i class="ri-delete-bin-line"></i>
+                  </button>
+                </form>
+              </div>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6">
+            <div class="pt-empty">
+              <div class="pt-empty-icon"><i class="ri-book-open-line"></i></div>
+              <p class="pt-empty-title">Nenhum tema cadastrado ainda</p>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Seção: planilha de inscrições -->
+<div class="pt-card pt-card-flat">
+  <div class="pt-card-header">
+    <div class="pt-card-header-title">
+      <div class="pt-card-header-icon"><i class="ri-table-line"></i></div>
+      <span class="pt-card-title">Inscrições em temas</span>
+    </div>
+  </div>
+  <div class="pt-card-body pt-stack">
+
+    <details class="pt-details">
+      <summary>
+        <i class="ri-question-line"></i>
+        Como configurar o Forms de inscrição
+        <i class="ri-arrow-down-s-line pt-details-chevron"></i>
+      </summary>
+      <div class="pt-details-box pt-stack">
+        <div style="border:1px solid var(--pt-border);border-radius:10px;overflow:hidden;background:var(--pt-surface);">
+          <div style="padding:10px 14px;background:var(--pt-bg);border-bottom:1px solid var(--pt-border);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--pt-muted);">
+            Prévia do Forms — Inscrição em Temas
+          </div>
+          <div class="pt-mono" style="padding:14px;font-size:12px;display:flex;flex-direction:column;gap:10px;color:var(--pt-text);">
+            <div>Nome completo <span style="color:var(--pt-red);">*</span> · Matrícula <span style="color:var(--pt-red);">*</span></div>
+            <div>
+              <p style="margin:0 0 6px;color:var(--pt-muted);">Qual tema você quer apresentar? <span style="color:var(--pt-red);">*</span></p>
+              {% if temas and sugestao_vagas %}
+                {% for item in temas %}
+                  {% set loop_i = loop.index0 %}
+                  {% set vagas = sugestao_vagas.base + (1 if loop_i < sugestao_vagas.excedente else 0) %}
+                  <div style="padding:2px 0;">○ {{ item.tema["titulo"] }} <strong style="color:var(--pt-brand);">({{ vagas }} vaga{{ 's' if vagas != 1 }})</strong></div>
+                {% endfor %}
+              {% elif temas %}
+                {% for item in temas %}
+                  <div style="padding:2px 0;">○ {{ item.tema["titulo"] }}</div>
+                {% endfor %}
+              {% else %}
+                <span class="pt-muted-text" style="font-style:italic;">Nenhum tema cadastrado ainda.</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <ol style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--pt-text);line-height:1.55;">
+          <li>Crie um Forms com os campos: <strong>Nome completo, Matrícula</strong> e múltipla escolha com os títulos dos temas</li>
+          <li>Instale o add-on <strong>Form Limiter</strong> e configure o limite de vagas por opção</li>
+          <li>Na aba <strong>Respostas</strong>, crie a planilha vinculada</li>
+          <li>Compartilhe com <code style="background:var(--pt-bg-alt);padding:1px 5px;border-radius:4px;">padrinho-track@padrinho-track.iam.gserviceaccount.com</code></li>
+          <li>Cole o link da planilha abaixo e clique em <strong>Salvar link</strong></li>
+        </ol>
+      </div>
+    </details>
+
+    {% if sugestao_vagas %}
+    <div class="pt-alert pt-alert-info" style="flex-direction:column;gap:4px;">
+      <div style="display:flex;align-items:center;gap:6px;font-weight:700;">
+        <i class="ri-calculator-line"></i> Sugestão de vagas
+      </div>
+      <span>
+        {% if sugestao_vagas.excedente == 0 %}
+          {{ sugestao_vagas.total_padrinhos }} padrinhos ÷ {{ sugestao_vagas.total_temas }} temas = <strong>{{ sugestao_vagas.base }} vagas</strong> por tema
+        {% else %}
+          {{ sugestao_vagas.total_padrinhos }} padrinhos ÷ {{ sugestao_vagas.total_temas }} temas →
+          Temas 1 a {{ sugestao_vagas.excedente }}: <strong>{{ sugestao_vagas.base + 1 }} vagas</strong> ·
+          Demais: <strong>{{ sugestao_vagas.base }} vagas</strong>
+        {% endif %}
+      </span>
+    </div>
+    {% endif %}
+
+    <form action="/temas/configurar-inscricoes" method="POST" style="display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;">
+      <div class="pt-field" style="flex:1;min-width:240px;">
+        <label class="pt-label">Link da planilha de respostas (Google Sheets)</label>
+        <input type="url" name="sheets_inscricoes_url"
+               value="{{ sheets_inscricoes_url }}"
+               placeholder="https://docs.google.com/spreadsheets/d/..."
+               class="pt-input" />
+      </div>
+      <button type="submit" class="pt-btn pt-btn-ghost">
+        <i class="ri-save-line"></i> Salvar link
+      </button>
+      {% if sheets_inscricoes_url %}
+      <button type="submit" form="form-sincronizar-inscricoes" class="pt-btn pt-btn-primary">
+        <i class="ri-refresh-line"></i> Sincronizar inscrições
+      </button>
+      {% endif %}
+    </form>
+    {% if sheets_inscricoes_url %}
+    <form id="form-sincronizar-inscricoes" action="/temas/sincronizar" method="POST" style="display:none;"></form>
+    {% endif %}
+  </div>
+</div>
+
+{% include "components/modal_novo_tema.html" %}
+
+<!-- Modal: editar tema -->
+<div id="modal-editar-tema" class="pt-modal-backdrop">
+  <div class="pt-modal pt-modal-lg">
+    <div class="pt-modal-header pt-tone-brand">
+      <i class="ri-pencil-line"></i>
+      <span class="pt-modal-title">Editar tema</span>
+      <button class="pt-modal-close" onclick="closeModal('modal-editar-tema')">&times;</button>
+    </div>
+    <form id="form-editar-tema" method="POST">
+      <div class="pt-modal-body">
+        <div class="pt-field">
+          <label class="pt-label">Título do tema</label>
+          <input type="text" name="titulo" id="edit-tema-titulo" required class="pt-input" />
+        </div>
+        <div class="pt-grid-2">
+          <div class="pt-field">
+            <label class="pt-label">Data de aviso</label>
+            <input type="date" name="data_aviso" id="edit-tema-data-aviso" class="pt-input" />
+          </div>
+          <div class="pt-field">
+            <label class="pt-label">Prazo de entrega</label>
+            <input type="date" name="data_limite" id="edit-tema-data-limite" required class="pt-input" />
+          </div>
+        </div>
+        <div class="pt-field">
+          <label class="pt-label">Responsáveis</label>
+          <select name="padrinho_ids" id="edit-tema-padrinhos" multiple required class="pt-select" style="height:144px;background-image:none;padding-right:13px;">
+            {% for p in padrinhos %}
+              <option value="{{ p['id'] }}">{{ p["nome"] }}</option>
+            {% endfor %}
+          </select>
+          <p class="pt-muted-text" style="font-size:12px;margin-top:4px;display:flex;align-items:center;gap:4px;">
+            <i class="ri-information-line"></i> Segure Ctrl (ou Cmd) para selecionar mais de um
+          </p>
+        </div>
+        <div class="pt-modal-actions">
+          <button type="button" class="pt-btn pt-btn-ghost" onclick="closeModal('modal-editar-tema')">Cancelar</button>
+          <button type="submit" class="pt-btn pt-btn-primary">
+            <i class="ri-save-line"></i> Salvar
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function abrirEditarTema(id, titulo, dataAviso, dataLimite, padrinhoIds) {
+  document.getElementById('form-editar-tema').action = '/temas/' + id + '/editar';
+  document.getElementById('edit-tema-titulo').value = titulo;
+  document.getElementById('edit-tema-data-aviso').value = dataAviso;
+  document.getElementById('edit-tema-data-limite').value = dataLimite;
+  var sel = document.getElementById('edit-tema-padrinhos');
+  for (var i = 0; i < sel.options.length; i++) {
+    sel.options[i].selected = padrinhoIds.indexOf(parseInt(sel.options[i].value)) !== -1;
+  }
+  openModal('modal-editar-tema');
+}
+</script>
+
+{% endblock %}

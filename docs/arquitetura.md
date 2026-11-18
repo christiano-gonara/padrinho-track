@@ -173,15 +173,17 @@ erDiagram
 
 | Diretório / Arquivo | Responsabilidade |
 |---|---|
-| `app.py` | Fábrica de aplicação Flask, registro de Blueprints, filtros Jinja2 e controle de sessão global |
-| `database.py` | Camada de conexão compatível com SQLite e PostgreSQL (com pools de conexão seguros) |
-| `database_schema.py` | Definição de tabelas, índices e rotinas de migração de schema |
-| `routes/` | Controladores HTTP desacoplados por módulo (dashboard, padrinhos, reunioes, match, etc.) |
-| `services/` | Regras de negócio puras (cálculo de status ACG, algoritmo de match, geração de PDF) |
-| `repositories/` | Consultas SQL isoladas por entidade, prevenindo SQL Injection e abstraindo queries |
-| `integrations/` | Importadores e sincronizadores de Google Sheets e formulários externos |
-| `templates/` | Templates Jinja divididos em `pages/` (telas completas) e `components/` (modais e cards) |
-| `static/` | Folhas de estilo (`css/`), identidade visual (`brand/`) e screenshots (`capturas/`) |
+| `app.py` | Ponto de entrada leve para servidor WSGI/Gunicorn (`gunicorn app:app`) |
+| `backend/app.py` | Fábrica de aplicação Flask, registro de Blueprints, filtros Jinja2 e controle de sessão |
+| `backend/database.py` | Camada de conexão compatível com SQLite e PostgreSQL (com pools de conexão seguros) |
+| `backend/database_schema.py` | Definição de tabelas, índices e rotinas de migração de schema |
+| `backend/routes/` | Controladores HTTP desacoplados por módulo (dashboard, padrinhos, reunioes, match, etc.) |
+| `backend/services/` | Regras de negócio puras (cálculo de status ACG, algoritmo de match, geração de PDF) |
+| `backend/repositories/` | Consultas SQL isoladas por entidade, prevenindo SQL Injection e abstraindo queries |
+| `backend/integrations/` | Importadores e sincronizadores de Google Sheets e formulários externos |
+| `web/src/` | Aplicação **React + TypeScript + Vite** (HTML/TSX separado do CSS, tema claro e cenários de uso) |
+| `web/templates/` | Templates Jinja divididos em `pages/` (telas e documentos A4/PDF) e `components/` |
+| `web/static/` | Folhas de estilo (`css/`), identidade visual (`brand/`) e imagens (`images/`) |
 | `scripts/` | Script estático do GitHub Pages (`build_site.py`), seeds de exemplo e utilitários |
 | `tests/` | Suíte de testes concisa cobrindo regras de negócio, algoritmo de match e segurança de rotas |
 
@@ -191,6 +193,7 @@ erDiagram
 
 Embora a aplicação de gestão seja dinâmica (Flask + banco de dados), a **Landing Page** de apresentação do programa de mentoria é construída automaticamente para o GitHub Pages através do script `scripts/build_site.py` e da action `.github/workflows/pages.yml`:
 
-- Gera `docs/site/index.html` renderizando `templates/pages/landing.html` com caminhos estáticos.
-- Copia os assets otimizados de `static/` (marcas, capturas, estilos).
+- Gera `docs/site/index.html` renderizando `web/templates/pages/landing.html` com caminhos estáticos em tema claro.
+- Gera exemplos navegáveis em `docs/site/exemplos/` (`relatorio-aptidao.html`, `resumo-semestre.html` e `certificado.html`).
+- Copia os assets de `web/static/` (marcas, imagens, estilos).
 - Publica no endereço: **`https://christiano-gonara.github.io/padrinho-track/`**.

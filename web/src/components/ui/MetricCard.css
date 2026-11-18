@@ -1,0 +1,86 @@
+.pt-metric-card {
+  background: var(--pt-surface);
+  border: 1px solid var(--pt-border);
+  border-radius: var(--pt-radius-lg);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--pt-shadow-sm);
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.pt-metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--pt-shadow-md);
+}
+
+.pt-metric-card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 3px;
+}
+
+.pt-metric-card.tone-green::after { background: var(--pt-green); }
+.pt-metric-card.tone-amber::after { background: var(--pt-amber); }
+.pt-metric-card.tone-orange::after { background: var(--pt-orange); }
+.pt-metric-card.tone-red::after { background: var(--pt-red); }
+.pt-metric-card.tone-brand::after { background: var(--pt-brand); }
+
+.pt-metric-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pt-metric-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tone-green .pt-metric-icon { background: var(--pt-green-tint); color: var(--pt-green-deep); border-color: var(--pt-green-soft); }
+.tone-amber .pt-metric-icon { background: var(--pt-amber-tint); color: var(--pt-amber-deep); border-color: var(--pt-amber-soft); }
+.tone-orange .pt-metric-icon { background: var(--pt-orange-tint); color: var(--pt-orange-deep); border-color: var(--pt-orange-soft); }
+.tone-red .pt-metric-icon { background: var(--pt-red-tint); color: var(--pt-red-deep); border-color: var(--pt-red-soft); }
+.tone-brand .pt-metric-icon { background: var(--pt-brand-tint); color: var(--pt-brand-deep); border-color: var(--pt-brand-tint-deep); }
+
+.pt-metric-label {
+  font-family: var(--pt-font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pt-muted);
+}
+
+.pt-metric-body {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.pt-metric-value {
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--pt-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.pt-metric-hint {
+  font-size: 11.5px;
+  color: var(--pt-muted);
+  text-align: right;
+}

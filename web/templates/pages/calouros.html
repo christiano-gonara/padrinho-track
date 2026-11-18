@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Calouros — Padrinho Track{% endblock %}
+{% block page_title %}Calouros{% endblock %}
+
+{% block content %}
+
+<div class="pt-page-head">
+  <div>
+    <h1 class="pt-page-title">Calouros</h1>
+    <p class="pt-page-subtitle">Match padrinho-calouro do semestre</p>
+  </div>
+  {% set total_calouros = namespace(value=0) %}
+  {% for item in dados %}
+    {% set total_calouros.value = total_calouros.value + (item.calouros | length) %}
+  {% endfor %}
+  <div class="pt-page-actions">
+    <div class="pt-input-wrap" style="width:220px;">
+      <span class="pt-input-icon"><i class="ri-search-line"></i></span>
+      <input type="text" id="busca-calouros" placeholder="Buscar padrinho ou calouro..." class="pt-input pt-input-sm" />
+    </div>
+    <span class="pt-pill pt-pill-brand" id="cnt-padrinhos">
+      <i class="ri-user-star-line"></i> {{ dados | length }} padrinhos
+    </span>
+    <span class="pt-pill pt-pill-neutral">
+      <i class="ri-group-line"></i> {{ total_calouros.value }} calouros
+    </span>
+  </div>
+</div>
+
+<div class="pt-stack" id="lista-calouros">
+  {% for item in dados %}
+    {% if item.calouros %}
+    <div class="pt-card pt-card-flat"
+         data-padrinho="{{ item.padrinho['nome'] | lower }}"
+         data-calouros="{{ item.calouros | map(attribute='nome') | join(' ') | lower }}">
+      <div class="pt-card-header" style="background:var(--pt-bg);">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <div class="pt-card-header-icon"><i class="ri-user-star-line"></i></div>
+          <a href="/padrinhos/{{ item.padrinho['id'] }}" style="font-size:14.5px;font-weight:700;color:var(--pt-ink);">
+            {{ item.padrinho["nome"] }}
+          </a>
+          {% if item.padrinho["turno"] == "Manhã" %}
+            <span class="pt-pill pt-pill-amber"><i class="ri-sun-line"></i> Manhã</span>
+          {% elif item.padrinho["turno"] == "Noite" %}
+            <span class="pt-pill pt-pill-brand"><i class="ri-moon-line"></i> Noite</span>
+          {% endif %}
+        </div>
+        <span class="pt-pill pt-pill-neutral">
+          <i class="ri-user-line"></i> {{ item.calouros | length }} calouro(s)
+        </span>
+      </div>
+      <div class="pt-table-wrap">
+        <table class="pt-table pt-table-compact">
+          <tbody>
+            {% for c in item.calouros %}
+            <tr>
+              <td style="width:65%;">
+                <span style="display:inline-flex;align-items:center;gap:8px;font-weight:500;">
+                  <i class="ri-user-smile-line" style="color:var(--pt-brand);"></i>
+                  {{ c["nome"] }}
+                </span>
+              </td>
+              <td class="pt-td-muted">
+                {% if c["telefone"] %}
+                  <span style="display:inline-flex;align-items:center;gap:6px;">
+                    <i class="ri-phone-line"></i> {{ c["telefone"] }}
+                  </span>
+                {% else %}
+                  <span class="pt-dash">—</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+  {% else %}
+  <div class="pt-card">
+    <div class="pt-empty">
+      <div class="pt-empty-icon"><i class="ri-group-line"></i></div>
+      <p class="pt-empty-title">Nenhum match cadastrado ainda</p>
+      <p class="pt-empty-subtitle">Importe os calouros e rode o algoritmo na aba Match.</p>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<script>
+  const buscaCalouros = document.getElementById('busca-calouros');
+  const cntPadrinhos = document.getElementById('cnt-padrinhos');
+  const cards = document.querySelectorAll('#lista-calouros [data-padrinho]');
+
+  buscaCalouros.addEventListener('input', () => {
+    const termo = buscaCalouros.value.toLowerCase().trim();
+    let visiveis = 0;
+    cards.forEach(card => {
+      const padrinho = card.dataset.padrinho;
+      const calouros = card.dataset.calouros;
+      const bate = !termo || padrinho.includes(termo) || calouros.includes(termo);
+      card.style.display = bate ? '' : 'none';
+      if (bate) visiveis++;
+    });
+    cntPadrinhos.innerHTML = `<i class="ri-user-star-line"></i> ${visiveis} padrinhos`;
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,398 @@
+{% extends "base.html" %}
+{% block title %}{{ padrinho["nome"] }} — Padrinho Track{% endblock %}
+{% block page_title %}Detalhe do padrinho{% endblock %}
+
+{% block content %}
+
+<div class="pt-page-head">
+  <div>
+    <a href="/padrinhos" class="pt-back-link">
+      <i class="ri-arrow-left-line"></i> voltar para padrinhos
+    </a>
+    <h1 class="pt-page-title">{{ padrinho["nome"] }}</h1>
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;margin-top:8px;font-size:13.5px;color:var(--pt-muted);">
+      <span style="display:inline-flex;align-items:center;gap:6px;">
+        <i class="ri-id-card-line"></i>
+        <span class="pt-mono" style="font-size:13px;">{{ padrinho["matricula"] }}</span>
+      </span>
+      {% if padrinho["email"] %}
+        <span style="display:inline-flex;align-items:center;gap:6px;">
+          <i class="ri-mail-line"></i> {{ padrinho["email"] }}
+        </span>
+      {% endif %}
+      {% if padrinho["telefone"] %}
+        <span style="display:inline-flex;align-items:center;gap:6px;">
+          <i class="ri-phone-line"></i> {{ padrinho["telefone"] }}
+        </span>
+      {% endif %}
+      {% if padrinho["turno"] == "Manhã" %}
+        <span class="pt-pill pt-pill-amber"><i class="ri-sun-line"></i> Manhã</span>
+      {% elif padrinho["turno"] == "Noite" %}
+        <span class="pt-pill pt-pill-brand"><i class="ri-moon-line"></i> Noite</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="pt-page-actions">
+    {% if status.status == "apto" %}
+      <span class="pt-badge" data-status="apto"><i class="ri-checkbox-circle-line"></i> Apto para ACG</span>
+    {% elif status.status == "alerta" %}
+      <span class="pt-badge" data-status="alerta"><i class="ri-error-warning-line"></i> Alerta — {{ status.amarelos }} amarelo{{ 's' if status.amarelos != 1 }}</span>
+    {% elif status.status == "inapto_amarelo" %}
+      <span class="pt-badge" data-status="inapto"><i class="ri-alert-line"></i> Reprovado — {{ status.amarelos }} amarelo{{ 's' if status.amarelos != 1 }}</span>
+    {% elif status.status == "inapto_vermelho" %}
+      <span class="pt-badge" data-status="grave"><i class="ri-close-circle-line"></i> Reportado ao coordenador</span>
+    {% endif %}
+    <button onclick="openModal('modal-editar')" class="pt-btn pt-btn-ghost">
+      <i class="ri-edit-line"></i> Editar
+    </button>
+    <button onclick="openModal('modal-remover')" class="pt-btn pt-btn-soft-red">
+      <i class="ri-user-unfollow-line"></i> Remover do programa
+    </button>
+  </div>
+</div>
+
+<!-- Modal: remover do programa / redistribuir calouros -->
+<div id="modal-remover" class="pt-modal-backdrop">
+  <div class="pt-modal pt-modal-lg">
+    <div class="pt-modal-header pt-tone-danger">
+      <i class="ri-user-unfollow-line"></i>
+      <span class="pt-modal-title">Remover do programa</span>
+      <button class="pt-modal-close" onclick="closeModal('modal-remover')">&times;</button>
+    </div>
+    <form action="/padrinhos/{{ padrinho['id'] }}/redistribuir" method="POST">
+      <div class="pt-modal-body">
+        {% if calouros_match %}
+        <p class="pt-muted-text" style="font-size:13.5px;line-height:1.5;">
+          Este padrinho tem <strong style="color:var(--pt-ink);">{{ calouros_match | length }} calouro(s)</strong> vinculado(s).
+          Escolha um novo padrinho para cada um antes de remover.
+        </p>
+        <div class="pt-stack-sm">
+          {% for c in calouros_match %}
+          <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--pt-bg);border:1px solid var(--pt-border);border-radius:10px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:160px;">
+              <p style="font-size:13.5px;font-weight:600;color:var(--pt-ink);margin:0;">{{ c["nome"] }}</p>
+              {% if c["telefone"] %}
+              <p class="pt-muted-text" style="font-size:12px;margin:2px 0 0;">{{ c["telefone"] }}</p>
+              {% endif %}
+            </div>
+            <select name="calouro_{{ c['id'] }}" required class="pt-select pt-input-sm" style="min-width:190px;max-width:240px;">
+              <option value="">— Escolher padrinho —</option>
+              {% for p in todos_padrinhos %}
+              <option value="{{ p['id'] }}">{{ p["nome"] }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="pt-muted-text" style="font-size:13.5px;">
+          Este padrinho não tem calouros vinculados. Confirme para removê-lo do programa.
+        </p>
+        {% endif %}
+        <div class="pt-modal-actions">
+          <button type="button" class="pt-btn pt-btn-ghost" onclick="closeModal('modal-remover')">Cancelar</button>
+          <button type="submit" class="pt-btn pt-btn-danger">
+            <i class="ri-user-unfollow-line"></i>
+            {% if calouros_match %}Confirmar redistribuição{% else %}Confirmar remoção{% endif %}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal editar padrinho -->
+<div id="modal-editar" class="pt-modal-backdrop">
+  <div class="pt-modal pt-modal-lg">
+    <div class="pt-modal-header pt-tone-brand">
+      <i class="ri-edit-line"></i>
+      <span class="pt-modal-title">Editar padrinho</span>
+      <button class="pt-modal-close" onclick="closeModal('modal-editar')">&times;</button>
+    </div>
+    <form action="/padrinhos/{{ padrinho['id'] }}/editar" method="POST">
+      <div class="pt-modal-body">
+        <div class="pt-field">
+          <label class="pt-label">Nome completo</label>
+          <input type="text" name="nome" value="{{ padrinho['nome'] }}" required class="pt-input" />
+        </div>
+        <div class="pt-grid-2">
+          <div class="pt-field">
+            <label class="pt-label">Matrícula</label>
+            <input type="text" name="matricula" value="{{ padrinho['matricula'] }}" required class="pt-input" />
+          </div>
+          <div class="pt-field">
+            <label class="pt-label">Turno</label>
+            <select name="turno" class="pt-select">
+              <option value="Manhã" {% if padrinho['turno'] == 'Manhã' %}selected{% endif %}>Manhã</option>
+              <option value="Noite" {% if padrinho['turno'] == 'Noite' %}selected{% endif %}>Noite</option>
+            </select>
+          </div>
+        </div>
+        <div class="pt-grid-2">
+          <div class="pt-field">
+            <label class="pt-label">Email</label>
+            <input type="email" name="email" value="{{ padrinho['email'] or '' }}" class="pt-input" />
+          </div>
+          <div class="pt-field">
+            <label class="pt-label">Telefone</label>
+            <input type="text" name="telefone" value="{{ padrinho['telefone'] or '' }}" class="pt-input" />
+          </div>
+        </div>
+
+        <div class="pt-field" style="margin-top:4px;padding-top:12px;border-top:1px solid var(--pt-border);">
+          <span class="pt-label" style="margin-bottom:4px;">Dados demográficos <span class="pt-label-optional">(opcional)</span></span>
+          <div class="pt-grid-2">
+            <div class="pt-field">
+              <label class="pt-label">Gênero</label>
+              <select name="genero" class="pt-select">
+                <option value="" {% if not padrinho['genero'] %}selected{% endif %}>— Não informado —</option>
+                <option value="F" {% if padrinho['genero'] == 'F' %}selected{% endif %}>Feminino</option>
+                <option value="M" {% if padrinho['genero'] == 'M' %}selected{% endif %}>Masculino</option>
+                <option value="Outro" {% if padrinho['genero'] == 'Outro' %}selected{% endif %}>Outro</option>
+              </select>
+            </div>
+            <div class="pt-field">
+              <label class="pt-label">Idade</label>
+              <input type="number" name="idade" value="{{ padrinho['idade'] or '' }}" min="16" max="60" class="pt-input" />
+            </div>
+          </div>
+          <div class="pt-grid-2">
+            <div class="pt-field">
+              <label class="pt-label">Período atual</label>
+              <input type="text" name="periodo" value="{{ padrinho['periodo'] or '' }}" placeholder="ex: 5°" class="pt-input" />
+            </div>
+            <div class="pt-field">
+              <label class="pt-label">Passou em Algoritmos</label>
+              <select name="passou_algoritmos" class="pt-select">
+                <option value="" {% if padrinho['passou_algoritmos'] is none %}selected{% endif %}>— Não informado —</option>
+                <option value="1" {% if padrinho['passou_algoritmos'] == 1 %}selected{% endif %}>Sim</option>
+                <option value="0" {% if padrinho['passou_algoritmos'] == 0 %}selected{% endif %}>Não</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:6px;">
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--pt-text);cursor:pointer;">
+              <input type="checkbox" name="cidade_bh" value="1" {% if padrinho['cidade_bh'] %}checked{% endif %} style="accent-color:var(--pt-brand);width:16px;height:16px;" />
+              Mora na Grande BH
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--pt-text);cursor:pointer;">
+              <input type="checkbox" name="bolsista" value="1" {% if padrinho['bolsista'] %}checked{% endif %} style="accent-color:var(--pt-brand);width:16px;height:16px;" />
+              Bolsista
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--pt-text);cursor:pointer;">
+              <input type="checkbox" name="trabalha" value="1" {% if padrinho['trabalha'] %}checked{% endif %} style="accent-color:var(--pt-brand);width:16px;height:16px;" />
+              Trabalha
+            </label>
+          </div>
+        </div>
+
+        <div class="pt-modal-actions">
+          <button type="button" class="pt-btn pt-btn-ghost" onclick="closeModal('modal-editar')">Cancelar</button>
+          <button type="submit" class="pt-btn pt-btn-primary">
+            <i class="ri-save-line"></i> Salvar
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Cards amarelo/vermelho -->
+<div class="pt-grid-2" style="margin-bottom:24px;">
+  <div class="pt-metric-card pt-metric-amber">
+    <div class="pt-metric-card-top">
+      <div class="pt-metric-icon"><i class="ri-error-warning-line"></i></div>
+      <span class="pt-metric-label">Cartões amarelos</span>
+    </div>
+    <div class="pt-metric-body">
+      <span class="pt-metric-value">{{ status.amarelos }}</span>
+      <span class="pt-metric-delta">Faltas sem justificativa ou atraso leve</span>
+    </div>
+  </div>
+  <div class="pt-metric-card pt-metric-red">
+    <div class="pt-metric-card-top">
+      <div class="pt-metric-icon"><i class="ri-close-circle-line"></i></div>
+      <span class="pt-metric-label">Cartões vermelhos</span>
+    </div>
+    <div class="pt-metric-body">
+      <span class="pt-metric-value">{{ status.vermelhos }}</span>
+      <span class="pt-metric-delta">Não entrega ou ocorrência grave</span>
+    </div>
+  </div>
+</div>
+
+<div class="pt-grid-2" style="margin-bottom:24px;">
+
+  <!-- Presenças -->
+  <div class="pt-card pt-card-flat">
+    <div class="pt-card-header">
+      <div class="pt-card-header-title">
+        <div class="pt-card-header-icon"><i class="ri-user-follow-line"></i></div>
+        <span class="pt-card-title">Presenças</span>
+      </div>
+    </div>
+    <div class="pt-table-wrap">
+      <table class="pt-table pt-table-compact">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Tema</th>
+            <th style="text-align:center;">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pr in historico.presencas %}
+          <tr>
+            <td class="pt-td-muted">{{ pr["data"] | databr }}</td>
+            <td class="pt-muted-text">{{ pr["tema"] or "—" }}</td>
+            <td class="pt-td-center">
+              {% if pr["presente"] %}
+                <span class="pt-badge pt-badge-sm" data-status="presente"><i class="ri-checkbox-circle-line"></i> Presente</span>
+              {% elif pr["justificada"] %}
+                <span class="pt-badge pt-badge-sm" data-status="justificada"><i class="ri-file-text-line"></i> Justificada</span>
+              {% else %}
+                <span class="pt-badge pt-badge-sm" data-status="ausente"><i class="ri-close-circle-line"></i> Ausente</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="3" style="text-align:center;color:var(--pt-muted);padding:24px;font-size:13px;">
+              Nenhuma presença registrada.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Temas -->
+  <div class="pt-card pt-card-flat">
+    <div class="pt-card-header">
+      <div class="pt-card-header-title">
+        <div class="pt-card-header-icon"><i class="ri-book-open-line"></i></div>
+        <span class="pt-card-title">Temas</span>
+      </div>
+    </div>
+    <div class="pt-table-wrap">
+      <table class="pt-table pt-table-compact">
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>Prazo</th>
+            <th style="text-align:center;">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in historico.temas %}
+          <tr>
+            <td style="font-weight:500;">{{ t["titulo"] }}</td>
+            <td class="pt-td-muted">{{ t["data_limite"] | databr }}</td>
+            <td class="pt-td-center">
+              {% if t["situacao"] == "entregue" %}
+                <span class="pt-badge pt-badge-sm" data-status="entregue"><i class="ri-checkbox-circle-line"></i> Entregue</span>
+              {% elif t["situacao"] == "atraso" %}
+                <span class="pt-badge pt-badge-sm" data-status="atraso"><i class="ri-time-line"></i> Atraso</span>
+              {% elif t["situacao"] == "nao_entregue" %}
+                <span class="pt-badge pt-badge-sm" data-status="naoentregue"><i class="ri-close-circle-line"></i> Não entregue</span>
+              {% else %}
+                <span class="pt-badge pt-badge-sm" data-status="neutro"><i class="ri-time-line"></i> Pendente</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="3" style="text-align:center;color:var(--pt-muted);padding:24px;font-size:13px;">
+              Nenhum tema registrado.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- Calouros vinculados -->
+{% if calouros_match %}
+<div class="pt-card pt-card-flat" style="margin-bottom:24px;">
+  <div class="pt-card-header">
+    <div class="pt-card-header-title">
+      <div class="pt-card-header-icon"><i class="ri-user-smile-line"></i></div>
+      <span class="pt-card-title">Calouros vinculados</span>
+    </div>
+    <span class="pt-muted-text" style="font-size:12.5px;">{{ calouros_match | length }} calouro(s)</span>
+  </div>
+  <div class="pt-card-body" style="display:flex;flex-wrap:wrap;gap:10px;">
+    {% for c in calouros_match %}
+    <div class="pt-tag" style="padding:7px 12px;border-radius:10px;font-size:13px;">
+      <i class="ri-user-smile-line"></i>
+      <span style="font-weight:600;">{{ c["nome"] }}</span>
+      {% if c["telefone"] %}
+      <span style="opacity:0.75;">· {{ c["telefone"] }}</span>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Advertências -->
+<div class="pt-card pt-card-flat">
+  <div class="pt-card-header">
+    <div class="pt-card-header-title">
+      <div class="pt-card-header-icon" style="background:var(--pt-red-tint);color:var(--pt-red-deep);"><i class="ri-alert-line"></i></div>
+      <span class="pt-card-title">Advertências</span>
+    </div>
+  </div>
+  <div class="pt-table-wrap">
+    <table class="pt-table">
+      <thead>
+        <tr>
+          <th style="text-align:center;">Tipo</th>
+          <th>Origem</th>
+          <th>Motivo</th>
+          <th>Data</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in advertencias %}
+        <tr>
+          <td class="pt-td-center">
+            {% if a["tipo"] == "amarelo" %}
+              <span class="pt-badge" data-status="alerta"><i class="ri-error-warning-line"></i> Advertência</span>
+            {% else %}
+              <span class="pt-badge" data-status="grave"><i class="ri-close-circle-line"></i> Advertência Grave</span>
+            {% endif %}
+          </td>
+          <td class="pt-muted-text">
+            {% if a["origem"] == "falta" %}
+              <i class="ri-user-unfollow-line"></i> Falta em reunião
+            {% elif a["origem"] == "nao_entrega" %}
+              <i class="ri-file-damage-line"></i> Não entrega de tema
+            {% elif a["origem"] == "atraso_tema" %}
+              <i class="ri-time-line"></i> Atraso na entrega
+            {% else %}
+              <i class="ri-edit-line"></i> Manual
+            {% endif %}
+          </td>
+          <td class="pt-muted-text">{{ a["motivo"] or "—" }}</td>
+          <td class="pt-td-muted">{{ a["data"] | databr }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="4" style="text-align:center;color:var(--pt-muted);padding:28px;font-size:13px;">
+            <i class="ri-shield-check-line" style="font-size:22px;display:block;margin-bottom:6px;"></i>
+            Nenhuma advertência registrada.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

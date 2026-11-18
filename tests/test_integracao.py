@@ -11,8 +11,8 @@ os.environ.setdefault("APP_PASSWORD", "test-password")
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from database import get_conn, init_db
-import database as db_module
+from backend.database import get_conn, init_db
+import backend.database as db_module
 
 
 @pytest.fixture()
@@ -58,6 +58,8 @@ class TestLandingEPublico:
         resp = client.get("/")
         assert resp.status_code == 200
         assert b"Padrinho Track" in resp.data
+        assert b'data-theme="light"' in resp.data
+        assert b"prefers-color-scheme: dark" not in resp.data
 
     def test_visitante_autenticado_redireciona_ao_dashboard(self, client):
         with client.session_transaction() as sess:
@@ -107,12 +109,16 @@ class TestNavegacaoEAcoesAutenticadas:
             "/reunioes",
             "/presencas/1",
             "/temas",
+            "/inicio",
+            "/advertencias",
             "/match",
             "/match/lista-contatos",
             "/relatorio",
             "/relatorio/aptidao",
             "/relatorio/resumo",
             "/relatorio/certificado/1",
+            "/config",
+            "/logs",
         ],
     )
     def test_rotas_principais_respondem_200(self, client, rota):
@@ -134,3 +140,15 @@ class TestNavegacaoEAcoesAutenticadas:
         # Rodar match
         r_match = client.post("/match/rodar")
         assert r_match.status_code == 302
+
+    def test_api_rest_para_frontend_react(self, client):
+        # /api/auth/me responde autenticado
+        r_me = client.get("/api/auth/me")
+        assert r_me.status_code == 200
+        assert r_me.get_json()["authenticated"] is True
+
+        # Endpoints JSON principais para React + TypeScript
+        for rota in ["/api/dashboard", "/api/padrinhos", "/api/reunioes", "/api/temas", "/api/match", "/api/relatorio", "/api/config"]:
+            r = client.get(rota)
+            assert r.status_code == 200, rota
+            assert isinstance(r.get_json(), dict)

@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Padrinhos — Padrinho Track{% endblock %}
+{% block page_title %}Padrinhos{% endblock %}
+
+{% block content %}
+
+<div class="pt-page-head">
+  <div>
+    <h1 class="pt-page-title">Padrinhos</h1>
+    <p class="pt-page-subtitle">Veteranos inscritos no programa</p>
+  </div>
+  <div class="pt-page-actions">
+    <button onclick="openModal('modal-novo')" class="pt-btn pt-btn-primary">
+      <i class="ri-user-add-line"></i> Novo padrinho
+    </button>
+  </div>
+</div>
+
+<div class="pt-card pt-card-flat">
+  <div class="pt-card-header">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <span class="pt-card-title" style="margin-right:6px;">Lista de padrinhos</span>
+      <button data-filtro="todos" class="filtro-btn pt-chip is-active">Todos</button>
+      <button data-filtro="apto" class="filtro-btn pt-chip">Aprovados</button>
+      <button data-filtro="alerta" class="filtro-btn pt-chip">Em alerta</button>
+      <button data-filtro="inapto_amarelo" class="filtro-btn pt-chip">Reprovados</button>
+      <button data-filtro="inapto_vermelho" class="filtro-btn pt-chip">Reportados</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <span class="pt-muted-text" style="font-size:12.5px;" id="contador">{{ padrinhos | length }} cadastrados</span>
+      <div class="pt-input-wrap" style="width:210px;">
+        <span class="pt-input-icon"><i class="ri-search-line"></i></span>
+        <input type="text" id="busca" placeholder="Buscar padrinho..." class="pt-input pt-input-sm" />
+      </div>
+    </div>
+  </div>
+
+  <div class="pt-table-wrap">
+    <table class="pt-table">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Matrícula</th>
+          <th>Email</th>
+          <th>Telefone</th>
+          <th>Turno</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in padrinhos %}
+        {% set parts = p["nome"].split() %}
+        {% set ini = (parts[0][0] + (parts[-1][0] if parts|length > 1 else ''))|upper %}
+        <tr class="is-clickable"
+            data-nome="{{ p['nome'] }}"
+            data-matricula="{{ p['matricula'] }}"
+            data-status="{{ p['status'] }}"
+            onclick="window.location='/padrinhos/{{ p['id'] }}'">
+          <td>
+            <div class="pt-td-name">
+              <div class="pt-avatar">{{ ini }}</div>
+              <span>{{ p["nome"] | abreviar }}</span>
+            </div>
+          </td>
+          <td class="pt-td-muted">{{ p["matricula"] }}</td>
+          <td class="pt-muted-text">{{ p["email"] or "—" }}</td>
+          <td class="pt-muted-text">{{ p["telefone"] or "—" }}</td>
+          <td>
+            {% if p["turno"] == "Manhã" %}
+              <span class="pt-pill pt-pill-amber"><i class="ri-sun-line"></i> Manhã</span>
+            {% elif p["turno"] == "Noite" %}
+              <span class="pt-pill pt-pill-brand"><i class="ri-moon-line"></i> Noite</span>
+            {% else %}
+              <span class="pt-dash">—</span>
+            {% endif %}
+          </td>
+          <td class="pt-td-right">
+            <a href="/padrinhos/{{ p['id'] }}" class="pt-link-btn">
+              <i class="ri-eye-line"></i> ver detalhes
+            </a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6">
+            <div class="pt-empty">
+              <div class="pt-empty-icon"><i class="ri-user-line"></i></div>
+              <p class="pt-empty-title">Nenhum padrinho cadastrado ainda</p>
+              <p class="pt-empty-subtitle">Clique em "Novo padrinho" ou importe a planilha em Início do Semestre.</p>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% include "components/modal_novo_padrinho.html" %}
+
+<script>
+  const busca = document.getElementById('busca');
+  const contador = document.getElementById('contador');
+  const linhas = document.querySelectorAll('tbody tr[data-nome]');
+  let filtroAtivo = 'todos';
+
+  function aplicarFiltros() {
+    const termo = busca.value.toLowerCase().trim();
+    let visiveis = 0;
+    linhas.forEach(linha => {
+      const nome = linha.dataset.nome.toLowerCase();
+      const matricula = linha.dataset.matricula.toLowerCase();
+      const status = linha.dataset.status;
+      const bateBusca = nome.includes(termo) || matricula.includes(termo);
+      const bateFiltro = filtroAtivo === 'todos' || status === filtroAtivo;
+      const visivel = bateBusca && bateFiltro;
+      linha.style.display = visivel ? '' : 'none';
+      if (visivel) visiveis++;
+    });
+    contador.textContent = `${visiveis} cadastrados`;
+  }
+
+  busca.addEventListener('input', aplicarFiltros);
+
+  document.querySelectorAll('.filtro-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      filtroAtivo = btn.dataset.filtro;
+      document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      aplicarFiltros();
+    });
+  });
+</script>
+
+{% endblock %}

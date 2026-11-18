@@ -1,0 +1,249 @@
+/* ============================================================================
+   Gráficos em Barras e Diagrama de Fluxo (sem pizza/rosca)
+   ============================================================================ */
+
+.pt-stacked-track {
+  display: flex;
+  width: 100%;
+  height: 14px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--pt-bg-alt);
+  border: 1px solid var(--pt-border);
+  margin-bottom: 18px;
+}
+
+.pt-stacked-seg {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.pt-stacked-seg.is-green { background: var(--pt-green); }
+.pt-stacked-seg.is-amber { background: var(--pt-amber); }
+.pt-stacked-seg.is-orange { background: var(--pt-orange); }
+.pt-stacked-seg.is-red { background: var(--pt-red); }
+
+.pt-hbar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pt-hbar-row {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr) 74px;
+  align-items: center;
+  gap: 12px;
+}
+
+.pt-hbar-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--pt-text);
+}
+
+.pt-hbar-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.pt-hbar-track {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--pt-bg-alt);
+  overflow: hidden;
+}
+
+.pt-hbar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.pt-hbar-val {
+  text-align: right;
+  font-family: var(--pt-font-mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--pt-ink);
+}
+
+/* Gráfico de Colunas — Presenças por Reunião */
+.pt-vchart-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pt-vchart-legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--pt-muted);
+}
+
+.pt-vchart-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pt-vchart-grid {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: 16px;
+  min-height: 185px;
+  padding: 18px 12px 10px;
+  background: var(--pt-bg);
+  border: 1px solid var(--pt-border);
+  border-radius: 12px;
+}
+
+.pt-vchart-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 72px;
+}
+
+.pt-vchart-bars {
+  height: 130px;
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.pt-vchart-col {
+  width: 18px;
+  border-radius: 6px 6px 2px 2px;
+  position: relative;
+  transition: height 0.3s ease;
+  min-height: 4px;
+}
+
+.pt-vchart-col.is-present { background: var(--pt-brand); }
+.pt-vchart-col.is-just { background: var(--pt-amber); }
+.pt-vchart-col.is-absent { background: var(--pt-red); }
+
+.pt-vchart-col-val {
+  position: absolute;
+  top: -17px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--pt-font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--pt-ink);
+}
+
+.pt-vchart-label {
+  text-align: center;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--pt-ink);
+}
+
+.pt-vchart-sub {
+  font-size: 10.5px;
+  color: var(--pt-muted);
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Diagrama de Fluxo do Semestre */
+.pt-flow-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.pt-flow-step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid var(--pt-border);
+  background: var(--pt-bg);
+  text-align: left;
+  transition: transform 0.14s ease, border-color 0.14s ease, background 0.14s ease;
+}
+
+.pt-flow-step:hover {
+  transform: translateY(-2px);
+  border-color: var(--pt-brand-soft);
+  background: var(--pt-brand-tint);
+}
+
+.pt-flow-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.pt-flow-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: var(--pt-brand-gradient);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pt-flow-stat {
+  font-family: var(--pt-font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--pt-surface);
+  border: 1px solid var(--pt-border);
+  color: var(--pt-brand-deep);
+}
+
+.pt-flow-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--pt-ink);
+}
+
+.pt-flow-desc {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--pt-muted);
+  line-height: 1.45;
+}
+
+@media (max-width: 980px) {
+  .pt-flow-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .pt-flow-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pt-hbar-row {
+    grid-template-columns: 96px minmax(0, 1fr) 62px;
+  }
+}

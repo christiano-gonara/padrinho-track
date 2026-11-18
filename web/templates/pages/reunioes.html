@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% block title %}Reuniões — Padrinho Track{% endblock %}
+{% block page_title %}Reuniões{% endblock %}
+
+{% block content %}
+
+<div class="pt-page-head">
+  <div>
+    <h1 class="pt-page-title">Reuniões</h1>
+    <p class="pt-page-subtitle">Histórico e controle de presenças</p>
+  </div>
+  <div class="pt-page-actions">
+    <button onclick="openModal('modal-nova')" class="pt-btn pt-btn-primary">
+      <i class="ri-add-line"></i> Nova reunião
+    </button>
+  </div>
+</div>
+
+<div class="pt-card pt-card-flat" style="margin-bottom:24px;">
+  <div class="pt-card-header">
+    <div class="pt-card-header-title">
+      <div class="pt-card-header-icon"><i class="ri-video-chat-line"></i></div>
+      <span class="pt-card-title">Lista de reuniões</span>
+    </div>
+    <span class="pt-muted-text" style="font-size:12.5px;">{{ reunioes | length }} no total</span>
+  </div>
+  <div class="pt-table-wrap">
+    <table class="pt-table">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Tema</th>
+          <th>Descrição</th>
+          <th style="text-align:right;">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in reunioes %}
+        <tr>
+          <td>
+            <div style="display:inline-flex;align-items:center;gap:10px;font-weight:600;">
+              <span class="pt-card-header-icon" style="width:30px;height:30px;border-radius:8px;">
+                <i class="ri-calendar-line" style="font-size:14px;"></i>
+              </span>
+              <span>{{ r["data"] | databr }}</span>
+            </div>
+          </td>
+          <td style="font-weight:500;">{{ r["tema"] or "—" }}</td>
+          <td class="pt-muted-text">{{ r["descricao"] or "—" }}</td>
+          <td class="pt-td-right">
+            <div style="display:inline-flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;">
+              <a href="/presencas/{{ r['id'] }}" class="pt-btn pt-btn-soft pt-btn-sm">
+                <i class="ri-user-follow-line"></i> Presenças
+              </a>
+              <a href="/presencas/{{ r['id'] }}/importar" class="pt-btn pt-btn-ghost pt-btn-sm">
+                <i class="ri-upload-line"></i> CSV
+              </a>
+              {% if sheets_presenca_url %}
+              <form action="/reunioes/{{ r['id'] }}/sincronizar" method="POST" style="display:inline;">
+                <button type="submit" class="pt-btn pt-btn-soft-green pt-btn-sm">
+                  <i class="ri-loop-right-line"></i> Sincronizar Forms
+                </button>
+              </form>
+              {% endif %}
+              <button
+                data-id="{{ r['id'] }}"
+                data-data="{{ r['data'] }}"
+                data-tema="{{ r['tema'] or '' }}"
+                data-descricao="{{ r['descricao'] or '' }}"
+                onclick="abrirEditarReuniao(this.dataset.id, this.dataset.data, this.dataset.tema, this.dataset.descricao)"
+                class="pt-btn pt-btn-ghost pt-btn-sm" aria-label="Editar">
+                <i class="ri-pencil-line"></i>
+              </button>
+              <form action="/reunioes/{{ r['id'] }}/excluir" method="POST"
+                    onsubmit="return confirm('Excluir esta reunião e todas as presenças registradas?')" style="display:inline;">
+                <button type="submit" class="pt-btn pt-btn-soft-red pt-btn-sm" aria-label="Excluir">
+                  <i class="ri-delete-bin-line"></i>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="4">
+            <div class="pt-empty">
+              <div class="pt-empty-icon"><i class="ri-video-chat-line"></i></div>
+              <p class="pt-empty-title">Nenhuma reunião cadastrada ainda</p>
+              <p class="pt-empty-subtitle">Crie uma reunião para lançar ou sincronizar as presenças dos padrinhos.</p>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Google Forms — Presença -->
+<div class="pt-card pt-card-flat">
+  <div class="pt-card-header">
+    <div class="pt-card-header-title">
+      <div class="pt-card-header-icon"><i class="ri-table-line"></i></div>
+      <span class="pt-card-title">Google Forms — Presença</span>
+    </div>
+  </div>
+  <form action="/reunioes/configurar-forms" method="POST" class="pt-card-body pt-stack">
+
+    <details class="pt-details">
+      <summary>
+        <i class="ri-question-line"></i>
+        Como configurar o Forms de presença
+        <i class="ri-arrow-down-s-line pt-details-chevron"></i>
+      </summary>
+      <div class="pt-details-box">
+        <ol style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--pt-text);line-height:1.55;">
+          <li>Crie um Forms com os campos: <strong>Nome completo, Matrícula, Email, Telefone</strong></li>
+          <li>Na aba <strong>Respostas</strong>, clique no ícone do Sheets para criar a planilha vinculada</li>
+          <li>Compartilhe a planilha com <code style="background:var(--pt-bg-alt);padding:1px 5px;border-radius:4px;font-size:11.5px;">padrinho-track@padrinho-track.iam.gserviceaccount.com</code></li>
+          <li>Cole o link abaixo e clique em <strong>Salvar link</strong></li>
+          <li>Durante ou após a reunião, clique <strong>Sincronizar Forms</strong> na linha da reunião</li>
+        </ol>
+      </div>
+    </details>
+
+    <div class="pt-field">
+      <label class="pt-label">Link da planilha de respostas</label>
+      <input type="text" name="sheets_presenca_url"
+             value="{{ sheets_presenca_url or '' }}"
+             class="pt-input"
+             placeholder="https://docs.google.com/spreadsheets/d/..." />
+    </div>
+
+    <div class="pt-alert pt-alert-info">
+      <i class="ri-information-line"></i>
+      <span>A planilha deve ser compartilhada com a conta de serviço: <strong>padrinho-track@padrinho-track.iam.gserviceaccount.com</strong></span>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;">
+      <button type="submit" class="pt-btn pt-btn-primary">
+        <i class="ri-save-line"></i> Salvar link
+      </button>
+    </div>
+  </form>
+</div>
+
+{% include "components/modal_nova_reuniao.html" %}
+
+<!-- Modal: editar reunião -->
+<div id="modal-editar-reuniao" class="pt-modal-backdrop">
+  <div class="pt-modal">
+    <div class="pt-modal-header pt-tone-brand">
+      <i class="ri-pencil-line"></i>
+      <span class="pt-modal-title">Editar reunião</span>
+      <button class="pt-modal-close" onclick="closeModal('modal-editar-reuniao')">&times;</button>
+    </div>
+    <form id="form-editar-reuniao" method="POST">
+      <div class="pt-modal-body">
+        <div class="pt-field">
+          <label class="pt-label">Data</label>
+          <input type="date" name="data" id="edit-reuniao-data" required class="pt-input" />
+        </div>
+        <div class="pt-field">
+          <label class="pt-label">Tema <span class="pt-label-optional">(opcional)</span></label>
+          <input type="text" name="tema" id="edit-reuniao-tema" class="pt-input" />
+        </div>
+        <div class="pt-field">
+          <label class="pt-label">Descrição <span class="pt-label-optional">(opcional)</span></label>
+          <textarea name="descricao" id="edit-reuniao-descricao" class="pt-textarea"></textarea>
+        </div>
+        <div class="pt-modal-actions">
+          <button type="button" class="pt-btn pt-btn-ghost" onclick="closeModal('modal-editar-reuniao')">Cancelar</button>
+          <button type="submit" class="pt-btn pt-btn-primary">
+            <i class="ri-save-line"></i> Salvar
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function abrirEditarReuniao(id, data, tema, descricao) {
+  document.getElementById('form-editar-reuniao').action = '/reunioes/' + id + '/editar';
+  document.getElementById('edit-reuniao-data').value = data;
+  document.getElementById('edit-reuniao-tema').value = tema || '';
+  document.getElementById('edit-reuniao-descricao').value = descricao || '';
+  openModal('modal-editar-reuniao');
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}Relatório — Padrinho Track{% endblock %}
+{% block page_title %}Relatório{% endblock %}
+
+{% block content %}
+
+<div class="pt-page-head">
+  <div>
+    <h1 class="pt-page-title">Relatório geral</h1>
+    <p class="pt-page-subtitle">Aptidão para ACG — resultado final e certificados</p>
+  </div>
+  <div class="pt-page-actions">
+    <a href="/relatorio/aptidao" target="_blank" class="pt-btn pt-btn-primary">
+      <i class="ri-printer-line"></i> Aptidão ACG
+    </a>
+    <a href="/relatorio/resumo" target="_blank" class="pt-btn pt-btn-soft">
+      <i class="ri-file-list-3-line"></i> Resumo do semestre
+    </a>
+    <a href="/relatorio/certificados/zip" class="pt-btn pt-btn-ghost">
+      <i class="ri-folder-download-line"></i> Baixar certificados
+    </a>
+  </div>
+</div>
+
+{% set aptos       = dados | selectattr("status", "eq", "apto")            | list %}
+{% set alertas     = dados | selectattr("status", "eq", "alerta")          | list %}
+{% set inapto_am   = dados | selectattr("status", "eq", "inapto_amarelo")  | list %}
+{% set inapto_verm = dados | selectattr("status", "eq", "inapto_vermelho") | list %}
+
+<!-- Cards -->
+{% include "components/metric_cards.html" %}
+
+<!-- Estatísticas demográficas -->
+<div class="pt-grid-2" style="margin-bottom:24px;">
+
+  <div class="pt-card">
+    <div class="pt-card-header" style="padding-bottom:14px;">
+      <div class="pt-card-header-title">
+        <div class="pt-card-header-icon"><i class="ri-bar-chart-2-line"></i></div>
+        <span class="pt-card-title">Por turno</span>
+      </div>
+    </div>
+    <div class="pt-stack-sm">
+      {% for turno, qtd in stats.por_turno.items() %}
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span class="pt-muted-text" style="font-size:13px;width:72px;flex-shrink:0;">{{ turno }}</span>
+        <div class="pt-bar-track">
+          <div class="pt-bar-fill" style="width:{{ (qtd / stats.total * 100)|round|int }}%;"></div>
+        </div>
+        <span style="font-size:13px;font-weight:700;color:var(--pt-ink);width:28px;text-align:right;">{{ qtd }}</span>
+      </div>
+      {% else %}
+      <p class="pt-muted-text" style="font-size:13px;">Nenhum dado disponível.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="pt-card">
+    <div class="pt-card-header" style="padding-bottom:14px;">
+      <div class="pt-card-header-title">
+        <div class="pt-card-header-icon"><i class="ri-user-heart-line"></i></div>
+        <span class="pt-card-title">Perfil demográfico</span>
+      </div>
+    </div>
+    <div class="pt-grid-2" style="gap:10px 18px;">
+      {% set items = [
+        ("Mulheres", stats.pct_feminino, "#ec4899"),
+        ("Homens",   stats.pct_masculino, "#2563eb"),
+        ("Bolsista",  stats.pct_bolsista, "#f59e0b"),
+        ("Mora em BH", stats.pct_bh,     "#10b981"),
+        ("Trabalha", stats.pct_trabalha, "#0ea5e9"),
+      ] %}
+      {% for label, pct, cor in items %}
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:8px;height:8px;border-radius:50%;background:{{ cor }};flex-shrink:0;"></div>
+        <span class="pt-muted-text" style="font-size:12.5px;">{{ label }}</span>
+        <span style="margin-left:auto;font-size:12.5px;font-weight:700;color:var(--pt-ink);">{{ pct }}%</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% if stats.pct_feminino == 0 and stats.pct_masculino == 0 %}
+    <p class="pt-muted-text" style="font-size:12px;margin-top:12px;font-style:italic;">Dados demográficos não cadastrados ainda.</p>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- Tabela -->
+<div class="pt-card pt-card-flat">
+  <div class="pt-card-header">
+    <div class="pt-card-header-title">
+      <div class="pt-card-header-icon"><i class="ri-file-chart-line"></i></div>
+      <span class="pt-card-title">Resultado por padrinho</span>
+    </div>
+    <span class="pt-muted-text" style="font-size:12.5px;">{{ dados | length }} padrinhos</span>
+  </div>
+  <div class="pt-table-wrap">
+    <table class="pt-table">
+      <thead>
+        <tr>
+          <th>Padrinho</th>
+          <th>Matrícula</th>
+          <th style="text-align:center;">Reuniões</th>
+          <th style="text-align:center;">Presenças</th>
+          <th style="text-align:center;">Amarelos</th>
+          <th style="text-align:center;">Vermelhos</th>
+          <th style="text-align:center;">Status ACG</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in dados %}
+        <tr>
+          <td style="font-weight:600;">
+            <a href="/padrinhos/{{ d.padrinho['id'] }}" style="color:var(--pt-ink);">
+              {{ d.padrinho["nome"] | abreviar }}
+            </a>
+          </td>
+          <td class="pt-td-muted">{{ d.padrinho["matricula"] }}</td>
+          <td class="pt-td-center pt-muted-text">{{ d.total_reunioes }}</td>
+          <td class="pt-td-center pt-muted-text">{{ d.total_presentes }}</td>
+          <td class="pt-td-center">
+            {% if d.amarelos > 0 %}
+              <span class="pt-count-badge pt-count-badge-amber">{{ d.amarelos }}</span>
+            {% else %}
+              <span class="pt-dash">—</span>
+            {% endif %}
+          </td>
+          <td class="pt-td-center">
+            {% if d.vermelhos > 0 %}
+              <span class="pt-count-badge pt-count-badge-red">{{ d.vermelhos }}</span>
+            {% else %}
+              <span class="pt-dash">—</span>
+            {% endif %}
+          </td>
+          <td class="pt-td-center">
+            {% if d.status == "apto" %}
+              <span class="pt-badge" data-status="apto"><i class="ri-checkbox-circle-line"></i> Apto</span>
+            {% elif d.status == "alerta" %}
+              <span class="pt-badge" data-status="alerta"><i class="ri-error-warning-line"></i> Alerta</span>
+            {% elif d.status == "inapto_amarelo" %}
+              <span class="pt-badge" data-status="inapto"><i class="ri-alert-line"></i> Reprovado</span>
+            {% elif d.status == "inapto_vermelho" %}
+              <span class="pt-badge" data-status="grave"><i class="ri-close-circle-line"></i> Reportado</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="7">
+            <div class="pt-empty">
+              <div class="pt-empty-icon"><i class="ri-file-chart-line"></i></div>
+              <p class="pt-empty-title">Nenhum padrinho para exibir</p>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

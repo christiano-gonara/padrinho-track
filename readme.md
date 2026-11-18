@@ -2,14 +2,15 @@
 
 <div align="center">
 
-![Padrinho Track](static/brand/padrinho-track-lockup.svg#gh-light-mode-only)
-![Padrinho Track](static/brand/padrinho-track-lockup-dark.svg#gh-dark-mode-only)
+![Padrinho Track](web/static/brand/padrinho-track-lockup.svg#gh-light-mode-only)
+![Padrinho Track](web/static/brand/padrinho-track-lockup-dark.svg#gh-dark-mode-only)
 
 **Sistema integrado para gestão do Programa de Apadrinhamento de Calouros**  
 *PUC Minas — Engenharia de Software*
 
 [![Python](https://img.shields.io/badge/Python-3.12%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
-[![Flask](https://img.shields.io/badge/Framework-Flask_3.x-black?logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![Flask](https://img.shields.io/badge/Backend-Flask_REST-1e40af?logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![React](https://img.shields.io/badge/Frontend-React_19_+_TypeScript-2563eb?logo=react&logoColor=white)](https://react.dev/)
 [![Database](https://img.shields.io/badge/Database-SQLite%20%7C%20PostgreSQL-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![GitHub Pages](https://img.shields.io/badge/Landing_Page-GitHub_Pages-22c55e?logo=githubpages&logoColor=white)](https://christiano-gonara.github.io/padrinho-track/)
 [![Test Suite](https://img.shields.io/badge/Tests-pytest-green?logo=pytest&logoColor=white)](https://docs.pytest.org/)
@@ -31,6 +32,24 @@ O sistema centraliza em um único ambiente:
 - **Controle de temas e prazos** com atribuição de responsáveis individuais ou grupos.
 - **Motor automático de regras de ACG e advertências** (sistema de cartões amarelos e vermelhos com histórico rastreável).
 - **Emissão automática de relatórios finais** de aptidão e geração em lote de **certificados em PDF / ZIP** para alunos e coordenação.
+
+---
+
+## 🖼️ Capturas do Sistema
+
+### Landing Page (Tema Claro · Azul Cobalto) e Cenários de Uso
+![Landing Page Padrinho Track](docs/images/landing_page.png)
+
+### Dashboard Interativo (Gráficos em Barras e Diagrama de Fluxo)
+![Dashboard Padrinho Track](docs/images/dashboard.png)
+
+### Tela de Relatórios e Fechamento ACG
+![Tela de Relatório Padrinho Track](docs/images/relatorio_tela.png)
+
+### Exemplos Reais em A4 (Relatório de Aptidão ACG e Certificado)
+| Relatório de Aptidão ACG (A4) | Certificado de Participação (A4) |
+|---|---|
+| ![Relatório de Aptidão ACG](docs/images/relatorio_aptidao_a4.png) | ![Certificado de Participação](docs/images/certificado_a4.png) |
 
 ---
 
@@ -179,31 +198,29 @@ erDiagram
 
 ```text
 padrinho-track/
-├── app.py                  # Factory da aplicação Flask e registro de Blueprints
-├── database.py             # Conexão híbrida SQLite / PostgreSQL
-├── database_schema.py      # DDL, constraints e migrações do banco
-├── models.py               # Camada de compatibilidade e utilitários
-├── routes/                 # Blueprints modulares por domínio
-│   ├── publicas.py         # Landing page pública (sem necessidade de login)
-│   ├── dashboard.py        # Painel central de métricas
-│   ├── padrinhos.py        # Gestão e detalhamento de padrinhos
-│   ├── calouros.py         # Cadastro e lista de calouros
-│   ├── match.py            # Execução de match e listas de contatos
-│   ├── reunioes.py         # Reuniões de alinhamento
-│   ├── presencas.py        # Lançamento de presenças por reunião
-│   ├── temas.py            # Temas periódicos e prazos de entrega
-│   ├── advertencias.py     # Gestão e aplicação de advertências
-│   ├── configuracoes.py    # Configurações do semestre letivo
-│   ├── relatorios.py       # Relatórios de aptidão e certificados
-│   └── inicio.py           # Wizard de início de semestre
-├── services/               # Lógica pura de negócio (status, match, relatórios)
-├── repositories/           # Consultas e persistência SQL isoladas
-├── integrations/           # Integração com Google Sheets e CSVs
-├── templates/              # Templates Jinja2 (pages/ e components/)
-├── static/                 # Estilos CSS, identidade visual (brand/) e capturas
-├── scripts/                # Script de build para GitHub Pages (build_site.py) e seeds
-├── docs/                   # Documentação arquitetural detalhada e histórico
-└── tests/                  # Suíte concisa de testes automatizados com pytest
+├── app.py                  # Ponto de entrada leve (compatível com gunicorn app:app)
+├── backend/                # Camada de servidor, regras de negócio e dados
+│   ├── app.py              # Factory da aplicação Flask e registro de Blueprints
+│   ├── database.py         # Conexão híbrida SQLite / PostgreSQL
+│   ├── database_schema.py  # DDL, constraints e migrações do banco
+│   ├── models.py           # Camada de compatibilidade e utilitários
+│   ├── routes/             # Blueprints modulares por domínio
+│   ├── services/           # Lógica pura de negócio (status, match, relatórios, certificados)
+│   ├── repositories/       # Consultas e persistência SQL isoladas
+│   └── integrations/       # Integração com Google Sheets e CSVs
+├── web/                    # Frontend React + TypeScript + Vite e templates de impressão
+│   ├── src/                # Aplicação React + TypeScript (CSS separado por página/componente)
+│   │   ├── pages/          # Landing Page, Dashboard (barras/fluxo), Padrinhos, Match, Relatórios...
+│   │   ├── components/     # AppShell, gráficos em barras, diagrama de fluxo e seletor de cenários
+│   │   ├── data/           # Cenários de uso interativos (Início, Em Andamento, Fechamento ACG)
+│   │   ├── services/       # Cliente HTTP tipado para /api/*
+│   │   └── styles/         # Design tokens (Azul Acadêmico/Cobalto em tema claro fixo)
+│   ├── public/             # Identidade visual e ícones estáticos
+│   ├── templates/          # Templates Jinja2 para relatórios A4 e certificados PDF
+│   └── static/             # CSS e imagens para impressão A4/PDF
+├── scripts/                # Gerador do GitHub Pages (build_site.py), seed e handoff
+├── docs/                   # Documentação arquitetural e site gerado (docs/site/)
+└── tests/                  # Suíte de testes automatizados com pytest
 ```
 
 ---
