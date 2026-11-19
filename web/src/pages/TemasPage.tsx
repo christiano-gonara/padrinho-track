@@ -1,9 +1,11 @@
 import { FormEvent, useState } from "react";
 import { BookOpen, Check, Plus, X } from "lucide-react";
+import { Avatar, Aviso } from "../components/ui/Kit";
 import { AppShell } from "../components/layout/AppShell";
 import { ToneBadge } from "../components/ui/StatusBadge";
 import { useApp } from "../context/AppContext";
-import { abreviarNome, formatarDataBr } from "../data/scenarios";
+import { formatarDataBr } from "../data/scenarios";
+import "../styles/pages/Temas.css";
 import { useLiveData } from "../hooks/useLiveData";
 import { apiFetch } from "../services/api";
 import { Padrinho, TemaItem } from "../types/domain";
@@ -33,6 +35,13 @@ export function TemasPage() {
     : scenario.temas;
 
   const padrinhos = live ? live.padrinhos : scenario.padrinhos;
+  const COR: Record<TemaItem["situacao"], string> = {
+    entregue: "#10b981",
+    atraso: "#f59e0b",
+    nao_entregue: "#dc2626",
+    pendente: "#e2e8f0",
+  };
+  const qtd = (s: TemaItem["situacao"]) => temas.filter((t) => t.situacao === s).length;
 
   async function onCreate(e: FormEvent) {
     e.preventDefault();
@@ -69,74 +78,90 @@ export function TemasPage() {
       <div className="pt-page-head">
         <div>
           <h1 className="pt-page-title">Temas</h1>
-          <p className="pt-page-subtitle">Controle de entregas do cronograma</p>
+          <p className="pt-page-subtitle">O cronograma de conteúdos que os padrinhos preparam pros calouros.</p>
         </div>
         <div className="pt-page-actions">
           <button type="button" className="pt-btn pt-btn-primary" onClick={() => setModalOpen(true)}>
-            <Plus size={15} /> Novo tema
+            <Plus size={17} /> Novo tema
           </button>
         </div>
       </div>
 
+      {temas.length > 0 && (
+        <section className="pt-card" style={{ marginBottom: 20 }}>
+          <h2 className="pt-card-title" style={{ marginBottom: 14 }}>Como estão as entregas</h2>
+          <div className="pt-temas-bar" role="img" aria-label={`${qtd("entregue")} no prazo, ${qtd("atraso")} atrasaram, ${qtd("nao_entregue")} não entregues, ${qtd("pendente")} ainda no prazo`}>
+            {temas.map((t) => (
+              <span key={t.id} style={{ background: COR[t.situacao] }} title={t.titulo} />
+            ))}
+          </div>
+          <div className="pt-temas-leg">
+            <span className="is-ok"><strong>{qtd("entregue")}</strong> no prazo</span>
+            <span className="is-atraso"><strong>{qtd("atraso")}</strong> atrasou</span>
+            <span className="is-nao"><strong>{qtd("nao_entregue")}</strong> não veio</span>
+            {qtd("pendente") > 0 && <span><strong>{qtd("pendente")}</strong> ainda no prazo</span>}
+          </div>
+        </section>
+      )}
+
+      <Aviso>
+        Entrega atrasada dá <strong>cartão amarelo</strong> pra dupla. Tema não entregue dá <strong>cartão vermelho</strong>.
+      </Aviso>
+
       <div className="pt-card pt-card-flat">
         <div className="pt-card-header">
-          <div className="pt-card-header-title">
-            <div className="pt-card-header-icon"><BookOpen size={16} /></div>
-            <h2 className="pt-card-title">Cronograma de temas</h2>
-          </div>
-          <span className="pt-muted" style={{ fontSize: 12.5 }}>{temas.length} temas</span>
+          <h2 className="pt-card-title">Cronograma</h2>
+          <span style={{ fontSize: 14, color: "#475569" }}>{temas.length} temas</span>
         </div>
-
         <div className="pt-table-wrap">
           <table className="pt-table">
             <thead>
               <tr>
-                <th>Título</th>
-                <th>Responsáveis</th>
-                <th style={{ textAlign: "center" }}>Aviso</th>
-                <th style={{ textAlign: "center" }}>Prazo</th>
-                <th style={{ textAlign: "center" }}>Situação</th>
-                <th style={{ textAlign: "right" }}>Ações</th>
+                <th>Tema</th>
+                <th>Quem apresenta</th>
+                <th>Prazo</th>
+                <th>Situação</th>
+                <th style={{ textAlign: "right" }}>Entregue em</th>
               </tr>
             </thead>
             <tbody>
               {temas.map((t) => (
                 <tr key={t.id}>
-                  <td style={{ fontWeight: 600 }}>{t.titulo}</td>
+                  <td style={{ fontWeight: 700 }}>{t.titulo}</td>
                   <td>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
-                      {t.responsaveis.map((r) => (
-                        <span key={r.id} className="pt-tag">{abreviarNome(r.nome)}</span>
-                      ))}
-                    </div>
+                    <span className="pt-temas-quem">
+                      <span className="pt-temas-avts">
+                        {t.responsaveis.map((r) => (
+                          <Avatar key={r.id} nome={r.nome} size={32} />
+                        ))}
+                      </span>
+                      {t.responsaveis.map((r) => r.nome.split(" ")[0]).join(" e ")}
+                    </span>
                   </td>
-                  <td className="pt-td-center pt-mono pt-muted">{formatarDataBr(t.data_aviso)}</td>
-                  <td className="pt-td-center pt-mono pt-muted">{formatarDataBr(t.data_limite)}</td>
-                  <td className="pt-td-center">
+                  <td style={{ fontWeight: 600 }}>{formatarDataBr(t.data_limite)}</td>
+                  <td>
                     {t.situacao === "entregue" ? (
                       <ToneBadge tone="green">Entregue</ToneBadge>
                     ) : t.situacao === "atraso" ? (
-                      <ToneBadge tone="amber">Atraso</ToneBadge>
+                      <ToneBadge tone="amber">Atrasou</ToneBadge>
                     ) : t.situacao === "nao_entregue" ? (
                       <ToneBadge tone="red">Não entregue</ToneBadge>
                     ) : (
-                      <ToneBadge tone="neutral">Pendente</ToneBadge>
+                      <ToneBadge tone="neutral">No prazo</ToneBadge>
                     )}
                   </td>
                   <td className="pt-td-right">
                     {t.situacao === "pendente" ? (
                       <div style={{ display: "inline-flex", gap: 6 }}>
                         <button type="button" className="pt-btn pt-btn-soft-green pt-btn-sm" onClick={() => onMark(t.id, "entregue")}>
-                          <Check size={13} /> Entregue
+                          <Check size={15} /> Entregou
                         </button>
                         <button type="button" className="pt-btn pt-btn-soft-red pt-btn-sm" onClick={() => onMark(t.id, "nao_entregue")}>
-                          <X size={13} /> Não entregue
+                          <X size={15} /> Não entregou
                         </button>
                       </div>
                     ) : (
-                      <span className="pt-mono pt-muted" style={{ fontSize: 12 }}>
-                        {formatarDataBr(t.data_entrega)}
-                      </span>
+                      <span style={{ fontSize: 15 }}>{formatarDataBr(t.data_entrega)}</span>
                     )}
                   </td>
                 </tr>
@@ -158,12 +183,12 @@ export function TemasPage() {
             </div>
             <form onSubmit={onCreate} className="pt-modal-body">
               <div className="pt-field">
-                <label className="pt-label">Título</label>
+                <label className="pt-label">Nome do tema</label>
                 <input className="pt-input" required value={titulo} onChange={(e) => setTitulo(e.target.value)} />
               </div>
               <div className="pt-grid-2">
                 <div className="pt-field">
-                  <label className="pt-label">Aviso</label>
+                  <label className="pt-label">Avisar em</label>
                   <input type="date" className="pt-input" value={dataAviso} onChange={(e) => setDataAviso(e.target.value)} />
                 </div>
                 <div className="pt-field">
@@ -172,7 +197,7 @@ export function TemasPage() {
                 </div>
               </div>
               <div className="pt-field">
-                <label className="pt-label">Responsáveis</label>
+                <label className="pt-label">Quem apresenta (segure Ctrl pra escolher mais de um)</label>
                 <select
                   multiple
                   required
@@ -188,7 +213,7 @@ export function TemasPage() {
               </div>
               <div className="pt-modal-actions">
                 <button type="button" className="pt-btn pt-btn-ghost" onClick={() => setModalOpen(false)}>Cancelar</button>
-                <button type="submit" className="pt-btn pt-btn-primary">Registrar</button>
+                <button type="submit" className="pt-btn pt-btn-primary">Criar tema</button>
               </div>
             </form>
           </div>

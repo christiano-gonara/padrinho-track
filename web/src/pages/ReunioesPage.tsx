@@ -1,9 +1,10 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calendar, Plus, Trash2, UserCheck, Video } from "lucide-react";
+import { Calendar, Check, Plus, Trash2, Upload } from "lucide-react";
 import { AppShell } from "../components/layout/AppShell";
 import { useApp } from "../context/AppContext";
-import { formatarDataBr } from "../data/scenarios";
+import { PresencaBar } from "../components/ui/Kit";
+import "../styles/pages/Reunioes.css";
 import { useLiveData } from "../hooks/useLiveData";
 import { apiFetch } from "../services/api";
 import { Reuniao } from "../types/domain";
@@ -28,6 +29,14 @@ export function ReunioesPage() {
   }, [live]);
 
   const reunioes: Partial<Reuniao>[] = live ? live.reunioes : scenario.reunioes;
+  const totalPrevisto = scenario.config.total_reunioes || reunioes.length;
+  const MESES = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
+
+  function diaMes(data?: string): { dia: string; mes: string } {
+    const partes = (data || "").split("-");
+    if (partes.length !== 3) return { dia: data || "—", mes: "" };
+    return { dia: partes[2], mes: MESES[Number(partes[1]) - 1] ?? "" };
+  }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -51,7 +60,7 @@ export function ReunioesPage() {
 
   async function onDelete(id: number) {
     if (mode !== "live") {
-      notify("No modo de cenários use os botões de cenário para alternar estados.", "info");
+      notify("Nos dados de exemplo não dá pra apagar reunião. Troque o momento do semestre no topo.", "info");
       return;
     }
     await apiFetch(`/api/reunioes/${id}`, { method: "DELETE" });
@@ -67,7 +76,7 @@ export function ReunioesPage() {
         body: JSON.stringify({ sheets_presenca_url: sheetsUrl }),
       });
     }
-    notify("Link da planilha de presença salvo.", "success");
+    notify("Link da planilha salvo.", "success");
   }
 
   return (
@@ -75,98 +84,98 @@ export function ReunioesPage() {
       <div className="pt-page-head">
         <div>
           <h1 className="pt-page-title">Reuniões</h1>
-          <p className="pt-page-subtitle">Histórico e controle de presenças</p>
+          <p className="pt-page-subtitle">
+            {reunioes.length} de {totalPrevisto} reuniões feitas. Quem faltar sem justificar ganha um cartão amarelo.
+          </p>
         </div>
         <div className="pt-page-actions">
           <button type="button" className="pt-btn pt-btn-primary" onClick={() => setModalOpen(true)}>
-            <Plus size={15} /> Nova reunião
+            <Plus size={17} /> Nova reunião
           </button>
         </div>
       </div>
 
-      <div className="pt-card pt-card-flat" style={{ marginBottom: 22 }}>
-        <div className="pt-card-header">
-          <div className="pt-card-header-title">
-            <div className="pt-card-header-icon"><Video size={16} /></div>
-            <h2 className="pt-card-title">Lista de reuniões</h2>
-          </div>
-          <span className="pt-muted" style={{ fontSize: 12.5 }}>{reunioes.length} no total</span>
-        </div>
-
-        <div className="pt-table-wrap">
-          <table className="pt-table">
-            <thead>
-              <tr>
-                <th>Data</th>
-                <th>Tema</th>
-                <th>Descrição</th>
-                <th style={{ textAlign: "right" }}>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {reunioes.map((r) => (
-                <tr key={r.id}>
-                  <td>
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontWeight: 600 }}>
-                      <Calendar size={15} color="var(--pt-brand)" />
-                      {formatarDataBr(r.data)}
-                    </span>
-                  </td>
-                  <td style={{ fontWeight: 500 }}>{r.tema || "—"}</td>
-                  <td className="pt-muted">{r.descricao || "—"}</td>
-                  <td className="pt-td-right">
-                    <div style={{ display: "inline-flex", gap: 8 }}>
-                      <button
-                        type="button"
-                        className="pt-btn pt-btn-soft pt-btn-sm"
-                        onClick={() => navigate(`/presencas/${r.id}`)}
-                      >
-                        <UserCheck size={13} /> Presenças
-                      </button>
-                      {mode === "live" && r.id && (
-                        <button
-                          type="button"
-                          className="pt-btn pt-btn-soft-red pt-btn-sm"
-                          onClick={() => onDelete(r.id!)}
-                          aria-label="Excluir reunião"
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div className="pt-card pt-card-flat">
-        <div className="pt-card-header">
-          <div className="pt-card-header-title">
-            <div className="pt-card-header-icon"><Video size={16} /></div>
-            <h2 className="pt-card-title">Google Forms — Presença</h2>
+      {reunioes.length === 0 && (
+        <div className="pt-card" style={{ marginBottom: 20 }}>
+          <div className="pt-empty">
+            <div className="pt-empty-icon"><Calendar size={20} /></div>
+            <strong style={{ color: "var(--pt-ink)", fontSize: 16 }}>Nenhuma reunião ainda</strong>
+            <p style={{ margin: 0, fontSize: 15 }}>Crie a primeira reunião do semestre pra começar a marcar presença.</p>
           </div>
         </div>
-        <form onSubmit={onSaveSheets} className="pt-card-body pt-stack">
+      )}
+
+      {reunioes.map((r) => {
+        const { dia, mes } = diaMes(r.data);
+        const temNumeros = typeof r.presentes === "number";
+        return (
+          <section key={r.id} className="pt-card pt-reuniao">
+            <div className="pt-reuniao-data">
+              <strong>{dia}</strong>
+              <span>{mes}</span>
+            </div>
+            <div className="pt-reuniao-info">
+              <h2>{r.tema || "Reunião"}</h2>
+              {r.descricao && <p>{r.descricao}</p>}
+            </div>
+            {temNumeros && (
+              <div className="pt-reuniao-pres">
+                <PresencaBar foi={r.presentes ?? 0} justificou={r.justificadas ?? 0} faltou={r.ausentes ?? 0} />
+                <div>
+                  <span><strong>{r.presentes}</strong> foram</span>
+                  <span><strong>{r.justificadas ?? 0}</strong> justificaram</span>
+                  <span className="is-falta"><strong>{r.ausentes ?? 0}</strong> faltaram</span>
+                </div>
+              </div>
+            )}
+            <div className="pt-reuniao-acoes">
+              <button type="button" className="pt-btn pt-btn-ghost" onClick={() => navigate(`/presencas/${r.id}`)}>
+                <Check size={17} /> {temNumeros ? "Ver presença" : "Lançar presença"}
+              </button>
+              {mode === "live" && r.id && (
+                <button
+                  type="button"
+                  className="pt-btn pt-btn-danger"
+                  onClick={() => onDelete(r.id!)}
+                  aria-label={`Apagar reunião ${r.tema || ""}`}
+                >
+                  <Trash2 size={17} />
+                </button>
+              )}
+            </div>
+          </section>
+        );
+      })}
+
+      <section className="pt-card" style={{ marginTop: 26 }}>
+        <h2 className="pt-card-title">Lançar presença pelo formulário</h2>
+        <p style={{ margin: "6px 0 16px", fontSize: 15, color: "#475569", lineHeight: 1.55 }}>
+          Se a presença foi feita num Google Forms, cole aqui o link da planilha de respostas.
+        </p>
+        <form onSubmit={onSaveSheets} className="pt-stack">
           <div className="pt-field">
-            <label className="pt-label">Link da planilha de respostas</label>
-            <input
-              className="pt-input"
-              placeholder="https://docs.google.com/spreadsheets/d/..."
-              value={sheetsUrl}
-              onChange={(e) => setSheetsUrl(e.target.value)}
-            />
+            <label className="pt-label" htmlFor="sheets-presenca">Link da planilha de presença</label>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <input
+                id="sheets-presenca"
+                className="pt-input"
+                style={{ flex: "1 1 280px", width: "auto" }}
+                placeholder="https://docs.google.com/spreadsheets/d/..."
+                value={sheetsUrl}
+                onChange={(e) => setSheetsUrl(e.target.value)}
+              />
+              <button type="submit" className="pt-btn pt-btn-primary">
+                <Upload size={17} /> Salvar link
+              </button>
+            </div>
           </div>
           <div className="pt-alert pt-alert-info">
-            <span>Compartilhe a planilha com <strong>padrinho-track@padrinho-track.iam.gserviceaccount.com</strong> como Editor.</span>
-          </div>
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <button type="submit" className="pt-btn pt-btn-primary">Salvar link</button>
+            <span>
+              A planilha precisa estar compartilhada com <strong>padrinho-track@padrinho-track.iam.gserviceaccount.com</strong> como Editor.
+            </span>
           </div>
         </form>
-      </div>
+      </section>
 
       {modalOpen && (
         <div className="pt-modal-backdrop" onClick={() => setModalOpen(false)}>

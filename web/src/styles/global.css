@@ -10,6 +10,7 @@
 
 html,
 body {
+  font-variant-numeric: tabular-nums;
   margin: 0;
   padding: 0;
   background: var(--pt-bg);
@@ -51,22 +52,23 @@ button {
   align-items: flex-end;
   gap: 16px 24px;
   flex-wrap: wrap;
-  margin-bottom: 22px;
+  margin-bottom: 26px;
 }
 
 .pt-page-title {
   margin: 0;
-  font-size: 25px;
-  font-weight: 800;
-  letter-spacing: -0.025em;
+  font-family: var(--pt-font-display);
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
   color: var(--pt-ink);
   line-height: 1.2;
 }
 
 .pt-page-subtitle {
-  margin: 4px 0 0;
-  font-size: 13.5px;
-  color: var(--pt-muted);
+  margin: 6px 0 0;
+  font-size: 16px;
+  color: var(--pt-text);
 }
 
 .pt-page-actions {
@@ -80,7 +82,8 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  min-height: 36px;
+  font-size: 14.5px;
   font-weight: 600;
   color: var(--pt-brand);
   margin-bottom: 8px;
@@ -95,7 +98,7 @@ button {
   background: var(--pt-surface);
   border: 1px solid var(--pt-border);
   border-radius: var(--pt-radius-lg);
-  padding: 20px 22px;
+  padding: 22px 24px;
   box-shadow: var(--pt-shadow-sm);
 }
 
@@ -110,7 +113,7 @@ button {
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
-  padding: 16px 22px;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--pt-border);
 }
 
@@ -134,7 +137,7 @@ button {
 
 .pt-card-title {
   margin: 0;
-  font-size: 14.5px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--pt-ink);
 }
@@ -148,12 +151,12 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  min-height: 38px;
-  padding: 8px 15px;
-  border-radius: 10px;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 18px;
+  border-radius: 12px;
   border: 1px solid transparent;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   white-space: nowrap;
   transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease;
@@ -169,23 +172,23 @@ button {
 }
 
 .pt-btn-sm {
-  min-height: 31px;
-  padding: 5px 11px;
-  font-size: 12px;
-  border-radius: 8px;
+  min-height: 38px;
+  padding: 6px 13px;
+  font-size: 14px;
+  border-radius: 10px;
 }
 
 .pt-btn-lg {
-  min-height: 44px;
-  padding: 11px 20px;
-  font-size: 14px;
-  border-radius: 11px;
+  min-height: 50px;
+  padding: 12px 22px;
+  font-size: 16px;
+  border-radius: 12px;
 }
 
 .pt-btn-primary {
-  background: var(--pt-brand-gradient);
+  background: var(--pt-brand-hover);
   color: #ffffff;
-  box-shadow: 0 8px 18px -8px var(--pt-brand-shadow);
+  border-color: var(--pt-brand-hover);
 }
 
 .pt-btn-primary:hover:not(:disabled) {
@@ -216,14 +219,19 @@ button {
 }
 
 .pt-btn-danger {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: #ffffff;
+  background: #ffffff;
+  color: var(--pt-red);
+  border-color: var(--pt-red-soft);
+}
+
+.pt-btn-danger:hover:not(:disabled) {
+  background: var(--pt-red-tint);
 }
 
 .pt-btn-ghost {
   background: var(--pt-surface);
-  color: var(--pt-text);
-  border-color: var(--pt-border);
+  color: var(--pt-ink);
+  border-color: var(--pt-border-strong);
 }
 
 .pt-btn-ghost:hover:not(:disabled) {
@@ -240,22 +248,20 @@ button {
 }
 
 .pt-label {
-  font-family: var(--pt-font-mono);
-  font-size: 10px;
+  font-size: 14.5px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--pt-muted);
+  color: var(--pt-ink);
 }
 
 .pt-input,
 .pt-select,
 .pt-textarea {
   width: 100%;
-  padding: 9px 12px;
-  border: 1px solid var(--pt-border);
-  border-radius: 10px;
-  font-size: 13.5px;
+  min-height: 46px;
+  padding: 10px 14px;
+  border: 1px solid var(--pt-border-strong);
+  border-radius: 12px;
+  font-size: 15.5px;
   color: var(--pt-ink);
   background: var(--pt-surface);
   outline: none;
@@ -274,12 +280,12 @@ button {
 }
 
 .pt-input-wrap .pt-input {
-  padding-left: 34px;
+  padding-left: 42px;
 }
 
 .pt-input-icon {
   position: absolute;
-  left: 11px;
+  left: 14px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--pt-faint);
@@ -306,22 +312,21 @@ button {
 
 .pt-table thead th {
   text-align: left;
-  padding: 11px 18px;
+  padding: 12px 16px;
   background: var(--pt-bg);
   border-bottom: 1px solid var(--pt-border);
-  font-family: var(--pt-font-mono);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--pt-muted);
+  color: #475569;
   white-space: nowrap;
 }
 
 .pt-table tbody td {
-  padding: 13px 18px;
-  border-bottom: 1px solid var(--pt-border);
-  font-size: 13.5px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--pt-bg-alt);
+  font-size: 15px;
   color: var(--pt-ink);
   vertical-align: middle;
 }
@@ -348,12 +353,16 @@ button {
 
 /* Chips e Tags */
 .pt-chip {
-  padding: 5px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 14px;
   border-radius: 999px;
   background: var(--pt-surface);
-  color: var(--pt-muted);
+  color: var(--pt-text);
   border: 1px solid var(--pt-border);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   transition: all 0.12s ease;
 }
@@ -364,9 +373,9 @@ button {
 }
 
 .pt-chip.is-active {
-  background: var(--pt-brand);
+  background: var(--pt-ink);
   color: #ffffff;
-  border-color: var(--pt-brand);
+  border-color: var(--pt-ink);
 }
 
 .pt-tag {
@@ -388,22 +397,21 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  background: var(--pt-brand-tint);
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: var(--pt-brand-tint-deep);
   color: var(--pt-brand-deep);
-  border: 1px solid var(--pt-brand-tint-deep);
-  font-size: 11.5px;
+  font-size: 13px;
   font-weight: 700;
   flex-shrink: 0;
 }
 
 /* Alertas */
 .pt-alert {
-  border-radius: 11px;
-  padding: 12px 15px;
-  font-size: 13px;
+  border-radius: 14px;
+  padding: 14px 16px;
+  font-size: 15px;
   line-height: 1.5;
   display: flex;
   align-items: flex-start;
@@ -491,20 +499,20 @@ button {
 }
 
 .pt-modal-header {
-  padding: 14px 20px;
+  padding: 16px 20px;
   display: flex;
   align-items: center;
   gap: 10px;
   color: #ffffff;
-  background: var(--pt-brand-gradient);
+  background: linear-gradient(115deg, #1e3a8a 0%, #1d4ed8 55%, #3b82f6 100%);
 }
 
 .pt-modal-header.is-danger {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
+  background: linear-gradient(115deg, #991b1b 0%, #dc2626 100%);
 }
 
 .pt-modal-title {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 700;
   flex: 1;
 }

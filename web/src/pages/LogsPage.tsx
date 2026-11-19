@@ -12,11 +12,11 @@ export function LogsPage() {
   const logs = live?.logs ?? scenario.logs;
 
   return (
-    <AppShell title="Logs de Auditoria">
+    <AppShell title="Histórico de ações">
       <div className="pt-page-head">
         <div>
-          <h1 className="pt-page-title">Logs de auditoria</h1>
-          <p className="pt-page-subtitle">Registro de todas as ações realizadas no sistema</p>
+          <h1 className="pt-page-title">Histórico de ações</h1>
+          <p className="pt-page-subtitle">Tudo o que foi feito no sistema, do mais novo pro mais antigo.</p>
         </div>
       </div>
 

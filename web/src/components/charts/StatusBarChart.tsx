@@ -1,4 +1,4 @@
-import "./Charts.css";
+import "../../styles/components/Charts.css";
 
 interface StatusCounts {
   aptos: number;

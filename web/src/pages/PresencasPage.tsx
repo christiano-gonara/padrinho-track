@@ -1,9 +1,11 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, CheckSquare, Save, UserCheck } from "lucide-react";
+import { ArrowLeft, CheckSquare, Save } from "lucide-react";
 import { AppShell } from "../components/layout/AppShell";
 import { useApp } from "../context/AppContext";
-import { abreviarNome, formatarDataBr } from "../data/scenarios";
+import { Avatar, Aviso, StatsRow } from "../components/ui/Kit";
+import { formatarDataBr } from "../data/scenarios";
+import "../styles/pages/Presencas.css";
 import { apiFetch } from "../services/api";
 import { PresencaItem } from "../types/domain";
 
@@ -39,15 +41,36 @@ export function PresencasPage() {
     }
   }, [mode, reuniaoId, scenario]);
 
-  function toggleCampo(pid: number, campo: "presente" | "justificada") {
+  type Estado = "foi" | "justificou" | "faltou";
+
+  function estadoDe(item: PresencaItem): Estado {
+    if (item.presente === 1) return "foi";
+    if (item.justificada === 1) return "justificou";
+    return "faltou";
+  }
+
+  function marcar(pid: number, estado: Estado) {
     setLista((prev) =>
-      prev.map((item) => (item.id === pid ? { ...item, [campo]: item[campo] ? 0 : 1 } : item))
+      prev.map((item) =>
+        item.id === pid
+          ? { ...item, presente: estado === "foi" ? 1 : 0, justificada: estado === "justificou" ? 1 : 0 }
+          : item
+      )
     );
   }
 
-  function marcarTodos(valor: number) {
-    setLista((prev) => prev.map((item) => ({ ...item, presente: valor })));
+  function marcarTodosPresentes() {
+    setLista((prev) => prev.map((item) => ({ ...item, presente: 1, justificada: 0 })));
   }
+
+  const nFoi = lista.filter((x) => estadoDe(x) === "foi").length;
+  const nJust = lista.filter((x) => estadoDe(x) === "justificou").length;
+  const nFaltou = lista.length - nFoi - nJust;
+  const OPCOES: { k: Estado; label: string }[] = [
+    { k: "foi", label: "Foi" },
+    { k: "justificou", label: "Justificou" },
+    { k: "faltou", label: "Faltou" },
+  ];
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -58,7 +81,7 @@ export function PresencasPage() {
         method: "POST",
         body: JSON.stringify({ presentes: presentesIds, justificadas: justificadasIds }),
       });
-      notify("Presenças registradas.", "success");
+      notify("Presença salva.", "success");
     } else {
       savePresencasDemo(reuniaoId, presentesIds, justificadasIds);
     }
@@ -66,92 +89,89 @@ export function PresencasPage() {
   }
 
   return (
-    <AppShell title="Lançar presenças">
+    <AppShell title="Lançar presença">
       <div className="pt-page-head">
         <div>
           <Link to="/reunioes" className="pt-back-link">
-            <ArrowLeft size={14} /> voltar para reuniões
+            <ArrowLeft size={16} /> Voltar pras reuniões
           </Link>
-          <h1 className="pt-page-title">Lançar presenças</h1>
+          <h1 className="pt-page-title">Presença{reuniaoInfo?.tema ? ` · ${reuniaoInfo.tema}` : ""}</h1>
           <p className="pt-page-subtitle">
-            {reuniaoInfo ? `Reunião de ${formatarDataBr(reuniaoInfo.data)} — ${reuniaoInfo.tema || "sem tema"}` : `Reunião #${reuniaoId}`}
+            {reuniaoInfo ? `Reunião de ${formatarDataBr(reuniaoInfo.data)}. ` : ""}Marque como cada pessoa ficou.
           </p>
         </div>
       </div>
 
+      <StatsRow
+        items={[
+          { valor: nFoi, texto: "foram", cor: "var(--pt-brand-hover)" },
+          { valor: nJust, texto: "justificaram" },
+          { valor: nFaltou, texto: "faltaram sem justificar", cor: "var(--pt-amber-deep)" },
+        ]}
+      />
+
+      <Aviso>
+        Quem <strong>faltar sem justificar</strong> ganha um cartão amarelo sozinho. Se a pessoa avisou, marque{" "}
+        <strong>Justificou</strong>: assim ela não leva cartão.
+      </Aviso>
+
       <form onSubmit={onSubmit} className="pt-card pt-card-flat">
         <div className="pt-card-header">
-          <div className="pt-card-header-title">
-            <div className="pt-card-header-icon"><UserCheck size={16} /></div>
-            <h2 className="pt-card-title">Lista de padrinhos ativos</h2>
-          </div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <button type="button" className="pt-btn pt-btn-ghost pt-btn-sm" onClick={() => marcarTodos(1)}>
-              <CheckSquare size={13} /> Marcar todos presentes
-            </button>
-            <button type="button" className="pt-btn pt-btn-ghost pt-btn-sm" onClick={() => marcarTodos(0)}>
-              Desmarcar todos
-            </button>
-          </div>
+          <h2 className="pt-card-title">{lista.length} padrinhos</h2>
+          <button type="button" className="pt-chip" onClick={marcarTodosPresentes}>
+            <CheckSquare size={15} /> Marcar todos como presentes
+          </button>
         </div>
 
         <div className="pt-table-wrap">
           <table className="pt-table">
             <thead>
               <tr>
-                <th>Padrinho</th>
-                <th>Matrícula</th>
-                <th style={{ textAlign: "center" }}>Presente</th>
-                <th style={{ textAlign: "center" }}>Falta justificada</th>
+                <th>Nome</th>
+                <th style={{ textAlign: "right" }}>Presença</th>
               </tr>
             </thead>
             <tbody>
-              {lista.map((p) => (
-                <tr key={p.id}>
-                  <td style={{ fontWeight: 600 }}>{abreviarNome(p.nome)}</td>
-                  <td className="pt-mono pt-muted">{p.matricula}</td>
-                  <td className="pt-td-center">
-                    <input
-                      type="checkbox"
-                      checked={p.presente === 1}
-                      onChange={() => toggleCampo(p.id, "presente")}
-                      style={{ width: 18, height: 18, accentColor: "var(--pt-brand)" }}
-                    />
-                  </td>
-                  <td className="pt-td-center">
-                    <input
-                      type="checkbox"
-                      checked={p.justificada === 1}
-                      onChange={() => toggleCampo(p.id, "justificada")}
-                      style={{ width: 18, height: 18, accentColor: "var(--pt-amber)" }}
-                    />
-                  </td>
-                </tr>
-              ))}
+              {lista.map((p) => {
+                const est = estadoDe(p);
+                return (
+                  <tr key={p.id}>
+                    <td>
+                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <Avatar nome={p.nome} />
+                        <span>
+                          <strong style={{ display: "block", fontSize: 15.5 }}>{p.nome}</strong>
+                          {est === "faltou" && <span className="pt-pres-aviso">vai ganhar cartão amarelo</span>}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="pt-td-right">
+                      <div className="pt-pres-seg" role="group" aria-label={`Presença de ${p.nome}`}>
+                        {OPCOES.map((o) => (
+                          <button
+                            key={o.k}
+                            type="button"
+                            aria-pressed={est === o.k}
+                            className={est === o.k ? `is-${o.k}` : ""}
+                            onClick={() => marcar(p.id, o.k)}
+                          >
+                            {o.label}
+                          </button>
+                        ))}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
 
-        <div
-          className="pt-card-body"
-          style={{
-            borderTop: "1px solid var(--pt-border)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: 12,
-          }}
-        >
-          <span className="pt-muted" style={{ fontSize: 12.5 }}>
-            Ausentes sem justificativa recebem advertência amarela automaticamente.
-          </span>
-          <div style={{ display: "flex", gap: 10 }}>
-            <Link to="/reunioes" className="pt-btn pt-btn-ghost">Cancelar</Link>
-            <button type="submit" className="pt-btn pt-btn-primary">
-              <Save size={15} /> Salvar presenças
-            </button>
-          </div>
+        <div className="pt-pres-footer">
+          <Link to="/reunioes" className="pt-btn pt-btn-ghost">Cancelar</Link>
+          <button type="submit" className="pt-btn pt-btn-primary">
+            <Save size={17} /> Salvar presença
+          </button>
         </div>
       </form>
     </AppShell>

@@ -1,34 +1,23 @@
-import { AlertTriangle, CheckCircle2, Clock, Info, XCircle } from "lucide-react";
 import { StatusACG } from "../../types/domain";
-import "./StatusBadge.css";
+import "../../styles/components/StatusBadge.css";
+
+/** Nomes simples de cada situação, usados em todas as telas */
+export const STATUS_LABEL: Record<StatusACG, string> = {
+  apto: "Apto",
+  alerta: "Atenção",
+  inapto_amarelo: "Sem ACG",
+  inapto_vermelho: "Com o professor",
+};
+
+const STATUS_CLASS: Record<StatusACG, string> = {
+  apto: "pt-badge-apto",
+  alerta: "pt-badge-alerta",
+  inapto_amarelo: "pt-badge-inapto",
+  inapto_vermelho: "pt-badge-grave",
+};
 
 export function StatusACGBadge({ status }: { status: StatusACG }) {
-  if (status === "apto") {
-    return (
-      <span className="pt-badge pt-badge-apto">
-        <CheckCircle2 size={13} /> Apto
-      </span>
-    );
-  }
-  if (status === "alerta") {
-    return (
-      <span className="pt-badge pt-badge-alerta">
-        <AlertTriangle size={13} /> Alerta
-      </span>
-    );
-  }
-  if (status === "inapto_amarelo") {
-    return (
-      <span className="pt-badge pt-badge-inapto">
-        <Clock size={13} /> Reprovado
-      </span>
-    );
-  }
-  return (
-    <span className="pt-badge pt-badge-grave">
-      <XCircle size={13} /> Reportado
-    </span>
-  );
+  return <span className={`pt-badge pt-badge-dot ${STATUS_CLASS[status]}`}>{STATUS_LABEL[status]}</span>;
 }
 
 export function ToneBadge({
@@ -38,10 +27,5 @@ export function ToneBadge({
   tone: "green" | "amber" | "orange" | "red" | "brand" | "neutral";
   children: React.ReactNode;
 }) {
-  return (
-    <span className={`pt-badge pt-badge-${tone}`}>
-      {tone === "brand" && <Info size={12} />}
-      {children}
-    </span>
-  );
+  return <span className={`pt-badge pt-badge-${tone}`}>{children}</span>;
 }

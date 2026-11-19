@@ -1,9 +1,10 @@
 import { Link, useParams } from "react-router-dom";
-import { AlertTriangle, ArrowLeft, BookOpen, Mail, Phone, ShieldAlert, Smile, UserCheck, XCircle } from "lucide-react";
+import { ArrowLeft, BookOpen, Check, Copy, Mail, Phone, X } from "lucide-react";
 import { AppShell } from "../components/layout/AppShell";
-import { MetricCard } from "../components/ui/MetricCard";
+import { Avatar, Aviso, TurnoTag } from "../components/ui/Kit";
 import { StatusACGBadge, ToneBadge } from "../components/ui/StatusBadge";
 import { useApp } from "../context/AppContext";
+import "../styles/pages/Pessoas.css";
 import { formatarDataBr } from "../data/scenarios";
 import { useLiveData } from "../hooks/useLiveData";
 import { Advertencia, Calouro, Padrinho } from "../types/domain";
@@ -22,7 +23,7 @@ interface LiveDetail {
 export function PadrinhoDetalhePage() {
   const { id } = useParams();
   const padrinhoId = Number(id);
-  const { scenario } = useApp();
+  const { scenario, notify } = useApp();
   const { live } = useLiveData<LiveDetail>(`/api/padrinhos/${padrinhoId}`, [padrinhoId]);
 
   const demoPadrinho = scenario.padrinhos.find((p) => p.id === padrinhoId) || scenario.padrinhos[0];
@@ -64,191 +65,179 @@ export function PadrinhoDetalhePage() {
     ? live.calouros_match
     : scenario.matches.find((m) => m.padrinho.id === padrinho.id)?.calouros || [];
 
+  const limite = scenario.config.total_reunioes || 3;
+  const primeiroNome = padrinho.nome.split(" ")[0];
+  const foi = presencasHist.filter((x) => x.presente).length;
+
+  function copiar(texto: string) {
+    navigator.clipboard?.writeText(texto).then(
+      () => notify("Contato copiado.", "success"),
+      () => notify("Não deu pra copiar. Selecione o texto e copie.", "error")
+    );
+  }
+
+  const SIT_TEMA: Record<string, [string, "green" | "amber" | "red" | "neutral"]> = {
+    entregue: ["Entregue", "green"],
+    atraso: ["Atrasou", "amber"],
+    nao_entregue: ["Não entregue", "red"],
+    pendente: ["No prazo", "neutral"],
+  };
+
   return (
-    <AppShell title="Detalhe do padrinho">
-      <div className="pt-page-head">
-        <div>
-          <Link to="/padrinhos" className="pt-back-link">
-            <ArrowLeft size={14} /> voltar para padrinhos
-          </Link>
-          <h1 className="pt-page-title">{padrinho.nome}</h1>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "8px 16px", marginTop: 8, fontSize: 13.5, color: "var(--pt-muted)" }}>
-            <span className="pt-mono">Mat. {padrinho.matricula}</span>
-            {padrinho.email && (
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                <Mail size={14} /> {padrinho.email}
-              </span>
-            )}
-            {padrinho.telefone && (
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                <Phone size={14} /> {padrinho.telefone}
-              </span>
-            )}
-            {padrinho.turno && <ToneBadge tone={padrinho.turno === "Manhã" ? "amber" : "brand"}>{padrinho.turno}</ToneBadge>}
-          </div>
-        </div>
-        <div className="pt-page-actions">
-          <StatusACGBadge status={status} />
-        </div>
-      </div>
+    <AppShell title={padrinho.nome}>
+      <Link to="/padrinhos" className="pt-back-link">
+        <ArrowLeft size={16} /> Voltar pra lista
+      </Link>
 
-      <div className="pt-grid-2" style={{ marginBottom: 22 }}>
-        <MetricCard label="Cartões Amarelos" value={amarelos} hint="faltas / atrasos" tone="amber" icon={<AlertTriangle size={16} />} />
-        <MetricCard label="Cartões Vermelhos" value={vermelhos} hint="ocorrências graves" tone="red" icon={<XCircle size={16} />} />
-      </div>
-
-      <div className="pt-grid-2" style={{ marginBottom: 22 }}>
-        <div className="pt-card pt-card-flat">
-          <div className="pt-card-header">
-            <div className="pt-card-header-title">
-              <div className="pt-card-header-icon"><UserCheck size={16} /></div>
-              <h2 className="pt-card-title">Presenças</h2>
+      <section className="pt-card" style={{ margin: "8px 0 20px" }}>
+        <div className="pt-perfil">
+          <Avatar nome={padrinho.nome} size={72} />
+          <div style={{ flex: 1, minWidth: 240 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10 }}>
+              <h1 className="pt-perfil-nome">{padrinho.nome}</h1>
+              <StatusACGBadge status={status} />
+            </div>
+            <div className="pt-perfil-meta">
+              <TurnoTag turno={padrinho.turno} />
+              <span>Matrícula {padrinho.matricula}</span>
+              {padrinho.email && (
+                <span>
+                  <Mail size={15} /> {padrinho.email}
+                </span>
+              )}
+              {padrinho.telefone && (
+                <span>
+                  <Phone size={15} /> {padrinho.telefone}
+                </span>
+              )}
             </div>
           </div>
-          <div className="pt-table-wrap">
-            <table className="pt-table pt-table-compact">
-              <thead>
-                <tr>
-                  <th>Data</th>
-                  <th>Tema</th>
-                  <th style={{ textAlign: "center" }}>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {presencasHist.map((pr, idx) => (
-                  <tr key={idx}>
-                    <td className="pt-mono pt-muted">{formatarDataBr(pr.data)}</td>
-                    <td className="pt-muted">{pr.tema || "—"}</td>
-                    <td className="pt-td-center">
-                      {pr.presente ? (
-                        <ToneBadge tone="green">Presente</ToneBadge>
-                      ) : pr.justificada ? (
-                        <ToneBadge tone="brand">Justificada</ToneBadge>
-                      ) : (
-                        <ToneBadge tone="red">Ausente</ToneBadge>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-                {presencasHist.length === 0 && (
-                  <tr>
-                    <td colSpan={3} style={{ textAlign: "center", padding: 24, color: "var(--pt-muted)" }}>
-                      Nenhuma presença registrada.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
         </div>
+      </section>
 
-        <div className="pt-card pt-card-flat">
-          <div className="pt-card-header">
-            <div className="pt-card-header-title">
-              <div className="pt-card-header-icon"><BookOpen size={16} /></div>
-              <h2 className="pt-card-title">Temas atribuídos</h2>
-            </div>
-          </div>
-          <div className="pt-table-wrap">
-            <table className="pt-table pt-table-compact">
-              <thead>
-                <tr>
-                  <th>Título</th>
-                  <th>Prazo</th>
-                  <th style={{ textAlign: "center" }}>Situação</th>
-                </tr>
-              </thead>
-              <tbody>
-                {temasHist.map((t, idx) => (
-                  <tr key={idx}>
-                    <td style={{ fontWeight: 500 }}>{t.titulo}</td>
-                    <td className="pt-mono pt-muted">{formatarDataBr(t.data_limite)}</td>
-                    <td className="pt-td-center">
-                      {t.situacao === "entregue" ? (
-                        <ToneBadge tone="green">Entregue</ToneBadge>
-                      ) : t.situacao === "atraso" ? (
-                        <ToneBadge tone="amber">Atraso</ToneBadge>
-                      ) : t.situacao === "nao_entregue" ? (
-                        <ToneBadge tone="red">Não entregue</ToneBadge>
-                      ) : (
-                        <ToneBadge tone="neutral">Pendente</ToneBadge>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-                {temasHist.length === 0 && (
-                  <tr>
-                    <td colSpan={3} style={{ textAlign: "center", padding: 24, color: "var(--pt-muted)" }}>
-                      Nenhum tema atribuído.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      {calouros.length > 0 && (
-        <div className="pt-card pt-card-flat" style={{ marginBottom: 22 }}>
-          <div className="pt-card-header">
-            <div className="pt-card-header-title">
-              <div className="pt-card-header-icon"><Smile size={16} /></div>
-              <h2 className="pt-card-title">Calouros vinculados</h2>
-            </div>
-            <span className="pt-muted" style={{ fontSize: 12.5 }}>{calouros.length} calouro(s)</span>
-          </div>
-          <div className="pt-card-body" style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-            {calouros.map((c) => (
-              <span key={c.id} className="pt-tag" style={{ padding: "6px 12px", fontSize: 13 }}>
-                <Smile size={13} /> <strong>{c.nome}</strong> {c.telefone ? `· ${c.telefone}` : ""}
-              </span>
-            ))}
-          </div>
-        </div>
+      {status === "alerta" && (
+        <Aviso tipo="warn">
+          <strong>Falta 1 cartão amarelo pro limite.</strong> Se {primeiroNome} faltar de novo sem justificar, perde as
+          horas de ACG. Vale mandar uma mensagem antes da próxima reunião.
+        </Aviso>
+      )}
+      {status === "inapto_amarelo" && (
+        <Aviso tipo="bad">
+          <strong>{primeiroNome} chegou ao limite de cartões amarelos</strong> e não vai receber a ACG neste semestre.
+        </Aviso>
+      )}
+      {status === "inapto_vermelho" && (
+        <Aviso tipo="bad">
+          <strong>{primeiroNome} levou cartão vermelho.</strong> Não recebe a ACG e o caso precisa ir pro professor.
+        </Aviso>
       )}
 
-      <div className="pt-card pt-card-flat">
-        <div className="pt-card-header">
-          <div className="pt-card-header-title">
-            <div className="pt-card-header-icon" style={{ background: "var(--pt-red-tint)", color: "var(--pt-red-deep)" }}>
-              <ShieldAlert size={16} />
+      <div className="pt-grid-2" style={{ gap: 20 }}>
+        <div className="pt-stack" style={{ gap: 20 }}>
+          <section className="pt-card">
+            <div className="pt-cartoes-head" style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+              <h2 className="pt-card-title">Presença</h2>
+              <strong style={{ fontSize: 15, color: "var(--pt-ink)" }}>
+                {foi} de {presencasHist.length}
+              </strong>
             </div>
-            <h2 className="pt-card-title">Advertências</h2>
-          </div>
+            {presencasHist.length === 0 && <p style={{ margin: 0, color: "#475569" }}>Nenhuma reunião ainda.</p>}
+            {presencasHist.map((pr, idx) => (
+              <div key={idx} className="pt-row">
+                <span style={{ width: 56, fontSize: 16, fontWeight: 800, color: "var(--pt-brand-deep)" }}>
+                  {formatarDataBr(pr.data)}
+                </span>
+                <span style={{ flex: 1, fontSize: 15, color: "var(--pt-ink)" }}>{pr.tema || "Reunião"}</span>
+                {pr.presente ? (
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 14, fontWeight: 600, color: "var(--pt-green-deep)" }}>
+                    <Check size={16} strokeWidth={2.6} /> Foi
+                  </span>
+                ) : pr.justificada ? (
+                  <span style={{ fontSize: 14, fontWeight: 600, color: "var(--pt-brand-deep)" }}>Justificou</span>
+                ) : (
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 14, fontWeight: 600, color: "var(--pt-amber-deep)" }}>
+                    <X size={16} strokeWidth={2.6} /> Faltou sem justificar
+                  </span>
+                )}
+              </div>
+            ))}
+          </section>
+
+          <section className="pt-card">
+            <h2 className="pt-card-title" style={{ marginBottom: 10 }}>
+              {temasHist.length > 1 ? "Temas que apresenta" : "Tema que apresenta"}
+            </h2>
+            {temasHist.length === 0 && <p style={{ margin: 0, color: "#475569" }}>Nenhum tema ainda.</p>}
+            {temasHist.map((t, idx) => {
+              const [label, tone] = SIT_TEMA[t.situacao] ?? (["—", "neutral"] as [string, "neutral"]);
+              return (
+                <div key={idx} className="pt-row">
+                  <span className="pt-empty-icon" style={{ width: 44, height: 44 }}>
+                    <BookOpen size={20} />
+                  </span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: "var(--pt-ink)" }}>{t.titulo}</div>
+                    <div style={{ fontSize: 14, color: "#475569" }}>Prazo {formatarDataBr(t.data_limite)}</div>
+                  </div>
+                  <ToneBadge tone={tone}>{label}</ToneBadge>
+                </div>
+              );
+            })}
+          </section>
         </div>
-        <div className="pt-table-wrap">
-          <table className="pt-table">
-            <thead>
-              <tr>
-                <th style={{ textAlign: "center" }}>Tipo</th>
-                <th>Origem</th>
-                <th>Motivo</th>
-                <th>Data</th>
-              </tr>
-            </thead>
-            <tbody>
-              {advertencias.map((a) => (
-                <tr key={a.id}>
-                  <td className="pt-td-center">
-                    <ToneBadge tone={a.tipo === "amarelo" ? "amber" : "red"}>
-                      {a.tipo === "amarelo" ? "Advertência" : "Advertência Grave"}
-                    </ToneBadge>
-                  </td>
-                  <td className="pt-muted">{a.origem}</td>
-                  <td className="pt-muted">{a.motivo}</td>
-                  <td className="pt-mono pt-muted">{formatarDataBr(a.data)}</td>
-                </tr>
+
+        <div className="pt-stack" style={{ gap: 20 }}>
+          <section className="pt-card">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+              <h2 className="pt-card-title">Cartões amarelos</h2>
+              <strong style={{ fontSize: 15, color: amarelos >= limite - 1 && amarelos > 0 ? "var(--pt-amber-deep)" : "var(--pt-ink)" }}>
+                {amarelos} de {limite}
+              </strong>
+            </div>
+            <p style={{ margin: "4px 0 14px", fontSize: 14.5, color: "#475569" }}>Com {limite}, perde a ACG.</p>
+            <div style={{ display: "flex", gap: 10 }} aria-label={`${amarelos} de ${limite} cartões amarelos`}>
+              {Array.from({ length: Math.max(limite, amarelos) }).map((_, i) => (
+                <span key={i} className={`pt-cartao-grande ${i < amarelos ? "is-amarelo" : ""}`} />
               ))}
-              {advertencias.length === 0 && (
-                <tr>
-                  <td colSpan={4} style={{ textAlign: "center", padding: 24, color: "var(--pt-muted)" }}>
-                    Nenhuma advertência registrada.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+              {Array.from({ length: vermelhos }).map((_, i) => (
+                <span key={`v${i}`} className="pt-cartao-grande is-vermelho" />
+              ))}
+            </div>
+            <p style={{ margin: "14px 0 0", fontSize: 14.5, color: "#475569" }}>
+              {vermelhos > 0 ? `${vermelhos} cartão vermelho.` : "Nenhum cartão vermelho."}
+            </p>
+            {advertencias.length > 0 && (
+              <ul style={{ margin: "12px 0 0", paddingLeft: 18, fontSize: 14.5, color: "var(--pt-text)", lineHeight: 1.6 }}>
+                {advertencias.map((a) => (
+                  <li key={a.id}>
+                    {formatarDataBr(a.data)}: {a.motivo}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <section className="pt-card">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+              <h2 className="pt-card-title">Calouros</h2>
+              <strong style={{ fontSize: 15, color: "var(--pt-ink)" }}>{calouros.length}</strong>
+            </div>
+            {calouros.length === 0 && <p style={{ margin: "8px 0 0", color: "#475569" }}>Ainda sem calouro.</p>}
+            {calouros.map((c) => (
+              <div key={c.id} className="pt-row">
+                <Avatar nome={c.nome} size={36} tone="neutral" />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: "var(--pt-ink)" }}>{c.nome}</div>
+                  <div style={{ fontSize: 14, color: "#475569" }}>{c.telefone || "sem telefone"}</div>
+                </div>
+                {c.telefone && (
+                  <button type="button" className="pt-chip" onClick={() => copiar(`${c.nome} ${c.telefone}`)} aria-label={`Copiar contato de ${c.nome}`}>
+                    <Copy size={15} /> Copiar
+                  </button>
+                )}
+              </div>
+            ))}
+          </section>
         </div>
       </div>
     </AppShell>

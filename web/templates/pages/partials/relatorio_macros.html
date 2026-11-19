@@ -1,0 +1,134 @@
+{# Peças visuais compartilhadas pelos relatórios A4 (Lista de ACG e Resumo do semestre) #}
+
+{% macro estilos() -%}
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+<style>
+  @page { size: A4 portrait; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #e2e8f0; color: #334155; font-family: "Inter", system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+  body { padding-top: 52px; }
+
+  /* Barra de ações (só na tela) */
+  .pt-print-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: #0f172a; color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 10px 24px; font-size: 14px; gap: 12px; }
+  .pt-print-bar a { color: rgba(255,255,255,0.78); text-decoration: none; font-size: 14px; }
+  .pt-print-bar a:hover { color: #fff; }
+  .pt-print-btn { background: #2563eb; color: #fff; border: 0; border-radius: 10px; min-height: 36px; padding: 0 16px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .pt-print-btn:hover { background: #1d4ed8; }
+
+  /* Folha A4 */
+  .page { width: 794px; height: 1123px; margin: 24px auto; background: #fff; box-shadow: 0 6px 20px rgba(15,23,42,0.08); display: flex; flex-direction: column; overflow: hidden; page-break-after: always; break-after: page; }
+  .page:last-of-type { page-break-after: auto; break-after: auto; }
+
+  /* Cabeçalho azul com brilho e o laço da marca ao fundo */
+  .header { position: relative; overflow: hidden; color: #fff; padding: 32px 48px 26px; background: linear-gradient(115deg, #1e3a8a 0%, #1d4ed8 48%, #3b82f6 100%); }
+  .header > * { position: relative; }
+  .header .brilho { position: absolute; top: -60%; left: 38%; width: 70%; height: 220%; background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.13) 50%, rgba(255,255,255,0) 100%); transform: rotate(18deg); }
+  .header .sombra { position: absolute; left: 0; right: 0; bottom: 0; height: 40%; background: linear-gradient(to top, rgba(15,23,42,0.18), rgba(15,23,42,0)); }
+  .header .laco-fundo { position: absolute; right: -36px; top: -78px; opacity: 0.14; }
+  .topline { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; }
+  .emissao { font-size: 14px; font-weight: 600; color: #dbeafe; }
+  .title { margin: 18px 0 0; font-family: "Sora", "Inter", sans-serif; font-size: 36px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; }
+  .subtitle { margin-top: 4px; font-size: 16px; color: #dbeafe; }
+  .coord { display: flex; flex-wrap: wrap; margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.25); font-size: 14px; }
+  .coord > div { padding-right: 22px; }
+  .coord > div + div { padding-left: 22px; padding-right: 0; border-left: 1px solid rgba(255,255,255,0.25); }
+  .coord small { display: block; font-size: 12px; color: #bfdbfe; font-weight: 600; }
+  .coord strong { display: block; margin-top: 2px; }
+
+  .mini-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 48px; border-bottom: 2px solid #1d4ed8; }
+  .mini-header strong { font-family: "Sora", "Inter", sans-serif; font-size: 18px; color: #0f172a; }
+  .mini-header span { font-size: 14px; color: #475569; }
+
+  .content { padding: 22px 48px 0; flex: 1; }
+  .intro { margin: 0; font-size: 15.5px; line-height: 1.5; }
+
+  /* Números separados por risquinhos */
+  .nums { display: flex; padding: 14px 0; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; margin-top: 18px; }
+  .nums > div { flex: 1; padding: 0 18px; border-left: 1px solid #e2e8f0; }
+  .nums > div:first-child { padding-left: 0; border-left: 0; }
+  .nums b { display: block; font-size: 36px; font-weight: 800; line-height: 1.1; color: #0f172a; }
+  .nums span { display: block; margin-top: 2px; font-size: 14.5px; color: #475569; }
+
+  .legenda { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 8px; font-size: 14px; color: #334155; }
+  .legenda span { display: inline-flex; align-items: center; gap: 6px; }
+  .legenda i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+  .barra { display: flex; height: 14px; border-radius: 999px; overflow: hidden; gap: 3px; background: #f1f5f9; }
+
+  h2 { margin: 24px 0 8px; display: flex; justify-content: space-between; align-items: baseline; font-size: 17px; color: #0f172a; }
+  h2 small { font-size: 14px; font-weight: 600; }
+
+  /* Tabelas */
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; padding: 8px 10px; border-bottom: 2px solid #0f172a; font-size: 12.5px; letter-spacing: .06em; text-transform: uppercase; color: #475569; font-weight: 700; }
+  th:first-child, td:first-child { padding-left: 0; }
+  th:last-child, td:last-child { padding-right: 0; }
+  td { padding: 7px 10px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+  tbody tr:nth-child(even) { background: #f8fafc; }
+  .pessoa { display: inline-flex; align-items: center; gap: 9px; font-weight: 600; color: #0f172a; }
+  .ini { width: 26px; height: 26px; border-radius: 99px; background: #dbeafe; color: #1e40af; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .ini.is-red { background: #fee2e2; color: #991b1b; }
+  .num { font-size: 14px; color: #334155; }
+  .turno { font-size: 12px; font-weight: 600; color: #334155; border: 1px solid #cbd5e1; border-radius: 999px; padding: 2px 9px; }
+  .email { color: #1e40af; font-size: 13px; word-break: break-word; }
+  .link-btn { display: inline-flex; align-items: center; padding: 3px 11px; border-radius: 8px; background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; font-size: 13px; font-weight: 600; text-decoration: none; }
+
+  /* Rodapé */
+  .footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 0 48px; padding: 14px 0 18px; border-top: 2px solid #1d4ed8; }
+  .foot-brand { display: flex; align-items: center; gap: 10px; }
+  .foot-mark { width: 32px; height: 32px; border-radius: 9px; background: #1d4ed8; display: inline-flex; align-items: center; justify-content: center; }
+  .foot-title { font-size: 14px; font-weight: 700; color: #0f172a; }
+  .foot-sub { font-size: 13px; color: #475569; }
+  .foot-doc { font-size: 14px; font-weight: 600; color: #334155; }
+  .foot-page { font-size: 13.5px; font-weight: 700; color: #1e40af; background: #eff6ff; border: 1px solid #bfdbfe; padding: 5px 12px; border-radius: 999px; white-space: nowrap; }
+
+  @media print {
+    html, body { background: #fff; width: 210mm; }
+    body { padding-top: 0; }
+    .pt-print-bar { display: none !important; }
+    .page { width: 210mm; height: 297mm; margin: 0; box-shadow: none; }
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    tr, thead { break-inside: avoid; page-break-inside: avoid; }
+  }
+</style>
+{%- endmacro %}
+
+{% macro laco(size=24, cor="#ffffff", largura=3, classe="") -%}
+<svg class="{{ classe }}" width="{{ size }}" height="{{ size }}" viewBox="2 2 28 28" fill="none" aria-hidden="true"><path d="M10 22 C5 22, 5 12, 10 12 C14 12, 16 20, 22 20 C27 20, 27 10, 22 10 C18 10, 16 18, 10 18" stroke="{{ cor }}" stroke-width="{{ largura }}" stroke-linecap="round" fill="none" /></svg>
+{%- endmacro %}
+
+{% macro cabecalho(titulo, subtitulo, hoje) -%}
+<header class="header">
+  <div class="brilho"></div>
+  <div class="sombra"></div>
+  {{ laco(300, "#ffffff", 2.6, "laco-fundo") }}
+  <div class="topline">
+    <div class="brand">{{ laco(24) }} Programa de Apadrinhamento</div>
+    <div class="emissao">Emitido em {{ hoje.strftime('%d/%m/%Y') }}</div>
+  </div>
+  <div class="title">{{ titulo }}</div>
+  <div class="subtitle">{{ subtitulo }}</div>
+  {{ caller() if caller is defined else "" }}
+</header>
+{%- endmacro %}
+
+{% macro rodape(documento, pagina, total) -%}
+<footer class="footer">
+  <div class="foot-brand">
+    <span class="foot-mark">{{ laco(20) }}</span>
+    <div>
+      <div class="foot-title">Programa de Apadrinhamento</div>
+      <div class="foot-sub">Engenharia de Software · PUC Minas</div>
+    </div>
+  </div>
+  <div class="foot-doc">{{ documento }}</div>
+  <span class="foot-page">Página {{ pagina }} de {{ total }}</span>
+</footer>
+{%- endmacro %}
+
+{% macro iniciais(nome) -%}
+{%- set partes = nome.split() -%}
+{{ (partes[0][0] ~ (partes[-1][0] if partes|length > 1 else ""))|upper }}
+{%- endmacro %}

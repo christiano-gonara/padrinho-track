@@ -70,11 +70,11 @@ export function RelatoriosPage() {
   const certUrl = mode === "live" ? "/relatorio/certificados/zip" : `${base}exemplos/certificado.html`;
 
   return (
-    <AppShell title="Relatório">
+    <AppShell title="Relatórios e certificados">
       <div className="pt-page-head">
         <div>
-          <h1 className="pt-page-title">Relatório geral e certificados</h1>
-          <p className="pt-page-subtitle">Aptidão para ACG — resultado final e emissão</p>
+          <h1 className="pt-page-title">Relatórios e certificados</h1>
+          <p className="pt-page-subtitle">Quem recebe a ACG, o resumo do semestre e todos os certificados.</p>
         </div>
         <div className="pt-page-actions">
           <a href={aptidaoUrl} target="_blank" rel="noopener noreferrer" className="pt-btn pt-btn-primary">
@@ -91,10 +91,10 @@ export function RelatoriosPage() {
       </div>
 
       <div className="pt-grid-4" style={{ marginBottom: 22 }}>
-        <MetricCard label="Aptos" value={aptos} tone="green" icon={<CheckCircle2 size={16} />} />
-        <MetricCard label="Em alerta" value={alertas} tone="amber" icon={<AlertTriangle size={16} />} />
-        <MetricCard label="Reprovados" value={reprovados} tone="orange" icon={<Clock size={16} />} />
-        <MetricCard label="Reportados" value={reportados} tone="red" icon={<XCircle size={16} />} />
+        <MetricCard label="Apto" value={aptos} tone="green" icon={<CheckCircle2 size={16} />} />
+        <MetricCard label="Atenção" value={alertas} tone="amber" icon={<AlertTriangle size={16} />} />
+        <MetricCard label="Sem ACG" value={reprovados} tone="orange" icon={<Clock size={16} />} />
+        <MetricCard label="Com o professor" value={reportados} tone="red" icon={<XCircle size={16} />} />
       </div>
 
       <div className="pt-grid-2" style={{ marginBottom: 22 }}>
@@ -102,7 +102,7 @@ export function RelatoriosPage() {
           <div className="pt-card-header" style={{ padding: "0 0 12px", marginBottom: 12 }}>
             <div className="pt-card-header-title">
               <div className="pt-card-header-icon"><BarChart3 size={16} /></div>
-              <h2 className="pt-card-title">Padrinhos por turno (barras)</h2>
+              <h2 className="pt-card-title">Padrinhos por turno</h2>
             </div>
           </div>
           <div className="pt-stack-sm">

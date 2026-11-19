@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import "./Charts.css";
+import "../../styles/components/Charts.css";
 
 export function SemesterFlowDiagram({
   padrinhosCount,

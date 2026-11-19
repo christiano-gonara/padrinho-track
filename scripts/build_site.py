@@ -116,7 +116,14 @@ def _dados_exemplo():
         "total_calouros": total_calouros,
         "total_reunioes": len(fechamento["reunioes"]),
         "reunioes": [
-            {"data": _iso_to_date(r["data"]), "tema": r["tema"], "descricao": r["descricao"]}
+            {
+                "data": _iso_to_date(r["data"]),
+                "tema": r["tema"],
+                "descricao": r["descricao"],
+                "presentes": r["presentes"],
+                "justificadas": r["justificadas"],
+                "ausentes": r["ausentes"],
+            }
             for r in fechamento["reunioes"]
         ],
         "temas": [

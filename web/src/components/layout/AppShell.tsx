@@ -1,200 +1,188 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
-  AlertTriangle,
   BookOpen,
   CalendarDays,
-  FileBarChart2,
+  FileText,
+  GraduationCap,
   History,
   Home,
-  LayoutDashboard,
   Link2,
   LogIn,
   LogOut,
-  MapPin,
   Menu,
-  PanelLeftClose,
-  PanelLeftOpen,
+  PlayCircle,
   Settings,
-  UserCheck,
+  SquareStack,
   Users,
-  Video,
+  X,
 } from "lucide-react";
 import { useApp } from "../../context/AppContext";
-import { ScenarioBar } from "../ui/ScenarioBar";
-import "./AppShell.css";
+import { getScenarioList } from "../../data/scenarios";
+import "../../styles/layout/AppShell.css";
 
-const MENU_PRINCIPAL = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/padrinhos", label: "Padrinhos", icon: UserCheck },
-  { to: "/reunioes", label: "Reuniões", icon: Video },
-  { to: "/temas", label: "Temas", icon: BookOpen },
-  { to: "/calouros", label: "Calouros", icon: Users },
-  { to: "/inicio", label: "Início do Semestre", icon: CalendarDays },
-  { to: "/match", label: "Match", icon: Link2 },
+/** Menu agrupado pelo momento do semestre */
+const GRUPOS = [
+  {
+    titulo: "O semestre",
+    itens: [
+      { to: "/dashboard", label: "Painel", icon: Home },
+      { to: "/inicio", label: "Começar o semestre", icon: PlayCircle },
+      { to: "/match", label: "Duplas", icon: Link2 },
+    ],
+  },
+  {
+    titulo: "Acompanhamento",
+    itens: [
+      { to: "/reunioes", label: "Reuniões", icon: CalendarDays },
+      { to: "/temas", label: "Temas", icon: BookOpen },
+      { to: "/advertencias", label: "Cartões", icon: SquareStack },
+    ],
+  },
+  {
+    titulo: "Pessoas",
+    itens: [
+      { to: "/padrinhos", label: "Padrinhos", icon: Users },
+      { to: "/calouros", label: "Calouros", icon: GraduationCap },
+    ],
+  },
+  {
+    titulo: "Fechamento",
+    itens: [{ to: "/relatorio", label: "Relatórios e certificados", icon: FileText }],
+  },
 ];
 
-const MENU_GESTAO = [
-  { to: "/advertencias", label: "Advertências", icon: AlertTriangle },
-  { to: "/relatorio", label: "Relatório", icon: FileBarChart2 },
-  { to: "/config", label: "Configurações", icon: Settings },
-  { to: "/logs", label: "Logs", icon: History },
-];
+const NOME_CURTO: Record<string, string> = {
+  inicio: "Começo",
+  andamento: "Meio",
+  fechamento: "Fechamento",
+};
 
-export function AppShell({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  const [collapsed, setCollapsed] = useState(false);
+export function AppShell({ title, children }: { title: string; children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { mode, authenticated, logoutLive } = useApp();
+  const { mode, authenticated, logoutLive, scenarioId, setScenarioId, scenario } = useApp();
   const navigate = useNavigate();
-
-  const base = import.meta.env.BASE_URL;
+  const fechar = () => setMobileOpen(false);
 
   return (
     <div className="pt-app">
-      <div
-        className={`pt-sidebar-backdrop ${mobileOpen ? "is-open" : ""}`}
-        onClick={() => setMobileOpen(false)}
-      />
+      <div className={`pt-sidebar-backdrop ${mobileOpen ? "is-open" : ""}`} onClick={fechar} />
 
-      <aside className={`pt-sidebar ${collapsed ? "is-collapsed" : ""} ${mobileOpen ? "is-mobile-open" : ""}`}>
-        <div className="pt-sidebar-logo">
-          <NavLink
-            to="/"
-            style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, flex: 1 }}
-            onClick={() => setMobileOpen(false)}
-          >
-            <span className="pt-knot-tile">
-              <img src={`${base}brand/padrinho-track-tile.svg`} alt="" />
+      <aside className={`pt-sidebar ${mobileOpen ? "is-mobile-open" : ""}`} aria-label="Menu">
+        <div className="pt-sidebar-top">
+          <NavLink to="/" className="pt-sidebar-brand" onClick={fechar}>
+            <span className="pt-sidebar-tile" aria-hidden="true">
+              <svg width="22" height="22" viewBox="2 2 28 28" fill="none">
+                <path
+                  d="M10 22 C5 22, 5 12, 10 12 C14 12, 16 20, 22 20 C27 20, 27 10, 22 10 C18 10, 16 18, 10 18"
+                  stroke="#ffffff"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+              </svg>
             </span>
-            {!collapsed && (
-              <span className="pt-sidebar-logo-text">
-                Padrinho <span>Track</span>
-              </span>
-            )}
+            <span className="pt-sidebar-name">
+              Padrinho <span>Track</span>
+            </span>
           </NavLink>
-          <button
-            type="button"
-            className="pt-sidebar-collapse-btn"
-            onClick={() => setCollapsed((v) => !v)}
-            aria-label="Alternar largura da barra lateral"
-          >
-            {collapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
+          <button type="button" className="pt-sidebar-close" onClick={fechar} aria-label="Fechar menu">
+            <X size={20} />
           </button>
         </div>
 
         <nav className="pt-sidebar-nav" aria-label="Navegação principal">
-          {!collapsed && <p className="pt-sidebar-section">Menu</p>}
-          {MENU_PRINCIPAL.map((item) => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={({ isActive }) => `pt-nav-item ${isActive ? "is-active" : ""}`}
-                onClick={() => setMobileOpen(false)}
-                title={item.label}
-              >
-                <Icon size={17} />
-                {!collapsed && <span>{item.label}</span>}
-              </NavLink>
-            );
-          })}
-
-          {!collapsed && <p className="pt-sidebar-section">Gestão</p>}
-          {MENU_GESTAO.map((item) => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={({ isActive }) => `pt-nav-item ${isActive ? "is-active" : ""}`}
-                onClick={() => setMobileOpen(false)}
-                title={item.label}
-              >
-                <Icon size={17} />
-                {!collapsed && <span>{item.label}</span>}
-              </NavLink>
-            );
-          })}
+          {GRUPOS.map((g) => (
+            <div key={g.titulo}>
+              <p className="pt-sidebar-section">{g.titulo}</p>
+              {g.itens.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    className={({ isActive }) => `pt-nav-item ${isActive ? "is-active" : ""}`}
+                    onClick={fechar}
+                  >
+                    <Icon size={19} />
+                    <span>{item.label}</span>
+                  </NavLink>
+                );
+              })}
+            </div>
+          ))}
         </nav>
 
-        <div className="pt-sidebar-footer">
-          {!collapsed && (
-            <div className="pt-sidebar-org">
-              <div className="pt-sidebar-org-tile">PUC</div>
-              <div className="pt-sidebar-org-text">
-                <strong>PUC Minas</strong>
-                <small>Eng. Software</small>
-              </div>
-            </div>
-          )}
-
-          <NavLink to="/" className="pt-nav-item" onClick={() => setMobileOpen(false)} title="Apresentação">
-            <Home size={17} />
-            {!collapsed && <span>Apresentação</span>}
+        <div className="pt-sidebar-bottom">
+          <NavLink to="/config" className={({ isActive }) => `pt-nav-item ${isActive ? "is-active" : ""}`} onClick={fechar}>
+            <Settings size={19} />
+            <span>Configurações</span>
           </NavLink>
-
+          <NavLink to="/logs" className={({ isActive }) => `pt-nav-item ${isActive ? "is-active" : ""}`} onClick={fechar}>
+            <History size={19} />
+            <span>Histórico de ações</span>
+          </NavLink>
           {authenticated && mode === "live" ? (
             <button
               type="button"
               className="pt-nav-item"
-              style={{ border: "none", background: "transparent", width: "100%", textAlign: "left" }}
               onClick={async () => {
                 await logoutLive();
                 navigate("/");
               }}
             >
-              <LogOut size={17} />
-              {!collapsed && <span>Sair</span>}
+              <LogOut size={19} />
+              <span>Sair</span>
             </button>
           ) : (
-            <button
-              type="button"
-              className="pt-nav-item"
-              style={{ border: "none", background: "transparent", width: "100%", textAlign: "left" }}
-              onClick={() => navigate("/login")}
-            >
-              <LogIn size={17} />
-              {!collapsed && <span>Login coordenação</span>}
+            <button type="button" className="pt-nav-item" onClick={() => navigate("/login")}>
+              <LogIn size={19} />
+              <span>Entrar</span>
             </button>
           )}
+          <div className="pt-sidebar-org">
+            <span className="pt-sidebar-org-tile">PUC</span>
+            <span>
+              <strong>Mentoria Acadêmica</strong>
+              <small>Engenharia de Software</small>
+            </span>
+          </div>
         </div>
       </aside>
 
       <div className="pt-main">
         <header className="pt-topbar">
           <div className="pt-topbar-left">
-            <button
-              type="button"
-              className="pt-mobile-btn"
-              onClick={() => setMobileOpen(true)}
-              aria-label="Abrir menu"
-            >
-              <Menu size={18} />
+            <button type="button" className="pt-mobile-btn" onClick={() => setMobileOpen(true)} aria-label="Abrir menu">
+              <Menu size={20} />
             </button>
-            <div className="pt-breadcrumb">
-              <MapPin size={15} className="pt-breadcrumb-icon" />
-              <span>{title}</span>
-            </div>
+            <span className="pt-topbar-sem">Semestre {scenario.config.semestre}</span>
+            <span className="pt-topbar-sep" aria-hidden="true">|</span>
+            <span className="pt-topbar-page">{title}</span>
           </div>
 
-          <div className="pt-topbar-right">
-            <span className="pt-course-pill">
-              {mode === "live" ? "Servidor Flask ativo" : "Modo Cenários Interativos"}
-            </span>
-          </div>
+          {mode === "live" ? (
+            <span className="pt-topbar-live">Conectado ao servidor</span>
+          ) : (
+            <div className="pt-topbar-right">
+              <span className="pt-topbar-hint">Dados de exemplo:</span>
+              <div className="pt-seg" role="group" aria-label="Momento do semestre">
+                {getScenarioList().map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    className={scenarioId === s.id ? "is-on" : ""}
+                    aria-pressed={scenarioId === s.id}
+                    onClick={() => setScenarioId(s.id)}
+                  >
+                    {NOME_CURTO[s.id] ?? s.titulo}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </header>
 
-        <main className="pt-content">
-          <ScenarioBar />
-          {children}
-        </main>
+        <main className="pt-content">{children}</main>
       </div>
     </div>
   );

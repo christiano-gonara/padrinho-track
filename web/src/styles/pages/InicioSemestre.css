@@ -1,0 +1,78 @@
+.pt-passo {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.pt-passo h2 {
+  margin: 0;
+  font-size: 19px;
+  color: var(--pt-ink);
+}
+
+.pt-passo p {
+  margin: 6px 0 16px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #475569;
+}
+
+.pt-passo .pt-label {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.pt-passo-num {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 99px;
+  background: var(--pt-brand-hover);
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pt-passo-num.is-feito {
+  background: var(--pt-green);
+}
+
+.pt-passo-linha {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pt-passo-linha .pt-input {
+  flex: 1 1 260px;
+  width: auto;
+}
+
+.pt-passo-ok {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--pt-green-deep);
+}
+
+.pt-dicas {
+  margin: 12px 0 18px;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--pt-text);
+}
+
+.pt-dicas strong {
+  color: var(--pt-ink);
+  word-break: break-all;
+}

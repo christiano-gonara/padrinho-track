@@ -1,281 +1,156 @@
+{% import "pages/partials/relatorio_macros.html" as rel %}
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<title>Relatório de Aptidão ACG — Programa de Apadrinhamento</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet" />
-<style>
-  @page { size: A4 portrait; margin: 0; }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; background: #e2e8f0; color: #0f172a; font-family: "Inter", system-ui, sans-serif; }
-  body { padding-top: 46px; }
-  .pt-print-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: #0f172a; color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 10px 24px; font-size: 13px; gap: 12px; }
-  .pt-print-bar a { color: rgba(255,255,255,0.72); text-decoration: none; font-size: 12.5px; }
-  .pt-print-bar a:hover { color: #fff; }
-  .pt-print-btn { background: #2563eb; color: #fff; border: 0; border-radius: 8px; padding: 7px 16px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
-  .pt-print-btn:hover { background: #1d4ed8; }
-  .report-page { width: 794px; height: 1123px; margin: 24px auto; background: #fff; box-shadow: 0 6px 20px rgba(15,23,42,0.08); display: flex; flex-direction: column; page-break-after: always; break-after: page; overflow: hidden; }
-  .report-page:last-of-type { page-break-after: auto; break-after: auto; }
-  .header { background: linear-gradient(120deg,#2563eb 0%,#1e40af 100%); color: #fff; padding: 16px 32px; }
-  .mini-header { padding: 13px 32px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-  .topline, .footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-  .brand { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; }
-  .mark { width: 28px; height: 28px; border-radius: 8px; background: rgba(255,255,255,0.18); display: inline-flex; align-items: center; justify-content: center; }
-  .doc-code, .label, th, .mini-meta, .foot-sub, .foot-mid, .foot-page { font-family: "Sora", "Inter", system-ui, sans-serif; }
-  .doc-code { font-size: 9.5px; color: rgba(255,255,255,0.82); letter-spacing: .08em; text-transform: uppercase; font-variant-numeric: lining-nums tabular-nums; }
-  .mini-meta { margin-top: 3px; font-size: 8.8px; color: #2563eb; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; font-variant-numeric: lining-nums tabular-nums; }
-  .title { margin-top: 12px; font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
-  .subtitle { margin-top: 2px; font-size: 11.5px; color: rgba(255,255,255,0.82); }
-  .content { padding: 22px 32px 12px; flex: 1 0 auto; }
-  .cards { display: grid; grid-template-columns: repeat({{ 4 if reportados else 3 }}, 1fr); gap: 12px; margin-bottom: 22px; }
-  .card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; position: relative; overflow: hidden; }
-  .card .label { font-size: 9px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: #64748b; }
-  .card-number { margin-top: 6px; font-size: 32px; font-weight: 700; line-height: 1; letter-spacing: -0.025em; font-variant-numeric: lining-nums tabular-nums; }
-  .hint { margin-top: 5px; font-size: 11px; color: #64748b; }
-  .section-title { display: flex; align-items: center; gap: 10px; margin: 0 0 11px; font-size: 13.5px; font-weight: 700; }
-  .section-title::before { content: ""; width: 5px; height: 16px; border-radius: 3px; background: var(--section-color, #10b981); }
-  .badge { display: inline-flex; align-items: center; padding: 2px 9px; border-radius: 999px; font-size: 10.5px; font-weight: 600; white-space: nowrap; }
-  table { width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; font-size: 11.2px; }
-  thead { background: var(--table-head, #ecfdf5); }
-  th { text-align: left; padding: 8px 12px; font-size: 8.5px; color: var(--table-accent, #047857); letter-spacing: .12em; text-transform: uppercase; font-weight: 700; }
-  td { padding: 7px 12px; border-top: 1px solid #e2e8f0; color: #334155; vertical-align: middle; }
-  tbody tr:nth-child(even) { background: #f8fafc; }
-  .name { font-weight: 650; color: #0f172a; line-height: 1.25; }
-  .num { color: #64748b; font-variant-numeric: lining-nums tabular-nums; }
-  .email { color: #1e40af; font-size: 10.5px; word-break: break-word; }
-  .link-btn { display: inline-flex; align-items: center; padding: 3px 11px; border-radius: 7px; background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; font-size: 10.5px; font-weight: 600; text-decoration: none; }
-  .link-btn:hover { background: #dbeafe; }
-  .footer-wrap { margin-top: auto; }
-  .footer-line { height: 2px; background: linear-gradient(90deg,#1e40af,#3b82f6 50%,#1e40af); }
-  .footer { padding: 12px 32px; background: #f8fafc; }
-  .foot-brand { display: flex; align-items: center; gap: 9px; }
-  .foot-mark { width: 24px; height: 24px; border-radius: 7px; background: linear-gradient(150deg,#3b82f6,#1e40af); display: inline-flex; align-items: center; justify-content: center; }
-  .foot-title { font-size: 11px; font-weight: 700; color: #0f172a; }
-  .foot-sub, .foot-mid, .foot-page { font-size: 8.5px; color: #94a3b8; letter-spacing: .04em; }
-  .foot-sub, .foot-page { text-transform: uppercase; }
-  .foot-mid { color: #64748b; }
-  .foot-page { text-align: right; line-height: 1.4; }
-  .foot-page strong { color: #1e40af; }
-  @media print {
-    html, body { background: #fff; width: 210mm; }
-    body { padding-top: 0; }
-    .pt-print-bar { display: none !important; }
-    .report-page { width: 210mm; height: 297mm; margin: 0; box-shadow: none; }
-    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-    tr, thead { break-inside: avoid; page-break-inside: avoid; }
-  }
-</style>
+<title>Lista de ACG — Programa de Apadrinhamento</title>
+{{ rel.estilos() }}
 </head>
 <body>
 
 <div class="pt-print-bar">
-  <span style="font-weight:600;">Aptidão ACG — {{ config.semestre }}{% if estatico %} (Exemplo){% endif %}</span>
+  <span style="font-weight:600;">Lista de ACG · {{ config.semestre }}{% if estatico %} (exemplo){% endif %}</span>
   <span style="display:flex;align-items:center;gap:16px;">
     {% if estatico %}
-      <a href="certificado.html">Ver Certificado</a>
-      <a href="resumo-semestre.html">Ver Resumo</a>
-      <a href="../index.html">← Voltar à apresentação</a>
+      <a href="certificado.html">Ver o certificado</a>
+      <a href="resumo-semestre.html">Ver o resumo</a>
+      <a href="../index.html">← Voltar pro site</a>
     {% else %}
-      <a href="/relatorio">← Voltar ao relatório</a>
+      <a href="/relatorio">← Voltar pros relatórios</a>
     {% endif %}
-    <button class="pt-print-btn" onclick="window.print()">&#128438; Salvar como PDF</button>
+    <button class="pt-print-btn" onclick="window.print()">Salvar como PDF</button>
   </span>
 </div>
 
-{% macro mark_svg(size=22) -%}
-<svg width="{{ size }}" height="{{ size }}" viewBox="2 2 28 28" fill="none">
-  <path d="M10 22 C5 22, 5 12, 10 12 C14 12, 16 20, 22 20 C27 20, 27 10, 22 10 C18 10, 16 18, 10 18" stroke="#ffffff" stroke-width="3" stroke-linecap="round" fill="none" />
-</svg>
-{%- endmacro %}
-
-{% macro footer(page_num) -%}
-<footer class="footer-wrap">
-  <div class="footer-line"></div>
-  <div class="footer">
-    <div class="foot-brand">
-      <span class="foot-mark">{{ mark_svg(18) }}</span>
-      <div>
-        <div class="foot-title">Programa de Apadrinhamento</div>
-        <div class="foot-sub">PUC Minas · Eng. Software</div>
-      </div>
-    </div>
-    <div class="foot-mid">{{ config.instituicao }} · Engenharia de Software</div>
-    <div class="foot-page"><strong>Aptidão ACG · {{ config.semestre }}</strong><br />Pág. {{ page_num }}/{{ total_paginas }} · Christiano Gonçalves</div>
-  </div>
-</footer>
-{%- endmacro %}
-
-{% macro tabela_aprovados(linhas) -%}
-<table style="--table-head:#ecfdf5;--table-accent:#047857;">
-  <thead>
-    <tr>
-      <th>Nome</th>
-      <th style="width:82px;">Matrícula</th>
-      {% if has_turno %}<th style="width:72px;">Turno</th>{% endif %}
-      <th>Email</th>
-      <th style="width:84px;text-align:right;">Certificado</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for p in linhas %}
-    <tr>
-      <td class="name">{{ p.nome }}</td>
-      <td class="num">{{ p.matricula }}</td>
-      {% if has_turno %}<td>{{ p.turno }}</td>{% endif %}
-      <td class="email">{{ p.email }}</td>
-      <td style="text-align:right;">
-        {% if estatico %}
-          <a href="certificado.html" class="link-btn">Ver</a>
-        {% else %}
-          <a href="/relatorio/certificado/{{ p.id }}" target="_blank" class="link-btn">Ver</a>
-        {% endif %}
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-{%- endmacro %}
-
-{% macro tabela_reportados(linhas) -%}
-<table style="--table-head:#fef2f2;--table-accent:#991b1b;">
-  <thead>
-    <tr>
-      <th>Nome</th>
-      <th style="width:82px;">Matrícula</th>
-      <th style="width:190px;">Email</th>
-      <th>Motivo</th>
-      <th style="width:78px;text-align:right;">Data</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for p in linhas %}
-    <tr>
-      <td class="name">{{ p.nome }}</td>
-      <td class="num">{{ p.matricula }}</td>
-      <td class="email" style="color:#64748b;">{{ p.email }}</td>
-      <td>{{ p.motivo_vermelho }}</td>
-      <td class="num" style="text-align:right;">{{ p.data_advertencia_grave.strftime('%d/%m/%Y') if p.data_advertencia_grave else '—' }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-{%- endmacro %}
-
-{% macro tabela_coordenacao(linhas) -%}
-<table style="--table-head:#eff6ff;--table-accent:#1e40af;">
-  <thead>
-    <tr>
-      <th>Nome</th>
-      <th style="width:98px;">Função</th>
-      <th style="width:84px;">Horas</th>
-      <th style="width:84px;text-align:right;">Certificado</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for p in linhas %}
-    <tr>
-      <td class="name">{{ p.nome }}</td>
-      <td>Coordenação</td>
-      <td class="num">05 horas</td>
-      <td style="text-align:right;">
-        {% if estatico %}
-          <a href="certificado.html" class="link-btn">Ver</a>
-        {% else %}
-          <a href="/relatorio/certificado/coordenacao/{{ p.indice }}" target="_blank" class="link-btn">Ver</a>
-        {% endif %}
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-{%- endmacro %}
+{% set doc_nome = "Lista de ACG · " ~ config.semestre %}
+{% set nao_recebem = total - aprovados|length %}
+{% set pct = ((aprovados|length / total) * 100)|round|int if total else 0 %}
 
 {% for pagina in paginas %}
-<section class="report-page">
+<section class="page">
   {% if loop.first %}
-  <header class="header">
-    <div class="topline">
-      <div class="brand">
-        <span class="mark">{{ mark_svg(22) }}</span>
-        <span>Programa de <span style="color:#bfdbfe;">Apadrinhamento</span></span>
-      </div>
-      <div class="doc-code">RELATÓRIO-001/{{ hoje.year }} · {{ hoje.strftime('%d/%m/%Y') }}</div>
-    </div>
-    <div class="title">Aptidão ACG — {{ config.semestre }}</div>
-    <div class="subtitle">Engenharia de Software · {{ config.instituicao }}</div>
-  </header>
+    {{ rel.cabecalho("Lista de ACG · " ~ config.semestre, "Engenharia de Software · " ~ config.instituicao, hoje) }}
   {% else %}
-  <header class="mini-header">
-    <div>
-      <div style="font-size:13px;font-weight:700;">{{ pagina.titulo }}</div>
-      <div class="mini-meta">Aptidão ACG · {{ config.semestre }} · Continuação</div>
-    </div>
-    <div class="mini-meta">{{ hoje.strftime('%d/%m/%Y') }}</div>
-  </header>
+  <div class="mini-header">
+    <strong>{{ "Recebem o certificado" if pagina.tipo == "aprovados" else ("Encaminhados ao professor" if pagina.tipo == "reportados" else "Coordenação") }}</strong>
+    <span>{{ doc_nome }} · continuação</span>
+  </div>
   {% endif %}
 
   <main class="content">
     {% if loop.first %}
-    <div class="cards">
-      <div class="card">
-        <div class="label">Inscritos</div>
-        <div class="card-number">{{ total }}</div>
-        <div class="hint">padrinhos no programa</div>
-        <div style="position:absolute;left:0;bottom:0;height:3px;width:100%;background:#2563eb;"></div>
+    <p class="intro">Resultado final do semestre: quem recebe o certificado de ACG e quem não recebe, com o motivo.</p>
+
+    <div class="nums">
+      <div><b>{{ total }}</b><span>participaram</span></div>
+      <div><b style="color:#047857;">{{ aprovados|length }}</b><span>recebem ACG</span></div>
+      <div><b style="color:#b91c1c;">{{ nao_recebem }}</b><span>sem ACG</span></div>
+      <div><b style="color:#1e40af;">{{ coordenacao|length }}</b><span>na coordenação · 5h</span></div>
+    </div>
+
+    <div style="margin-top:16px;">
+      <div class="barra" role="img" aria-label="{{ aprovados|length }} de {{ total }} recebem ACG">
+        {% if aprovados %}<div style="flex:{{ aprovados|length }};background:#10b981;"></div>{% endif %}
+        {% if nao_recebem - reportados|length > 0 %}<div style="flex:{{ nao_recebem - reportados|length }};background:#f59e0b;"></div>{% endif %}
+        {% if reportados %}<div style="flex:{{ reportados|length }};background:#dc2626;"></div>{% endif %}
       </div>
-      <div class="card">
-        <div class="label" style="color:#047857;">Aptos para ACG</div>
-        <div class="card-number">{{ aprovados|length }}</div>
-        <div class="hint">{{ ((aprovados|length / total) * 100)|round|int if total else 0 }}% do total</div>
-        <div style="position:absolute;left:0;bottom:0;height:3px;width:100%;background:#10b981;"></div>
-      </div>
-      {% if reportados %}
-      <div class="card">
-        <div class="label" style="color:#991b1b;">Reportados</div>
-        <div class="card-number">{{ reportados|length }}</div>
-        <div class="hint">ação ao prof. coord.</div>
-        <div style="position:absolute;left:0;bottom:0;height:3px;width:100%;background:#dc2626;"></div>
-      </div>
-      {% endif %}
-      <div class="card">
-        <div class="label" style="color:#1e40af;">Coordenação</div>
-        <div class="card-number">{{ coordenacao|length }}</div>
-        <div class="hint">certificados de 5 horas</div>
-        <div style="position:absolute;left:0;bottom:0;height:3px;width:100%;background:#2563eb;"></div>
+      <div class="legenda">
+        <span><i style="background:#10b981;"></i><strong>{{ pct }}%</strong> recebem ACG</span>
+        {% if nao_recebem - reportados|length > 0 %}<span><i style="background:#f59e0b;"></i>{{ nao_recebem - reportados|length }} sem ACG por cartões amarelos</span>{% endif %}
+        {% if reportados %}<span><i style="background:#dc2626;"></i>{{ reportados|length }} encaminhado{{ 's' if reportados|length != 1 }} ao professor</span>{% endif %}
       </div>
     </div>
     {% endif %}
 
-    {% if pagina.tipo == "coordenacao" %}
-    <div style="--section-color:#2563eb;">
-      <div class="section-title">
-        {{ pagina.titulo }}
-        <span class="badge" style="background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe;">{{ coordenacao|length }} certificado{{ 's' if coordenacao|length != 1 }}</span>
-      </div>
-      {{ tabela_coordenacao(pagina.linhas) }}
-    </div>
+    {% if pagina.tipo == "aprovados" %}
+      <h2><span>✓ Recebem o certificado</span><small style="color:#047857;">{{ aprovados|length }} nome{{ 's' if aprovados|length != 1 }} · {{ "%02d"|format(4) }} horas cada</small></h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th style="width:96px;">Matrícula</th>
+            {% if has_turno %}<th style="width:82px;">Turno</th>{% endif %}
+            <th>E-mail</th>
+            <th style="width:90px;text-align:right;">Certificado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in pagina.linhas %}
+          <tr>
+            <td><span class="pessoa"><span class="ini">{{ rel.iniciais(p.nome) }}</span>{{ p.nome }}</span></td>
+            <td class="num">{{ p.matricula }}</td>
+            {% if has_turno %}<td>{% if p.turno and p.turno != "—" %}<span class="turno">{{ p.turno }}</span>{% else %}—{% endif %}</td>{% endif %}
+            <td class="email">{{ p.email }}</td>
+            <td style="text-align:right;">
+              {% if estatico %}
+                <a href="certificado.html" class="link-btn">Ver</a>
+              {% else %}
+                <a href="/relatorio/certificado/{{ p.id }}" target="_blank" class="link-btn">Ver</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+          {% if not pagina.linhas %}
+          <tr><td colspan="5" style="padding:18px 0;color:#475569;">Ninguém na lista ainda.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+
     {% elif pagina.tipo == "reportados" %}
-    <div style="--section-color:#dc2626;">
-      <div class="section-title">
-        {{ pagina.titulo }}
-        <span class="badge" style="background:#fef2f2;color:#991b1b;border:1px solid #fecaca;">{{ reportados|length }} caso{{ 's' if reportados|length != 1 }}</span>
-      </div>
-      {{ tabela_reportados(pagina.linhas) }}
-    </div>
+      <h2><span>✕ Encaminhados ao professor</span><small style="color:#b91c1c;">{{ reportados|length }} caso{{ 's' if reportados|length != 1 }}</small></h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th style="width:96px;">Matrícula</th>
+            <th>Por quê</th>
+            <th style="width:80px;text-align:right;">Data</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in pagina.linhas %}
+          <tr>
+            <td><span class="pessoa"><span class="ini is-red">{{ rel.iniciais(p.nome) }}</span>{{ p.nome }}</span></td>
+            <td class="num">{{ p.matricula }}</td>
+            <td>{{ p.motivo_vermelho }}</td>
+            <td class="num" style="text-align:right;">{{ p.data_advertencia_grave.strftime('%d/%m/%Y') if p.data_advertencia_grave else '—' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
     {% else %}
-    <div style="--section-color:#10b981;">
-      <div class="section-title">
-        {{ pagina.titulo }}
-        <span class="badge" style="background:#ecfdf5;color:#047857;border:1px solid #d1fae5;">{{ aprovados|length }} padrinho{{ 's' if aprovados|length != 1 }}</span>
-      </div>
-      {{ tabela_aprovados(pagina.linhas) }}
-    </div>
+      <h2><span>Coordenação</span><small style="color:#1e40af;">{{ coordenacao|length }} certificado{{ 's' if coordenacao|length != 1 }} · 05 horas cada</small></h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th style="width:120px;">Função</th>
+            <th style="width:90px;">Horas</th>
+            <th style="width:90px;text-align:right;">Certificado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in pagina.linhas %}
+          <tr>
+            <td><span class="pessoa"><span class="ini">{{ rel.iniciais(p.nome) }}</span>{{ p.nome }}</span></td>
+            <td>Coordenação</td>
+            <td class="num">05 horas</td>
+            <td style="text-align:right;">
+              {% if estatico %}
+                <a href="certificado.html" class="link-btn">Ver</a>
+              {% else %}
+                <a href="/relatorio/certificado/coordenacao/{{ p.indice }}" target="_blank" class="link-btn">Ver</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     {% endif %}
   </main>
 
-  {{ footer(loop.index) }}
+  {{ rel.rodape(doc_nome, loop.index, total_paginas) }}
 </section>
 {% endfor %}
 

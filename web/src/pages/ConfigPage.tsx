@@ -55,7 +55,7 @@ export function ConfigPage() {
       <div className="pt-page-head">
         <div>
           <h1 className="pt-page-title">Configurações</h1>
-          <p className="pt-page-subtitle">Parâmetros do programa de mentoria</p>
+          <p className="pt-page-subtitle">Dados do semestre e de quem coordena o programa.</p>
         </div>
       </div>
 

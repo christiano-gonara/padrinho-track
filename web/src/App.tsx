@@ -2,6 +2,7 @@ import { HashRouter, BrowserRouter, Navigate, Route, Routes } from "react-router
 import { AppProvider } from "./context/AppContext";
 import { AdvertenciasPage } from "./pages/AdvertenciasPage";
 import { CalourosPage } from "./pages/CalourosPage";
+import { CriarContaPage } from "./pages/CriarContaPage";
 import { ConfigPage } from "./pages/ConfigPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { InicioSemestrePage } from "./pages/InicioSemestrePage";
@@ -25,6 +26,7 @@ function RouterSwitch() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/criar-conta" element={<CriarContaPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/padrinhos" element={<PadrinhosPage />} />
         <Route path="/padrinhos/:id" element={<PadrinhoDetalhePage />} />

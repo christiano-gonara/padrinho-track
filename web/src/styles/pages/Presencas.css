@@ -1,0 +1,53 @@
+.pt-pres-aviso {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--pt-amber-deep);
+}
+
+.pt-pres-seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.pt-pres-seg button {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid var(--pt-border);
+  background: #ffffff;
+  color: var(--pt-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.pt-pres-seg button:hover {
+  border-color: var(--pt-border-strong);
+}
+
+.pt-pres-seg button.is-foi {
+  background: var(--pt-brand-hover);
+  border-color: var(--pt-brand-hover);
+  color: #ffffff;
+}
+
+.pt-pres-seg button.is-justificou {
+  background: var(--pt-brand-tint-deep);
+  border-color: #93c5fd;
+  color: var(--pt-brand-deep);
+}
+
+.pt-pres-seg button.is-faltou {
+  background: #b45309;
+  border-color: #b45309;
+  color: #ffffff;
+}
+
+.pt-pres-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 20px;
+  border-top: 1px solid var(--pt-border);
+}

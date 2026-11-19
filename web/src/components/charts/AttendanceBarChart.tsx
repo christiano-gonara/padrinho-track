@@ -1,6 +1,6 @@
 import { formatarDataBr } from "../../data/scenarios";
 import { Reuniao } from "../../types/domain";
-import "./Charts.css";
+import "../../styles/components/Charts.css";
 
 export function AttendanceBarChart({ reunioes }: { reunioes: Reuniao[] }) {
   const ordered = [...reunioes].sort((a, b) => a.data.localeCompare(b.data));

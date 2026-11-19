@@ -1,18 +1,17 @@
 import { FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Lock, LogIn, Play, User } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Lock, Mail, PlayCircle } from "lucide-react";
+import { AuthLayout } from "../components/layout/AuthLayout";
 import { useApp } from "../context/AppContext";
-import "./LoginPage.css";
 
 export function LoginPage() {
-  const { loginLive, setScenarioId } = useApp();
+  const { loginLive, setScenarioId, notify } = useApp();
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [mostrar, setMostrar] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  const base = import.meta.env.BASE_URL;
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -24,8 +23,8 @@ export function LoginPage() {
     } catch (err) {
       setError(
         err instanceof Error
-          ? `${err.message} (No GitHub Pages sem servidor Python, use o modo Cenários abaixo.)`
-          : "Não foi possível conectar ao servidor."
+          ? `${err.message} Se você está na versão de demonstração, use o botão "Ver o sistema com dados de exemplo".`
+          : "Não deu pra conectar ao servidor. Tente de novo em instantes."
       );
     } finally {
       setLoading(false);
@@ -33,77 +32,95 @@ export function LoginPage() {
   }
 
   return (
-    <div className="pt-login-wrap">
-      <div className="pt-card pt-login-card">
-        <div className="pt-login-brand">
-          <img src={`${base}brand/padrinho-track-lockup.svg`} alt="Padrinho Track" />
-          <p>Acesso restrito à coordenação · PUC Minas</p>
+    <AuthLayout
+      titulo="O apadrinhamento inteiro, num lugar só."
+      texto="Duplas, reuniões, temas e certificados de ACG acompanhados sem planilha solta."
+      itens={[
+        "Veja quem está perto de perder a ACG antes que aconteça",
+        "Lance a presença em poucos cliques",
+        "Gere todos os certificados de uma vez",
+      ]}
+    >
+      <h1>Que bom te ver de novo</h1>
+      <p className="pt-auth-lede">Entre com seu e-mail da PUC pra acompanhar o semestre.</p>
+
+      {error && (
+        <div className="pt-alert pt-alert-danger" style={{ marginTop: 20 }} role="alert">
+          <span>{error}</span>
+        </div>
+      )}
+
+      <form onSubmit={onSubmit} className="pt-auth-campos">
+        <div className="pt-auth-campo">
+          <label className="pt-label" htmlFor="login-usuario">E-mail</label>
+          <div className="pt-auth-input">
+            <Mail size={18} aria-hidden="true" />
+            <input
+              id="login-usuario"
+              type="text"
+              autoComplete="username"
+              placeholder="seunome@sga.pucminas.br"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
         </div>
 
-        {error && (
-          <div className="pt-alert pt-alert-danger" style={{ marginBottom: 16 }}>
-            <span>{error}</span>
+        <div className="pt-auth-campo">
+          <div className="pt-auth-linha">
+            <label className="pt-label" htmlFor="login-senha">Senha</label>
+            <button
+              type="button"
+              className="pt-auth-link"
+              style={{ border: 0, background: "transparent", padding: 0 }}
+              onClick={() => notify("Peça pra coordenação geral trocar sua senha.", "info")}
+            >
+              Esqueci minha senha
+            </button>
           </div>
-        )}
-
-        <form onSubmit={onSubmit} className="pt-stack-sm" style={{ gap: 14 }}>
-          <div className="pt-field">
-            <label className="pt-label" htmlFor="username">Usuário</label>
-            <div className="pt-input-wrap">
-              <span className="pt-input-icon"><User size={15} /></span>
-              <input
-                id="username"
-                className="pt-input"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="admin"
-                required
-              />
-            </div>
+          <div className="pt-auth-input">
+            <Lock size={18} aria-hidden="true" />
+            <input
+              id="login-senha"
+              type={mostrar ? "text" : "password"}
+              autoComplete="current-password"
+              placeholder="Sua senha"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <button
+              type="button"
+              className="pt-auth-olho"
+              aria-label={mostrar ? "Esconder senha" : "Mostrar senha"}
+              onClick={() => setMostrar((v) => !v)}
+            >
+              {mostrar ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
           </div>
+        </div>
 
-          <div className="pt-field">
-            <label className="pt-label" htmlFor="password">Senha</label>
-            <div className="pt-input-wrap">
-              <span className="pt-input-icon"><Lock size={15} /></span>
-              <input
-                id="password"
-                className="pt-input"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-              />
-            </div>
-          </div>
-
-          <button type="submit" className="pt-btn pt-btn-primary pt-btn-lg" disabled={loading}>
-            <LogIn size={16} /> {loading ? "Entrando..." : "Entrar no servidor"}
-          </button>
-        </form>
-
-        <div className="pt-login-divider">ou testar sem servidor</div>
-
-        <button
-          type="button"
-          className="pt-btn pt-btn-soft"
-          style={{ width: "100%" }}
-          onClick={() => {
-            setScenarioId("fechamento");
-            navigate("/dashboard");
-          }}
-        >
-          <Play size={15} /> Entrar no Modo Cenários Interativos
+        <button type="submit" className="pt-btn pt-btn-primary pt-auth-btn" disabled={loading}>
+          {loading ? "Entrando..." : "Entrar"} {!loading && <ArrowRight size={18} />}
         </button>
+      </form>
 
-        <div style={{ marginTop: 18, textAlign: "center" }}>
-          <Link to="/" className="pt-back-link" style={{ margin: 0 }}>
-            <ArrowLeft size={14} /> Voltar para apresentação
-          </Link>
-        </div>
-      </div>
-    </div>
+      <p className="pt-auth-alt">
+        Ainda não tem conta? <Link to="/criar-conta">Criar conta</Link>
+      </p>
+
+      <div className="pt-auth-ou">ou só quer conhecer?</div>
+      <button
+        type="button"
+        className="pt-btn pt-btn-ghost pt-auth-btn"
+        onClick={() => {
+          setScenarioId("fechamento");
+          navigate("/dashboard");
+        }}
+      >
+        <PlayCircle size={18} /> Ver o sistema com dados de exemplo
+      </button>
+    </AuthLayout>
   );
 }

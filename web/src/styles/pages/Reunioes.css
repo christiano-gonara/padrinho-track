@@ -1,0 +1,76 @@
+.pt-reuniao {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 14px;
+}
+
+.pt-reuniao-data {
+  width: 72px;
+  flex-shrink: 0;
+  padding: 10px 0;
+  border-radius: 14px;
+  background: var(--pt-brand-tint);
+  text-align: center;
+}
+
+.pt-reuniao-data strong {
+  display: block;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--pt-brand-deep);
+}
+
+.pt-reuniao-data span {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--pt-brand-hover);
+}
+
+.pt-reuniao-info {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.pt-reuniao-info h2 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--pt-ink);
+}
+
+.pt-reuniao-info p {
+  margin: 4px 0 0;
+  font-size: 15px;
+  color: #475569;
+}
+
+.pt-reuniao-pres {
+  flex: 0 1 280px;
+}
+
+.pt-reuniao-pres > div:last-child {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--pt-text);
+}
+
+.pt-reuniao-pres strong {
+  color: var(--pt-ink);
+}
+
+.pt-reuniao-pres .is-falta strong {
+  color: var(--pt-amber-deep);
+}
+
+.pt-reuniao-acoes {
+  display: flex;
+  gap: 8px;
+}

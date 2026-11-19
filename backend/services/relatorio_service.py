@@ -8,7 +8,7 @@ from backend.models import (
     get_todos_padrinhos,
     get_todos_temas,
 )
-from backend.repositories import advertencia_repository, match_repository
+from backend.repositories import advertencia_repository, match_repository, reuniao_repository
 from backend.services.certificado_service import listar_coordenacao_certificados
 from backend.services.status_service import calcular_todos_status
 
@@ -87,8 +87,8 @@ def montar_contexto_aptidao_acg(config):
             aprovados.append(row)
 
     paginas = []
-    primeira_qtd = 15
-    continuacao_qtd = 24
+    primeira_qtd = 12
+    continuacao_qtd = 20
     if aprovados:
         paginas.append({
             "tipo": "aprovados",
@@ -208,6 +208,7 @@ def montar_contexto_resumo_semestre(config):
             "situacao": t["situacao"] or "pendente",
         })
 
+    contagem_presenca = {c["reuniao_id"]: c for c in reuniao_repository.contar_presencas_por_reuniao()}
     reunioes_resumo = []
     for r in sorted(reunioes, key=lambda item: item["data"] or ""):
         data_reuniao = None
@@ -216,10 +217,15 @@ def montar_contexto_resumo_semestre(config):
                 data_reuniao = datetime.strptime(r["data"], "%Y-%m-%d").date()
             except Exception:
                 pass
+        c = contagem_presenca.get(r["id"])
+        presentes = (c["presentes"] or 0) if c else None
         reunioes_resumo.append({
             "data": data_reuniao,
             "tema": r["tema"] or "Reunião",
             "descricao": r["descricao"] or "",
+            "presentes": presentes,
+            "justificadas": 0,
+            "ausentes": max(0, (c["total"] or 0) - presentes) if c else 0,
         })
 
     turno_counter = Counter(p["turno"] for p in padrinhos if p["turno"])

@@ -1,0 +1,131 @@
+/* Calouros, Duplas e detalhe do padrinho */
+
+.pt-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.pt-padrinho-kicker {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--pt-brand-deep);
+}
+
+.pt-padrinho-nome {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--pt-ink);
+}
+
+.pt-padrinho-nome:hover {
+  color: var(--pt-brand-hover);
+}
+
+.pt-calouro {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 12px;
+}
+
+.pt-calouro-nome {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--pt-ink);
+}
+
+.pt-calouro-tel {
+  font-size: 14px;
+  color: #475569;
+}
+
+/* Duplas: linha ligando o padrinho aos calouros */
+.pt-dupla-body {
+  display: flex;
+  gap: 12px;
+  padding: 0 20px 18px 31px;
+}
+
+.pt-dupla-linha {
+  width: 18px;
+  flex-shrink: 0;
+  border-left: 2px solid var(--pt-brand-soft);
+  border-bottom: 2px solid var(--pt-brand-soft);
+  border-bottom-left-radius: 10px;
+  margin-bottom: 22px;
+}
+
+.pt-dupla-calouros {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 14px;
+}
+
+.pt-dupla-calouro {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--pt-bg);
+  border: 1px solid var(--pt-border);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--pt-ink);
+}
+
+/* Detalhe do padrinho */
+.pt-perfil {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+}
+
+.pt-perfil-nome {
+  margin: 0;
+  font-family: var(--pt-font-display);
+  font-size: 26px;
+  letter-spacing: -0.02em;
+  color: var(--pt-ink);
+}
+
+.pt-perfil-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+  margin-top: 8px;
+  font-size: 14.5px;
+  color: #475569;
+}
+
+.pt-perfil-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pt-cartao-grande {
+  width: 26px;
+  height: 36px;
+  border-radius: 5px;
+  border: 2px dashed var(--pt-border-strong);
+}
+
+.pt-cartao-grande.is-amarelo {
+  background: #f59e0b;
+  border: 2px solid #f59e0b;
+}
+
+.pt-cartao-grande.is-vermelho {
+  background: #dc2626;
+  border: 2px solid #dc2626;
+}

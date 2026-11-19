@@ -1,4 +1,4 @@
-import "./MetricCard.css";
+import "../../styles/components/MetricCard.css";
 
 export function MetricCard({
   label,

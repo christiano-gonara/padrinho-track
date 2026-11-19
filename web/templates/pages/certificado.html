@@ -5,7 +5,7 @@
 <title>Certificado — {{ padrinho.nome }} — Programa de Apadrinhamento</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@600&display=swap" rel="stylesheet" />
 <style>
   @page { size: A4 landscape; margin: 0; }
   * { box-sizing: border-box; }
@@ -105,12 +105,12 @@
   <span style="font-weight:600;">Certificado — {{ padrinho.nome }}{% if estatico %} (Exemplo){% endif %}</span>
   <span style="display:flex;align-items:center;gap:16px;">
     {% if estatico %}
-      <a href="relatorio-aptidao.html">Ver Relatório ACG</a>
-      <a href="../index.html">← Voltar à apresentação</a>
+      <a href="relatorio-aptidao.html">Ver a lista de ACG</a>
+      <a href="../index.html">← Voltar pro site</a>
     {% else %}
-      <a href="/relatorio/aptidao">← Voltar ao relatório</a>
+      <a href="/relatorio/aptidao">← Voltar pra lista de ACG</a>
     {% endif %}
-    <button class="pt-print-btn" onclick="window.print()">&#128438; Salvar como PDF</button>
+    <button class="pt-print-btn" onclick="window.print()">Salvar como PDF</button>
   </span>
 </div>
 
@@ -132,57 +132,46 @@
 
   <div class="cert-content">
 
-    <!-- Rótulo -->
-    <div style="font-family:'Inter',system-ui,sans-serif;font-size:12px;color:#1d4ed8;letter-spacing:0.28em;text-transform:uppercase;font-weight:900;margin:42px 0 8px;">Certificado de Participação</div>
-    <div style="font-family:'Inter',sans-serif;font-size:13px;color:#64748b;letter-spacing:0.04em;margin-bottom:22px;">Este certificado é concedido a</div>
+    <div style="font-size:15px;color:#1d4ed8;letter-spacing:0.26em;text-transform:uppercase;font-weight:900;margin:44px 0 0;">Certificado de participação</div>
+    <div style="font-size:17px;color:#475569;margin-top:10px;">Este certificado é de</div>
 
-    <!-- Nome -->
-    <div style="font-family:'Playfair Display',Georgia,serif;font-size:52px;font-weight:600;color:#0f172a;letter-spacing:-0.01em;line-height:1.05;margin-bottom:16px;">{{ padrinho.nome }}</div>
+    <div style="font-family:'Playfair Display',Georgia,serif;font-size:60px;font-weight:600;color:#0f172a;letter-spacing:-0.01em;line-height:1.05;margin-top:10px;">{{ padrinho.nome }}</div>
 
-    <!-- Função (pílula) -->
-    <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 17px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;margin-bottom:26px;">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Função e horas em destaque -->
+    <div style="display:inline-flex;align-items:center;gap:10px;margin-top:18px;padding:10px 26px;border-radius:999px;background:#1d4ed8;color:#ffffff;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" />
         <circle cx="9.5" cy="7" r="4" />
         <path d="m16.5 11.5 2 2 3.5-4" />
       </svg>
-      <span style="font-family:'Inter',sans-serif;font-size:13.5px;font-weight:800;color:#1e40af;letter-spacing:0.01em;">{{ funcao_certificado.titulo }}</span>
+      <span style="font-size:19px;font-weight:800;">{{ funcao_certificado.titulo }}</span>
+      <span style="width:1px;height:18px;background:rgba(255,255,255,0.45);"></span>
+      <span style="font-size:19px;font-weight:800;">{{ "%02d"|format(horas_acg|default(4)) }} horas de ACG</span>
     </div>
 
-    <!-- Divisor decorativo com losango -->
-    <div style="display:flex;align-items:center;justify-content:center;gap:12px;width:280px;margin-bottom:26px;">
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;width:260px;margin-top:24px;">
       <div style="flex:1;height:1px;background:linear-gradient(to right,rgba(37,99,235,0),#93c5fd);"></div>
-      <div style="width:7px;height:7px;background:#2563eb;transform:rotate(45deg);border-radius:1px;"></div>
+      <div style="width:8px;height:8px;background:#2563eb;transform:rotate(45deg);border-radius:1px;"></div>
       <div style="flex:1;height:1px;background:linear-gradient(to left,rgba(37,99,235,0),#93c5fd);"></div>
     </div>
 
-    <!-- Texto do certificado -->
-    <p style="font-size:14.5px;color:#334155;line-height:1.85;max-width:720px;margin:0 0 auto;">
-      em reconhecimento à sua valiosa participação como
-      <strong style="color:#0f172a;">{{ funcao_certificado.texto }}</strong> no
-      <strong style="color:#0f172a;">Projeto de Apadrinhamento de Calouros</strong>,
-      realizado no semestre <strong style="color:#0f172a;">{{ semestre }}</strong>,
-      com dedicação total de <strong style="color:#0f172a;">{{ "%02d"|format(horas_acg|default(4)) }} horas</strong> de
-      Atividade Complementar (ACG). O projeto é uma iniciativa do Departamento de
-      Engenharia de Software da <strong style="color:#0f172a;">PUC Minas</strong>,
-      em parceria com os alunos, com o objetivo de facilitar a transição dos
-      calouros ao ambiente universitário, promovendo acolhimento e integração acadêmica.
+    <p style="font-size:18.5px;color:#334155;line-height:1.7;max-width:730px;margin:22px 0 auto;">
+      Pela participação como <strong style="color:#0f172a;">{{ funcao_certificado.texto }}</strong> no
+      <strong style="color:#0f172a;">Projeto de Apadrinhamento de Calouros</strong> da
+      <strong style="color:#0f172a;">Engenharia de Software da PUC Minas</strong>, no semestre
+      <strong style="color:#0f172a;">{{ semestre }}</strong>, ajudando quem chegou a se sentir em casa na universidade.
     </p>
 
-    <!-- Selo central, informações flanqueando -->
-    <div style="display:flex;align-items:center;justify-content:center;gap:44px;margin-top:34px;">
-      <!-- Emissão (esquerda) -->
-      <div style="width:236px;text-align:right;display:flex;flex-direction:column;gap:7px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#64748b;letter-spacing:0.06em;text-transform:uppercase;line-height:1.45;">Emitido em {{ hoje.strftime('%d/%m/%Y') }}<br>Belo Horizonte · MG</div>
-      </div>
+    <!-- Data, selo e assinatura -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:44px;margin-top:28px;">
+      <div style="width:236px;text-align:right;font-size:14px;font-weight:600;color:#334155;line-height:1.5;font-variant-numeric:tabular-nums;">Emitido em {{ hoje.strftime('%d/%m/%Y') }}<br>Belo Horizonte · MG</div>
 
-      <!-- Selo / medalhão (centro) -->
       <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
-        <div style="position:relative;width:72px;height:72px;">
+        <div style="position:relative;width:74px;height:74px;">
           <div style="position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,#3b82f6,#1e40af,#3b82f6,#1e40af,#3b82f6);"></div>
           <div style="position:absolute;inset:5px;border-radius:50%;background:#ffffff;"></div>
           <div style="position:absolute;inset:9px;border-radius:50%;background:linear-gradient(150deg,#3b82f6,#1e40af);display:flex;align-items:center;justify-content:center;box-shadow:inset 0 2px 6px rgba(0,0,0,0.12);">
-            <svg width="34" height="34" viewBox="2 2 28 28" fill="none">
+            <svg width="34" height="34" viewBox="2 2 28 28" fill="none" aria-hidden="true">
               <path d="M10 22 C5 22, 5 12, 10 12 C14 12, 16 20, 22 20 C27 20, 27 10, 22 10 C18 10, 16 18, 10 18" stroke="#ffffff" stroke-width="3" stroke-linecap="round" fill="none" />
             </svg>
           </div>
@@ -193,10 +182,10 @@
         </div>
       </div>
 
-      <!-- Coordenação (direita) -->
-      <div style="width:236px;text-align:left;display:flex;flex-direction:column;gap:7px;">
-        <div style="width:210px;height:1.5px;background:#0f172a;margin-bottom:7px;"></div>
-        <div style="font-size:14px;color:#0f172a;line-height:1.35;"><span style="font-weight:600;">{{ config.professor_coordenador_certificado or config.professor_coordenador }}</span><br><span style="font-size:11.5px;color:#64748b;">Coordenador do Programa</span></div>
+      <div style="width:236px;text-align:left;">
+        <div style="width:214px;height:1.5px;background:#0f172a;margin-bottom:8px;"></div>
+        <div style="font-size:16px;font-weight:700;color:#0f172a;">{{ config.professor_coordenador_certificado or config.professor_coordenador }}</div>
+        <div style="font-size:13px;color:#475569;margin-top:2px;">Coordenador do Programa</div>
       </div>
     </div>
 
