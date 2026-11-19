@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<title>Certificado — Alice Mendonça — Programa de Apadrinhamento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@600&display=swap" rel="stylesheet" />
+<style>
+  @page { size: A4 landscape; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #e2e8f0; font-family: "Inter", system-ui, sans-serif; }
+
+  /* Barra de ação (somente tela) */
+  .pt-print-bar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: #0f172a; color: #fff;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 24px; font-size: 13px; gap: 12px;
+  }
+  .pt-print-bar a { color: rgba(255,255,255,0.72); text-decoration: none; font-size: 12.5px; }
+  .pt-print-bar a:hover { color: #fff; }
+  .pt-print-btn {
+    background: #2563eb; color: #fff; border: none; border-radius: 8px;
+    padding: 7px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .pt-print-btn:hover { background: #1d4ed8; }
+  body { padding-top: 46px; }
+
+  /* Folha do certificado */
+  .cert-sheet {
+    width: 1040px; height: 735px;
+    margin: 28px auto;
+    background:
+      radial-gradient(circle at 12% 12%, #eff6ff 0%, rgba(239,246,255,0) 38%),
+      radial-gradient(circle at 88% 88%, #dbeafe 0%, rgba(219,234,254,0) 38%),
+      #ffffff;
+    box-shadow: 0 16px 50px rgba(15, 23, 42, 0.16);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Faixas azul cobalto nos cantos superior/inferior */
+  .cert-band-top {
+    position: absolute; top: 0; left: 0; right: 0; height: 8px;
+    background: linear-gradient(90deg, #1e40af 0%, #3b82f6 50%, #1e40af 100%);
+  }
+  .cert-band-bottom {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 8px;
+    background: linear-gradient(90deg, #1e40af 0%, #3b82f6 50%, #1e40af 100%);
+  }
+
+  /* Moldura dupla */
+  .cert-frame {
+    position: absolute; inset: 26px;
+    border: 1.5px solid #bfdbfe;
+    border-radius: 6px;
+  }
+  .cert-frame::before {
+    content: ''; position: absolute; inset: 6px;
+    border: 1px solid #dbeafe; border-radius: 3px;
+  }
+
+  /* Ornamentos de canto */
+  .cert-corner {
+    position: absolute; width: 26px; height: 26px;
+    border-color: #2563eb; border-style: solid; border-width: 0;
+  }
+  .cert-corner.tl { top: 34px; left: 34px; border-top-width: 2px; border-left-width: 2px; border-top-left-radius: 4px; }
+  .cert-corner.tr { top: 34px; right: 34px; border-top-width: 2px; border-right-width: 2px; border-top-right-radius: 4px; }
+  .cert-corner.bl { bottom: 34px; left: 34px; border-bottom-width: 2px; border-left-width: 2px; border-bottom-left-radius: 4px; }
+  .cert-corner.br { bottom: 34px; right: 34px; border-bottom-width: 2px; border-right-width: 2px; border-bottom-right-radius: 4px; }
+
+  /* Marca d'água */
+  .cert-watermark {
+    position: absolute; right: -60px; bottom: -70px;
+    opacity: 0.045; pointer-events: none;
+  }
+
+  .cert-content {
+    position: relative; z-index: 2;
+    height: 100%;
+    padding: 56px 86px 48px;
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center;
+  }
+  .cert-institutional-logos {
+    position: absolute; top: 58px; left: 72px; z-index: 3;
+    width: 250px; height: auto;
+  }
+
+  @media print {
+    @page { size: A4 landscape; margin: 0; }
+    * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    html, body { background: #fff; margin: 0; padding: 0; width: 297mm; height: 210mm; }
+    .pt-print-bar { display: none !important; }
+    .cert-sheet { width: 297mm; height: 210mm; margin: 0; box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="pt-print-bar">
+  <span style="font-weight:600;">Certificado — Alice Mendonça (Exemplo)</span>
+  <span style="display:flex;align-items:center;gap:16px;">
+    
+      <a href="relatorio-aptidao.html">Ver a lista de ACG</a>
+      <a href="../index.html">← Voltar pro site</a>
+    
+    <button class="pt-print-btn" onclick="window.print()">Salvar como PDF</button>
+  </span>
+</div>
+
+<div class="cert-sheet">
+
+  <div class="cert-band-top"></div>
+  <div class="cert-band-bottom"></div>
+  <div class="cert-frame"></div>
+  <div class="cert-corner tl"></div>
+  <div class="cert-corner tr"></div>
+  <div class="cert-corner bl"></div>
+  <div class="cert-corner br"></div>
+  <img class="cert-institutional-logos" src="../static/images/certificado_icones.png" alt="Engenharia de Software, ICEI e PUC Minas" />
+
+  <!-- Marca d'água (knot grande) -->
+  <svg class="cert-watermark" width="420" height="420" viewBox="2 2 28 28" fill="none">
+    <path d="M10 22 C5 22, 5 12, 10 12 C14 12, 16 20, 22 20 C27 20, 27 10, 22 10 C18 10, 16 18, 10 18" stroke="#1e40af" stroke-width="2.2" stroke-linecap="round" fill="none" />
+  </svg>
+
+  <div class="cert-content">
+
+    <div style="font-size:15px;color:#1d4ed8;letter-spacing:0.26em;text-transform:uppercase;font-weight:900;margin:44px 0 0;">Certificado de participação</div>
+    <div style="font-size:17px;color:#475569;margin-top:10px;">Este certificado é de</div>
+
+    <div style="font-family:'Playfair Display',Georgia,serif;font-size:60px;font-weight:600;color:#0f172a;letter-spacing:-0.01em;line-height:1.05;margin-top:10px;">Alice Mendonça</div>
+
+    <!-- Função e horas em destaque -->
+    <div style="display:inline-flex;align-items:center;gap:10px;margin-top:18px;padding:10px 26px;border-radius:999px;background:#1d4ed8;color:#ffffff;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" />
+        <circle cx="9.5" cy="7" r="4" />
+        <path d="m16.5 11.5 2 2 3.5-4" />
+      </svg>
+      <span style="font-size:19px;font-weight:800;">Madrinha</span>
+      <span style="width:1px;height:18px;background:rgba(255,255,255,0.45);"></span>
+      <span style="font-size:19px;font-weight:800;">04 horas de ACG</span>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;width:260px;margin-top:24px;">
+      <div style="flex:1;height:1px;background:linear-gradient(to right,rgba(37,99,235,0),#93c5fd);"></div>
+      <div style="width:8px;height:8px;background:#2563eb;transform:rotate(45deg);border-radius:1px;"></div>
+      <div style="flex:1;height:1px;background:linear-gradient(to left,rgba(37,99,235,0),#93c5fd);"></div>
+    </div>
+
+    <p style="font-size:18.5px;color:#334155;line-height:1.7;max-width:730px;margin:22px 0 auto;">
+      Pela participação como <strong style="color:#0f172a;">madrinha</strong> no
+      <strong style="color:#0f172a;">Projeto de Apadrinhamento de Calouros</strong> da
+      <strong style="color:#0f172a;">Engenharia de Software da PUC Minas</strong>, no semestre
+      <strong style="color:#0f172a;">2026/1</strong>, ajudando quem chegou a se sentir em casa na universidade.
+    </p>
+
+    <!-- Data, selo e assinatura -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:44px;margin-top:28px;">
+      <div style="width:236px;text-align:right;font-size:14px;font-weight:600;color:#334155;line-height:1.5;font-variant-numeric:tabular-nums;">Emitido em 20/07/2026<br>Belo Horizonte · MG</div>
+
+      <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
+        <div style="position:relative;width:74px;height:74px;">
+          <div style="position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,#3b82f6,#1e40af,#3b82f6,#1e40af,#3b82f6);"></div>
+          <div style="position:absolute;inset:5px;border-radius:50%;background:#ffffff;"></div>
+          <div style="position:absolute;inset:9px;border-radius:50%;background:linear-gradient(150deg,#3b82f6,#1e40af);display:flex;align-items:center;justify-content:center;box-shadow:inset 0 2px 6px rgba(0,0,0,0.12);">
+            <svg width="34" height="34" viewBox="2 2 28 28" fill="none" aria-hidden="true">
+              <path d="M10 22 C5 22, 5 12, 10 12 C14 12, 16 20, 22 20 C27 20, 27 10, 22 10 C18 10, 16 18, 10 18" stroke="#ffffff" stroke-width="3" stroke-linecap="round" fill="none" />
+            </svg>
+          </div>
+        </div>
+        <div style="display:flex;gap:5px;margin-top:-4px;">
+          <div style="width:9px;height:20px;background:#1e40af;clip-path:polygon(0 0,100% 0,100% 100%,50% 78%,0 100%);"></div>
+          <div style="width:9px;height:20px;background:#3b82f6;clip-path:polygon(0 0,100% 0,100% 100%,50% 78%,0 100%);"></div>
+        </div>
+      </div>
+
+      <div style="width:236px;text-align:left;">
+        <div style="width:214px;height:1.5px;background:#0f172a;margin-bottom:8px;"></div>
+        <div style="font-size:16px;font-weight:700;color:#0f172a;">Prof. Laerte Xavier</div>
+        <div style="font-size:13px;color:#475569;margin-top:2px;">Coordenador do Programa</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
